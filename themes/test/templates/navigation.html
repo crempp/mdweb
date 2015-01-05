@@ -1,0 +1,6 @@
+Navigation
+<ul>
+{% for name, nav in navigation['children'].iteritems() %}
+    <a href="{{ nav.path }}">{{ name }}</a>
+{% endfor %}
+</ul>

@@ -1,0 +1,16 @@
+<!doctype html>
+<title>MDWeb</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+<div class="pagewrap">
+  <h1>MDWeb Demo</h1>
+
+  <div class="metanav">
+      {% include 'navigation.html' %}
+  </div>
+
+  {% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+  {% endfor %}
+
+  {% block body %}{% endblock %}
+</div>

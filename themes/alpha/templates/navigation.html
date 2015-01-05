@@ -1,0 +1,22 @@
+<nav id="nav">
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li>
+            <a href="" class="icon fa-angle-down">Menu</a>
+            <ul>
+                {% for name, nav in navigation['children'].iteritems() %}
+                    <li>
+                        <a href="{{ nav.path }}">{{ name }}</a>
+                        {% if nav.children %}
+                        <ul>
+                            {% for sub_name, sub_nav in nav['children'].iteritems() %}
+                            <li><a href="{{ sub_nav.path }}">{{ sub_name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+</nav>
