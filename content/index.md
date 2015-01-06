@@ -2,6 +2,7 @@
 Title: MDWeb
 Description: This description will go in the meta description tag
 Order: 1
+Template: page_home.html
 */
 
 Markdown based web site framework.

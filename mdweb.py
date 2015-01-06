@@ -54,6 +54,7 @@ class PageMetaInf(object):
     description = None
     order = 0
     author = None
+    template = None
 
 
 class Index(View):
@@ -113,7 +114,13 @@ class Index(View):
             'page': parse_markdown(page_markdown),
             'meta': meta_inf,
         }
-        return render_template('page.html', **context)
+
+        if 'template' in meta_inf.keys() and meta_inf['template']:
+            page_template = meta_inf['template']
+        else:
+            page_template = 'page.html'
+
+        return render_template(page_template, **context)
 
 
 def parse_markdown(page_markdown):
@@ -133,7 +140,7 @@ def parse_meta_inf(meta_inf_string):
         if l == '':
             continue
         (k, v) = l.split(':')
-        meta_inf[k.lower()] = v
+        meta_inf[k.lower()] = v.strip()
 
     return meta_inf
 
