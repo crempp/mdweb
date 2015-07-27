@@ -1,41 +1,44 @@
 #!/usr/bin/env python
 """
-MDWeb is a markdown based web site framework.  MDWeb is painstakingly designed to be as
-minimalistic as possible while taking less than 5 minutes to setup and less than one minute to add
-content.  This project was borne out of my frustration with maintaining websites and adding
-content. I'm a firm believer in the ethos that CMS is an evil that should be rid from this world.
-I spent years fighting horrific battles with enemies such as Drupal, Wordpress and Joomla. The
-things I saw during those dark days can not be unseen.  After years of batlle, this weary web
-development soldier built himself a a tiny oasis. This is MDWeb, I hope you find respite in it.
+MDWeb is a markdown based web site framework.  MDWeb is painstakingly designed
+to be as minimalistic as possible while taking less than 5 minutes to setup
+and less than one minute to add content.  This project was borne out of my
+frustration with maintaining websites and adding content. I'm a firm believer
+in the ethos that CMS is an evil that should be rid from this world. I spent
+years fighting horrific battles with enemies such as Drupal, Wordpress and
+Joomla. The things I saw during those dark days can not be unseen.  After
+years of batlle, this weary web development soldier built himself a a tiny
+oasis. This is MDWeb, I hope you find respite in it.
 
-Site content is managed in Markdown format. There are a few deviations from standard markdown.
-The begining of each file contains a meta-information section which is parsed at server start.
+Site content is managed in Markdown format. There are a few deviations from
+standard markdown. The begining of each file contains a meta-information
+section which is parsed at server start.
 
 Other content notes
 * Each folder defines a new section in the navigation structure.
-* If a file named index.md exists it is used as the landing page for that section in the
- navigation.
+* If a file named index.md exists it is used as the landing page for that
+  section in thenavigation.
 
 
-  System Events
-    pre-boot: Triggered at the beginning of the Site instantiation
+System Events
+  pre-boot: Triggered at the beginning of the Site instantiation
 
-    post-boot: Triggered at the end of the Site instantiation after config
-        is loaded, initial navigation hierarchy is created, ...
+  post-boot: Triggered at the end of the Site instantiation after config
+             is loaded, initial navigation hierarchy is created, ...
 
-    pre-config :
+  pre-config :
 
-    post-config :
+  post-config :
 
-    pre-app-start :
+  pre-app-start :
 
-    post-app-start :
+  post-app-start :
 
-    pre-content-scan :
+  pre-content-scan :
 
-    post-content-scan :
+  post-content-scan :
 
-    post-boot :
+  post-boot :
 
 """
 
@@ -214,7 +217,6 @@ class Index(View):
             page_template = 'page.html'
 
         context = {
-            'navigation': None,
             'page': page.page_html,
             'meta': page.meta_inf,
         }
@@ -225,29 +227,69 @@ class Index(View):
         return page.page_cache
 
 
+class NavigationLevel(object):
+    """TODO: Describe"""
+    def __init__(self, name='', page=None):
+        """Create a navigation instance """
+        self.name = name
+        self.page = page
+        self.children = {}
+
+    @property
+    def path(self):
+        return self.page.path
+
+    @property
+    def order(self):
+        return self.page.meta_inf.order
+
+    @property
+    def meta(self):
+        return self.page.meta_inf
+
+    # @property
+    # def nav_name(self):
+    #     return self.page.meta_inf.nav_name
+
+    def add_page_at_path(self, section_path, page):
+        # If this is the root path (home) set the
+        if len(section_path) is 1 and section_path[0] == '':
+            self.page = page
+        else:
+            s = section_path.pop(0)
+            if not self.has_child(s):
+                p = page if len(section_path) == 0 else None
+                self.add_child(NavigationLevel(s, page=p))
+                if len(section_path) > 0:
+                    self.children[s].add_page_at_path(section_path, page)
+            else:
+                self.children[s].add_page_at_path(section_path, page)
+
+    def add_child(self, child_nav_level):
+        self.children[child_nav_level.name] = child_nav_level
+        return child_nav_level
+
+    def get_child(self, name):
+        return self.children[name]
+
+    def has_child(self, name):
+        return name in self.children
+
 class Navigation(object):
     """ MDWeb navigation object"""
 
-    class NavLevel(object):
-        def __init__(self, page):
-            """Create a navigation instance """
-            self.path = page.path
-            self.order = page.meta_inf.order
-            self.meta = page.meta_inf
-            self.index_hmtl = None
-            self.children = {}
-
     def __init__(self):
         """Create a navigation instance """
-        self.nav = {}
+        self.nav = NavigationLevel()
 
-    def addPage(self, section_path, page):
+    def add_page_at_path(self, section_path, page):
         """Add a page to the navigation at the location defined by section_path
 
         :param section_path: List of section names representing the path in nav
         :param page: The page object to add to the navigation
         """
-        level = Navigation.NavLevel(page)
+
+        self.nav.add_page_at_path(section_path, page)
 
 
 class MDSite(Flask):
@@ -272,21 +314,29 @@ class MDSite(Flask):
         self.app_options = app_options
         self.pages = []
 
+        #: START THE BOOT PROCESS
         mdw_signaler['pre-boot'].send(self)
         self._pre_boot()
 
+        #: START THE FLASK APP
+        # We must start the app straight away because we can't get the config
+        # easily until we do. The rest of the boot tasks will require the
+        # config.
         mdw_signaler['pre-app-start'].send(self)
         self._create_app()
         mdw_signaler['post-app-start'].send(self)
 
+        #: LOAD THE CONFIG
         mdw_signaler['pre-config'].send(self)
         self._load_config(config_filename)
         mdw_signaler['post-config'].send(self)
 
+        #: SCAN FOR CONTENT
         mdw_signaler['pre-content-scan'].send(self)
         self._content_scan()
         mdw_signaler['post-content-scan'].send(self)
 
+        #: FINISH THINGS UP
         mdw_signaler['post-boot'].send(self)
         self._post_boot()
 
@@ -368,7 +418,10 @@ class MDSite(Flask):
 
             self.pages.append(page)
 
-            self.navigation.addPage(section_path, page)
+            self.navigation.add_page_at_path(section_path, page)
+
+        # Now setup the navigation context processor
+        self.context_processor(self._inject_navigation)
 
     def _post_boot(self):
         """Do post-boot tasks."""
@@ -386,6 +439,9 @@ class MDSite(Flask):
             file_string = f.read()
 
         return Page(self, file_string, page_path)
+
+    def _inject_navigation(self):
+        return dict(navigation=self.navigation.nav)
 
     def error_page_not_found(self, e):
         """ Show custom 404 page
@@ -424,5 +480,5 @@ if __name__ == '__main__':
         app_options["use_debugger"] = False
         app_options["use_reloader"] = False
 
-    site = Site('MDWeb', app_options=app_options)
+    site = MDSite('MDWeb', app_options=app_options)
     site.run()
