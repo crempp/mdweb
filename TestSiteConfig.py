@@ -16,4 +16,4 @@ META_INF_REGEX = r'/\*(.*)\*/'
 CONTENT_PATH = 'content/'
 
 #: Name of theme (should be a sub-folder in themes/
-THEME = 'alpha'
+THEME = 'mdweb'

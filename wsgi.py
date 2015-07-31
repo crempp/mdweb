@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from mdweb import MDSite
 
 app = MDSite(
