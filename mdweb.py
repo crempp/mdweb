@@ -9,37 +9,6 @@ years fighting horrific battles with enemies such as Drupal, Wordpress and
 Joomla. The things I saw during those dark days can not be unseen.  After
 years of batlle, this weary web development soldier built himself a a tiny
 oasis. This is MDWeb, I hope you find respite in it.
-
-Site content is managed in Markdown format. There are a few deviations from
-standard markdown. The begining of each file contains a meta-information
-section which is parsed at server start.
-
-Other content notes
-* Each folder defines a new section in the navigation structure.
-* If a file named index.md exists it is used as the landing page for that
-  section in thenavigation.
-
-
-System Events
-  pre-boot: Triggered at the beginning of the Site instantiation
-
-  post-boot: Triggered at the end of the Site instantiation after config
-             is loaded, initial navigation hierarchy is created, ...
-
-  pre-config :
-
-  post-config :
-
-  pre-app-start :
-
-  post-app-start :
-
-  pre-content-scan :
-
-  post-content-scan :
-
-  post-boot :
-
 """
 
 import logging
@@ -47,11 +16,8 @@ import markdown
 import os
 import re
 import blinker
-
 import jinja2
-
 from werkzeug.exceptions import abort
-
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -174,13 +140,13 @@ class Page(View):
         matches = re.match(pattern, page_path)
         self.url_path = matches.group('path').rstrip('/')
 
-        self.meta_inf_regex = app.config['META_INF_REGEX']
+        self._meta_inf_regex = app.config['META_INF_REGEX']
 
         # Extract meta information
         self.meta_inf = PageMetaInf(app, file_string)
 
         # Strip the meta information and comments
-        self.markdown_str = self.meta_inf_regex.sub('', file_string)
+        self.markdown_str = self._meta_inf_regex.sub('', file_string)
 
         # The page will be rendered on first view
         self.page_html = self.parse_markdown(self.markdown_str)
@@ -247,10 +213,6 @@ class NavigationLevel(object):
     def meta(self):
         return self.page.meta_inf
 
-    # @property
-    # def nav_name(self):
-    #     return self.page.meta_inf.nav_name
-
     def add_page_at_path(self, section_path, page):
         # If this is the root path (home) set the
         if len(section_path) is 1 and section_path[0] == '':
@@ -274,22 +236,6 @@ class NavigationLevel(object):
 
     def has_child(self, name):
         return name in self.children
-
-class Navigation(object):
-    """ MDWeb navigation object"""
-
-    def __init__(self):
-        """Create a navigation instance """
-        self.nav = NavigationLevel()
-
-    def add_page_at_path(self, section_path, page):
-        """Add a page to the navigation at the location defined by section_path
-
-        :param section_path: List of section names representing the path in nav
-        :param page: The page object to add to the navigation
-        """
-
-        self.nav.add_page_at_path(section_path, page)
 
 
 class MDSite(Flask):
@@ -337,8 +283,8 @@ class MDSite(Flask):
         mdw_signaler['post-content-scan'].send(self)
 
         #: FINISH THINGS UP
-        mdw_signaler['post-boot'].send(self)
         self._post_boot()
+        mdw_signaler['post-boot'].send(self)
 
     def _pre_boot(self):
         """Do pre-boot tasks."""
@@ -406,14 +352,14 @@ class MDSite(Flask):
         """Scan site content."""
 
         # Create navigation
-        self.navigation = Navigation()
+        self.navigation = NavigationLevel()
 
         # Scan and parse content
-        for dirpath, dirnames, filenames in os.walk(self.config['CONTENT_PATH']):
-            section_path = re.sub(r'^%s' % self.config['CONTENT_PATH'], '', dirpath).split('/')
+        for dir_path, dir_names, file_names in os.walk(self.config['CONTENT_PATH']):
+            section_path = re.sub(r'^%s' % self.config['CONTENT_PATH'], '', dir_path).split('/')
 
             # Load index page for current directory
-            index_path = os.path.join(dirpath, 'index.md')
+            index_path = os.path.join(dir_path, 'index.md')
             page = self._parse_page(index_path)
 
             self.pages.append(page)
@@ -441,7 +387,7 @@ class MDSite(Flask):
         return Page(self, file_string, page_path)
 
     def _inject_navigation(self):
-        return dict(navigation=self.navigation.nav)
+        return dict(navigation=self.navigation)
 
     def error_page_not_found(self, e):
         """ Show custom 404 page
@@ -457,7 +403,6 @@ class MDSite(Flask):
         :param path:
         """
         for p in self.pages:
-            print "%s =? %s" % (p.url_path, path)
             if p.url_path == path:
                 return p
 
