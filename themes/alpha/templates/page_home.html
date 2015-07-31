@@ -2,12 +2,8 @@
 {% block body %}
 <!-- Banner -->
 <section id="banner">
-    <h2>Alpha</h2>
-    <p>Another fine responsive site template freebie by HTML5 UP.</p>
-    <ul class="actions">
-        <li><a href="#" class="button special">Sign Up</a></li>
-        <li><a href="#" class="button">Learn More</a></li>
-    </ul>
+    <h2>{{ meta.title }}</h2>
+    <p>{{ meta.description }}</p>
 </section>
 
 <!-- Main -->
@@ -15,13 +11,9 @@
 
     <section class="box special">
         <header class="major">
-            <h2>Introducing the ultimate mobile app
-            <br />
-            for doing stuff with your phone</h2>
-            <p>Blandit varius ut praesent nascetur eu penatibus nisi risus faucibus nunc ornare<br />
-            adipiscing nunc adipiscing. Condimentum turpis massa.</p>
+            {{ page | safe}}
         </header>
-        <span class="image featured"><img src="images/pic01.jpg" alt="" /></span>
+        <span class="image featured"><img src="{{ url_for('static', filename='images/pic01.jpg') }}" alt="" /></span>
     </section>
 
     <section class="box special features">
@@ -55,7 +47,7 @@
         <div class="6u 12u(2)">
 
             <section class="box special">
-                <span class="image featured"><img src="images/pic02.jpg" alt="" /></span>
+                <span class="image featured"><img src="{{ url_for('static', filename='images/pic02.jpg') }}" alt="" /></span>
                 <h3>Sed lorem adipiscing</h3>
                 <p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
                 <ul class="actions">
@@ -67,7 +59,7 @@
         <div class="6u 12u(2)">
 
             <section class="box special">
-                <span class="image featured"><img src="images/pic03.jpg" alt="" /></span>
+                <span class="image featured"><img src="{{ url_for('static', filename='images/pic03.jpg') }}" alt="" /></span>
                 <h3>Accumsan integer</h3>
                 <p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
                 <ul class="actions">
@@ -77,25 +69,10 @@
 
         </div>
     </div>
-
 </section>
 
 <!-- CTA -->
 <section id="cta">
-
-    <h2>Sign up for beta access</h2>
-    <p>Blandit varius ut praesent nascetur eu penatibus nisi risus faucibus nunc.</p>
-
-    <form>
-        <div class="row uniform 50%">
-            <div class="8u 12u(3)">
-                <input type="email" name="email" id="email" placeholder="Email Address" />
-            </div>
-            <div class="4u 12u(3)">
-                <input type="submit" value="Sign Up" class="fit" />
-            </div>
-        </div>
-    </form>
-
 </section>
+
 {% endblock %}
