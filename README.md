@@ -95,7 +95,7 @@ For example:
 
 ###Content Meta Fields
 * *Title:* The page title. In the provided templates this will be used in the
-<title> tag and in the page header.
+/<title/> tag and in the page header.
 
 * *Nav Name:* The name that will appear in the navigation
 
