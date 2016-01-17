@@ -4,12 +4,12 @@
         <li>
             <a href="" class="icon fa-angle-down">Menu</a>
             <ul>
-                {% for name, nav in navigation.children.iteritems() %}
+                {% for name, nav in navigation.children.items() %}
                     <li>
                         <a href="{{ nav.page.url_path }}">{{ name }}</a>
                         {% if nav.children %}
                         <ul>
-                            {% for sub_name, sub_nav in nav.children.iteritems() %}
+                            {% for sub_name, sub_nav in nav.children.items() %}
                             <li><a href="/{{ sub_nav.page.url_path }}">{{ sub_name }}</a></li>
                             {% endfor %}
                         </ul>
