@@ -416,12 +416,16 @@ if __name__ == '__main__':
                   help="port of server (default:%(default)s)", type=int, default=5000)
 
     cmd_args = parser.parse_args()
-    app_options = {"port": cmd_args.port }
+    run_options = {"port": cmd_args.port }
 
     if cmd_args.debug_mode:
-        app_options["debug"] = True
-        app_options["use_debugger"] = False
-        app_options["use_reloader"] = False
+        run_options["debug"] = True
+        run_options["use_debugger"] = False
+        run_options["use_reloader"] = False
 
-    site = MDSite('MDWeb', app_options=app_options)
-    site.run()
+    my_site = MDSite(
+        'MDWeb',        # Site name, this gets passed in as the Flask name
+        config_filename='TestSiteConfig.py',  # Config file name for the site
+        app_options={}  # Flask options that will be passed through to the Flask() constructor
+    )
+    my_site.run(**run_options)
