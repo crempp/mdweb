@@ -1,0 +1,50 @@
+<div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+  <a class="navbar-brand" href="#">Project name</a>
+</div>
+<div class="collapse navbar-collapse">
+  <ul class="nav navbar-nav">
+    <!-- Level 1 menu -->
+    {% for name, nav in navigation.children.items() %}
+    <li {% if nav.children %}class="dropdown"{% endif %}>
+      {% if nav.children %}
+      <a tabindex="0" data-toggle="dropdown" data-submenu href="{{ nav.page.url_path }}">
+        {{ name }}<span class="caret"></span>
+      </a>
+      {% else %}
+        <a tabindex="0" href="{{ nav.page.url_path }}">{{ name }}</a>
+      {% endif %}
+
+      <!-- Level 2 menu -->
+      {% if nav.children %}
+      <ul class="dropdown-menu">
+        {% for sub_name, sub_nav in nav.children.items() %}
+        <li {% if sub_nav.children %}class="dropdown-submenu"{% endif %}>
+          {% if nav.children %}
+          <a tabindex="0" data-toggle="dropdown" data-submenu href="{{ sub_nav.page.url_path }}">
+            {{ sub_name }}
+          </a>
+          {% else %}
+            <a tabindex="0" href="{{ sub_nav.page.url_path }}">{{ sub_name }}</a>
+          {% endif %}
+
+          <!-- Level 3 menu -->
+          {% if sub_nav.children %}
+          <ul class="dropdown-menu">
+            {% for sub_sub_name, sub_sub_nav in sub_nav.children.items() %}
+                <li><a tabindex="0" href="{{ sub_sub_nav.page.url_path }}">{{ sub_sub_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>

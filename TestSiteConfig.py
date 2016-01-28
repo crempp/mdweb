@@ -13,7 +13,7 @@ SECRET_KEY = '\x85\xa2\x1c\xfd\x07MF\xcb_ ]\x1e\x9e\xab\xa2qn\xd1\x82\xcb^\x11x\
 META_INF_REGEX = r'/\*(.*)\*/'
 
 #: Path to page content relative to application root
-CONTENT_PATH = 'content/'
+CONTENT_PATH = 'demo-content/'
 
 #: Name of theme (should be a sub-folder in themes/
-THEME = 'mdweb'
+THEME = 'bootstrap'
