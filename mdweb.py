@@ -21,12 +21,9 @@ from watchdog.events import FileSystemEventHandler
 
 from flask import (
     Flask,
-    Config,
     render_template,
-    render_template_string,
     current_app,
 )
-from flask.helpers import get_root_path
 from flask.views import View
 
 # Setup signals
@@ -134,9 +131,12 @@ class Page(View):
         # Extract the part of the page_path that will be used as the URL path
         # I can't get the last '/' excluded in the regex so I am just stripping it.
         # TODO: Solve this regex puzzle
-        pattern = r'^%s(?P<path>[a-zA-Z0-9_\/]*?)(index)?(\.md)' % self.app.config['CONTENT_PATH']
+        pattern = r'^%s(?P<path>[^\0]*?)(index)?(\.md)' % self.app.config['CONTENT_PATH']
         matches = re.match(pattern, page_path)
-        self.url_path = matches.group('path').rstrip('/')
+        if matches:
+            self.url_path = matches.group('path').rstrip('/')
+        else:
+            raise Exception("Unable to parse page path [%s]" % self.app.config['CONTENT_PATH'])
 
         self._meta_inf_regex = app.config['META_INF_REGEX']
 
@@ -213,7 +213,7 @@ class NavigationLevel(object):
 
     def add_page_at_path(self, section_path, page):
         # If this is the root path (home) set the
-        if len(section_path) is 1 and section_path[0] == '':
+        if (len(section_path) is 1 and section_path[0] == '') or len(section_path) == 0:
             self.page = page
         else:
             s = section_path.pop(0)
@@ -244,7 +244,8 @@ class MDSite(Flask):
     navigation = None
 
     def __init__(self, site_name, config_filename=None, app_options={}):
-        """Go through the boot up process sending signals for each stage.
+        """
+        Initialize the Flask application and start the app.
 
         :param site_name: The name of the site, will be used as the flask
                           import_name.
@@ -256,8 +257,16 @@ class MDSite(Flask):
         """
         self.site_name = site_name
         self.app_options = app_options
+        self.config_filename = config_filename
         self.pages = []
+        self.content_observer = None
+        self.theme_observer = None
 
+        self.start()
+        self._register_observers()
+
+    def start(self):
+        """Go through the boot up process sending signals for each stage."""
         #: START THE BOOT PROCESS
         mdw_signaler['pre-boot'].send(self)
         self._pre_boot()
@@ -272,7 +281,7 @@ class MDSite(Flask):
 
         #: LOAD THE CONFIG
         mdw_signaler['pre-config'].send(self)
-        self._load_config(config_filename)
+        self._load_config(self.config_filename)
         mdw_signaler['post-config'].send(self)
 
         #: SCAN FOR CONTENT
@@ -283,6 +292,44 @@ class MDSite(Flask):
         #: FINISH THINGS UP
         self._post_boot()
         mdw_signaler['post-boot'].send(self)
+
+    def stop(self):
+        """Stop the application"""
+        print("Stop")
+        if self.content_observer:
+            self.content_observer.stop()
+        if self.theme_observer:
+            self.theme_observer.stop()
+
+    def _register_observers(self):
+        """Setup a watcher to rebuild the nav whenever a file has changed in
+        content."""
+        _this = self
+
+        class ContentHandler(FileSystemEventHandler):
+            def on_modified(self, event):
+                logging.debug('%s "%s" was "%s"' % (
+                    'Directory' if event.is_directory else "File",
+                    event.src_path,
+                    event.event_type
+                ))
+
+                # _this.stop()
+                _this.start()
+                _this._clear_page_cache()
+
+        event_handler = ContentHandler()
+
+        # Listen for content changes
+        self.content_observer = Observer()
+        self.content_observer.schedule(event_handler, self.config['CONTENT_PATH'], recursive=True)
+        self.content_observer.start()
+
+        # If we're debugging, listen for theme changes
+        if self.debug:
+            self.theme_observer = Observer()
+            self.theme_observer.schedule(event_handler, self.config['THEME_FOLDER'], recursive=True)
+            self.theme_observer.start()
 
     def _pre_boot(self):
         """Do pre-boot tasks."""
@@ -316,14 +363,19 @@ class MDSite(Flask):
          """
         self.config.from_pyfile(filename)
 
+        self.config['BASE_PATH'] = os.path.dirname(os.path.realpath(__file__))
+
         # Build the full path the the theme folder using the theme name
         self.config['THEME_FOLDER'] = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
+            self.config['BASE_PATH'],
             'themes',
             self.config['THEME']
         )
 
-        # TODO: Check for existence of theme folder
+        # Ensure theme directory exists
+        if not os.path.isdir(self.config['THEME_FOLDER']) or \
+                not os.path.exists(self.config['THEME_FOLDER']):
+            raise FileExistsError("Theme directory %s does not exist" % self.config['THEME_FOLDER'])
 
         # Set the template directory to the configured theme's template directory
         # http://stackoverflow.com/a/13598839
@@ -338,6 +390,18 @@ class MDSite(Flask):
         # Set the static folder path
         self.static_folder = os.path.join(self.config['THEME_FOLDER'], 'assets')
 
+        # Extend the content path to the absolute path
+        if not self.config['CONTENT_PATH'].startswith('/'):
+            self.config['CONTENT_PATH'] = os.path.join(
+                self.config['BASE_PATH'],
+                self.config['CONTENT_PATH']
+            )
+
+        # Ensure content directory exists
+        if not os.path.isdir(self.config['CONTENT_PATH']) or \
+                not os.path.exists(self.config['CONTENT_PATH']):
+            raise FileExistsError("Content directory %s does not exist" % self.config['CONTENT_PATH'])
+
         # Compile the regex
         if 'META_INF_REGEX' in self.config and \
                         self.config['META_INF_REGEX'] is not None:
@@ -348,6 +412,10 @@ class MDSite(Flask):
 
     def _content_scan(self):
         """Scan site content."""
+        special_case_files = [
+            'index.md',
+            '404.md',
+        ]
 
         # Create navigation
         self.navigation = NavigationLevel()
@@ -356,16 +424,27 @@ class MDSite(Flask):
         for dir_path, dir_names, file_names in os.walk(self.config['CONTENT_PATH']):
             section_path = re.sub(r'^%s' % self.config['CONTENT_PATH'], '', dir_path).split('/')
 
+            # Remove special case files from our list
+            file_names = [f for f in file_names if f not in special_case_files]
+
             # Load index page for current directory
             index_path = os.path.join(dir_path, 'index.md')
-            page = self._parse_page(index_path)
+            if os.path.exists(index_path):
+                page = self._parse_page(index_path)
+                self.pages.append(page)
+                self.navigation.add_page_at_path(section_path[:], page)
 
-            self.pages.append(page)
-
-            self.navigation.add_page_at_path(section_path, page)
+            for file_name in file_names:
+                file_path = os.path.join(dir_path, file_name)
+                if os.path.exists(file_path):
+                    page = self._parse_page(file_path)
+                    self.pages.append(page)
+                    self.navigation.add_page_at_path(section_path[:], page)
 
         # Now setup the navigation context processor
         self.context_processor(self._inject_navigation)
+
+
 
     def _post_boot(self):
         """Do post-boot tasks."""
@@ -386,6 +465,11 @@ class MDSite(Flask):
 
     def _inject_navigation(self):
         return dict(navigation=self.navigation)
+
+    def _clear_page_cache(self):
+        """Remove all cached pages."""
+        for p in self.pages:
+            p.page_cache = None
 
     def error_page_not_found(self, e):
         """ Show custom 404 page
