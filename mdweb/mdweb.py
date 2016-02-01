@@ -10,21 +10,23 @@ Date: 2015-07-30
 """
 
 import logging
-import markdown
 import os
 import re
+
 import blinker
 import jinja2
-from werkzeug.exceptions import abort
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-
+import markdown
 from flask import (
     Flask,
     render_template,
     current_app,
 )
-from flask.views import View
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+from werkzeug.exceptions import abort
+
+from Page import PageMetaInf, Page
+from mdweb.Exceptions import *
 
 # Setup signals
 sig_namespace = blinker.Namespace()
@@ -56,60 +58,6 @@ BASE_SETTINGS = {
     'THEME': 'alpha',
 }
 
-
-class ThemeException(Exception):
-    pass
-
-
-class ConfigException(Exception):
-    pass
-
-
-class ContentException(Exception):
-    pass
-
-
-class PageMetaInf(object):
-    """MDWeb Page Meta Information"""
-
-    def __init__(self, app, file_string):
-        """Content page meta-information.
-
-        If a page defines a non-standard meta value it is blindly included.
-
-        :param app: Flask application
-
-        :param file_string: Raw page content as a string
-        """
-
-        meta_inf_regex = app.config['META_INF_REGEX']
-        match = meta_inf_regex.search(file_string)
-
-        self.title = None
-        self.description = None
-        self.author = None
-        self.date = None
-        self.order = 0
-        self.template = None
-        self.robots = None
-
-        if match:
-            self._parse_meta_inf(match.group(1))
-
-    def _parse_meta_inf(self, meta_inf_string):
-        """Parse given meta information string into a dictionary of meta
-        information key:value pairs.
-
-        :param meta_inf_string: Raw meta content
-        """
-
-        lines = meta_inf_string.split('\n')
-
-        for l in lines:
-            if l == '':
-                continue
-            (k, v) = l.split(':')
-            setattr(self, k.lower(), v.strip())
 
 
 class Page(View):
