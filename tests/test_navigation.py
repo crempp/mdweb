@@ -1,16 +1,6 @@
 """
 Tests for the MDWeb Navigation parser
 
-Tests to write
-  * Handle symlinks
-  ✓ Empty directory
-  * File already open
-  * Non supported extension (.xls)
-  * Permissions
-Maybe test?
-  * atime, mtime
-  * large file
-
 """
 from pyfakefs import fake_filesystem_unittest
 import unittest

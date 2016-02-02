@@ -50,7 +50,7 @@ class Navigation(object):
         self.page = None
 
         #: Does the nav level have an associated page?  (populated during scan)
-        self.has_page = None
+        self.has_page = False
 
         #: Path to the root path to content
         if self.level == 0:
@@ -73,10 +73,6 @@ class Navigation(object):
         for filename in directory_files:
             filepath = os.path.join(self._content_path, filename)
 
-            # Extract directory name and use as nav name
-            # relative_nav_path = re.sub(r"^%s" % self._root_content_path,
-            #                            '', filepath)
-
             # Check if it's a normal file or directory
             if os.path.isfile(filepath):
                 page_name = os.path.splitext(os.path.basename(filepath))[0]
@@ -98,7 +94,8 @@ class Navigation(object):
                     # We have got a nav file!
                     page = Page(filepath)
 
-                    # If it's an index file use it for the page for this nav object
+                    # If it's an index file use it for the page for this nav
+                    # object
                     if 'index' == page_name:
                         self.page = page
                         self.has_page = True
@@ -109,30 +106,38 @@ class Navigation(object):
 
             elif os.path.isdir(filepath):
                 # We got a directory, create a new nav level
-                # self.name = os.path.split(relative_nav_path)[-1]
                 self.child_navs.append(Navigation(filepath, self.level + 1))
 
     def print_debug_nav(self, nav=None, level=0):
-        """Print the navigation structure for debugging."""
+        """Print the navigation structure for debugging.
+
+        :param nav: Navigation object to print
+        :param level: Nav level of the
+        """
         indentation_inc = 2
-        nav_indentation = ' ' * level
-        page_indentation = ' ' * (level + indentation_inc)
+        navigation_level = 0 if nav is None else nav.level
+        nav_indentation = ' ' * navigation_level
+        page_indentation = ' ' * (navigation_level + indentation_inc)
 
         # If no nav is given start at self (top level)
         if nav is None:
-            print("+-Navigation Structure----------------------------+")
-            print("|   N      = Navigtion Level       P = Page       |")
-            print("|   [*:9]] = Nav Level has page    0-9 = Page     |")
-            print("+-------------------------------------------------+")
             nav = self
 
-        l = nav.level
+            # Print header
+            print("+-Navigation Structure----------------------------+")
+            print("|   N  = Navigtion Level                          |")
+            print("|          [*:9]] = [has_page:nav_level]          |")
+            print("|   P = Page                                      |")
+            print("+-------------------------------------------------+")
+
         hp = nav.has_page
         print('%sN[%s:%s] %s (%s)' % (nav_indentation, '*' if hp else '-',
-                                      l, nav.name, nav._content_path))
+                                      navigation_level, nav.name,
+                                      nav._content_path))
 
         for page in nav.child_pages:
-            print('%sP %s' % (page_indentation, os.path.basename(page.filepath)))
+            print('%sP %s' % (page_indentation,
+                              os.path.basename(page.filepath)))
 
         for cnav in nav.child_navs:
-            self.print_debug_nav(cnav, level + indentation_inc)
+            self.print_debug_nav(cnav, navigation_level + indentation_inc)

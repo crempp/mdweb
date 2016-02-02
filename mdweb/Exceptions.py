@@ -9,5 +9,10 @@ class ConfigException(Exception):
 class ContentException(Exception):
     pass
 
+
 class ContentStructureException(Exception):
+    pass
+
+
+class PageMetaInfFieldException(Exception):
     pass
