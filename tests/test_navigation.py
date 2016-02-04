@@ -53,7 +53,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertEqual(nav.is_top, True)
         self.assertEqual(nav.level, 0)
         self.assertIsNone(nav.name)
-        self.assertEqual(nav.page.filepath, '/my/content/index.md')
+        self.assertEqual(nav.page.page_path, '/my/content/index.md')
 
     def test_multiple_pages_at_top_level(self):
         """ Multiple pages at the top level should raise an error.
@@ -77,7 +77,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         nav.print_debug_nav()
 
         self.assertEqual(nav._root_content_path, '/my/content')
-        self.assertEqual(nav.page.filepath, '/my/content/index.md')
+        self.assertEqual(nav.page.page_path, '/my/content/index.md')
         self.assertListEqual(nav.child_pages, [])
         self.assertEqual(len(nav.child_navs), 2)
         self.assertEqual(nav.has_page, True)
@@ -87,7 +87,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
 
         about_nav = nav.child_navs[0]
         self.assertEqual(about_nav._root_content_path, '/my/content')
-        self.assertEqual(about_nav.page.filepath,
+        self.assertEqual(about_nav.page.page_path,
                          '/my/content/about/index.md')
         self.assertListEqual(about_nav.child_pages, [])
         self.assertListEqual(about_nav.child_navs, [])
@@ -98,7 +98,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
 
         contact_nav = nav.child_navs[1]
         self.assertEqual(contact_nav._root_content_path, '/my/content')
-        self.assertEqual(contact_nav.page.filepath,
+        self.assertEqual(contact_nav.page.page_path,
                          '/my/content/contact/index.md')
         self.assertListEqual(contact_nav.child_pages, [])
         self.assertListEqual(contact_nav.child_navs, [])
@@ -133,7 +133,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         nav.print_debug_nav()
 
         self.assertEqual(nav._root_content_path, '/my/content')
-        self.assertEqual(nav.page.filepath, '/my/content/index.md')
+        self.assertEqual(nav.page.page_path, '/my/content/index.md')
         self.assertListEqual(nav.child_pages, [])
         self.assertEqual(len(nav.child_navs), 4)
         self.assertEqual(nav.has_page, True)
@@ -143,7 +143,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
 
         about_nav = nav.child_navs[0]
         self.assertEqual(about_nav._root_content_path, '/my/content')
-        self.assertEqual(about_nav.page.filepath,
+        self.assertEqual(about_nav.page.page_path,
                          '/my/content/about/index.md')
         self.assertListEqual(about_nav.child_pages, [])
         self.assertListEqual(about_nav.child_navs, [])
@@ -154,7 +154,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
 
         contact_nav = nav.child_navs[1]
         self.assertEqual(contact_nav._root_content_path, '/my/content')
-        self.assertEqual(contact_nav.page.filepath,
+        self.assertEqual(contact_nav.page.page_path,
                          '/my/content/contact/index.md')
         self.assertEqual(len(contact_nav.child_pages), 2)
         self.assertListEqual(contact_nav.child_navs, [])
@@ -162,9 +162,9 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertEqual(contact_nav.is_top, False)
         self.assertEqual(contact_nav.level, 1)
         self.assertEqual(contact_nav.name, 'contact')
-        self.assertEqual(contact_nav.child_pages[0].filepath,
+        self.assertEqual(contact_nav.child_pages[0].page_path,
                          '/my/content/contact/eastcoast.md')
-        self.assertEqual(contact_nav.child_pages[1].filepath,
+        self.assertEqual(contact_nav.child_pages[1].page_path,
                          '/my/content/contact/westcoast.md')
 
         order_nav = nav.child_navs[2]
@@ -176,9 +176,9 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertEqual(order_nav.is_top, False)
         self.assertEqual(order_nav.level, 1)
         self.assertEqual(order_nav.name, 'order')
-        self.assertEqual(order_nav.child_pages[0].filepath,
+        self.assertEqual(order_nav.child_pages[0].page_path,
                          '/my/content/order/digitalprints.md')
-        self.assertEqual(order_nav.child_pages[1].filepath,
+        self.assertEqual(order_nav.child_pages[1].page_path,
                          '/my/content/order/framed.md')
 
         work_nav = nav.child_navs[3]
@@ -193,7 +193,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
 
         work_portfolio_nav = nav.child_navs[3].child_navs[0]
         self.assertEqual(work_portfolio_nav._root_content_path, '/my/content')
-        self.assertEqual(work_portfolio_nav.page.filepath,
+        self.assertEqual(work_portfolio_nav.page.page_path,
                          '/my/content/work/portfolio/index.md')
         self.assertEqual(len(work_portfolio_nav.child_pages), 3)
         self.assertListEqual(work_portfolio_nav.child_navs, [])
@@ -201,11 +201,11 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertEqual(work_portfolio_nav.is_top, False)
         self.assertEqual(work_portfolio_nav.level, 2)
         self.assertEqual(work_portfolio_nav.name, 'portfolio')
-        self.assertEqual(work_portfolio_nav.child_pages[0].filepath,
+        self.assertEqual(work_portfolio_nav.child_pages[0].page_path,
                          '/my/content/work/portfolio/landscapes.md')
-        self.assertEqual(work_portfolio_nav.child_pages[1].filepath,
+        self.assertEqual(work_portfolio_nav.child_pages[1].page_path,
                          '/my/content/work/portfolio/nature.md')
-        self.assertEqual(work_portfolio_nav.child_pages[2].filepath,
+        self.assertEqual(work_portfolio_nav.child_pages[2].page_path,
                          '/my/content/work/portfolio/portraits.md')
 
     @unittest.skip("Test not implemented")
@@ -231,4 +231,9 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
     @unittest.skip("Test not implemented")
     def test_file_persmissions(self):
         """Inaccessible files (due to permissions) should raise NavigationUnparsable."""
+        pass
+
+    @unittest.skip("Test not implemented")
+    def test_weird_path_and_filenames(self):
+        """All valid paths and filenames should be supported."""
         pass

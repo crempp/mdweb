@@ -92,7 +92,7 @@ class Navigation(object):
                         continue
 
                     # We have got a nav file!
-                    page = Page(filepath)
+                    page = Page(self._content_path, filepath)
 
                     # If it's an index file use it for the page for this nav
                     # object
@@ -137,7 +137,7 @@ class Navigation(object):
 
         for page in nav.child_pages:
             print('%sP %s' % (page_indentation,
-                              os.path.basename(page.filepath)))
+                              os.path.basename(page.page_path)))
 
         for cnav in nav.child_navs:
             self.print_debug_nav(cnav, navigation_level + indentation_inc)

@@ -16,3 +16,7 @@ class ContentStructureException(Exception):
 
 class PageMetaInfFieldException(Exception):
     pass
+
+
+class PageParseException(Exception):
+    pass
