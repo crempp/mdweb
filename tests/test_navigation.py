@@ -2,7 +2,7 @@
 Tests for the MDWeb Navigation parser
 
 """
-from pyfakefs import fake_filesystem_unittest
+from pyfakefs import fake_filesystem_unittest, fake_filesystem
 import unittest
 try:
     # Python >= 3.3
@@ -21,6 +21,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
     def setUp(self):
         """Create fake filesystem"""
         self.setUpPyfakefs()
+        self.os = fake_filesystem.FakeOsModule(self.fs)
 
     def tearDown(self):
         pass
@@ -208,32 +209,101 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertEqual(work_portfolio_nav.child_pages[2].page_path,
                          '/my/content/work/portfolio/portraits.md')
 
-    @unittest.skip("Test not implemented")
-    def test_nav_level_numbering(self):
-        """ Navigation levels (level) should match the directory level."""
-        pass
-
-    @unittest.skip("Test not implemented")
     def test_symlink_following(self):
         """ Navigation parsing should follow symlinks."""
-        pass
+        self.fs.CreateFile('/my/content/index.md')
+        self.fs.CreateFile('/some/other/directory/index.md')
+        self.fs.CreateLink('/my/content/about/index.md',
+                           '/some/other/directory/index.md')
+        self.fs.CreateFile('/some/other/other/directory/index.md')
+        self.fs.CreateLink('/my/content/contact',
+                           '/some/other/other/directory')
 
-    @unittest.skip("Test not implemented")
+        nav = Navigation('/my/content')
+
+        nav.print_debug_nav()
+
+        self.assertEqual(nav._root_content_path, '/my/content')
+        self.assertEqual(nav.page.page_path, '/my/content/index.md')
+        self.assertListEqual(nav.child_pages, [])
+        self.assertEqual(len(nav.child_navs), 2)
+        self.assertEqual(nav.has_page, True)
+        self.assertTrue(nav.is_top, True)
+        self.assertEqual(nav.level, 0)
+        self.assertIsNone(nav.name)
+
+        about_nav = nav.child_navs[0]
+        self.assertEqual(about_nav._root_content_path, '/my/content')
+        self.assertEqual(about_nav.page.page_path,
+                         '/my/content/about/index.md')
+        self.assertListEqual(about_nav.child_pages, [])
+        self.assertListEqual(about_nav.child_navs, [])
+        self.assertEqual(about_nav.has_page, True)
+        self.assertEqual(about_nav.is_top, False)
+        self.assertEqual(about_nav.level, 1)
+        self.assertEqual(about_nav.name, 'about')
+
+        contact_nav = nav.child_navs[1]
+        self.assertEqual(contact_nav._root_content_path, '/my/content')
+        self.assertEqual(contact_nav.page.page_path,
+                         '/my/content/contact/index.md')
+        self.assertListEqual(contact_nav.child_pages, [])
+        self.assertListEqual(contact_nav.child_navs, [])
+        self.assertEqual(contact_nav.has_page, True)
+        self.assertEqual(contact_nav.is_top, False)
+        self.assertEqual(contact_nav.level, 1)
+        self.assertEqual(contact_nav.name, 'contact')
+
     def test_nav_file_already_open(self):
-        """Parsing open files should raise NavigationUnparsable."""
-        pass
+        """Parsing open files should succeed."""
+        fs_open = fake_filesystem.FakeFileOpen(self.fs)
+        self.fs.CreateFile('/my/content/index.md')
+        open_fd = fs_open('/my/content/index.md', 'r')
 
-    @unittest.skip("Test not implemented")
+        nav = Navigation('/my/content')
+
+        self.assertEqual(nav._root_content_path, '/my/content')
+        self.assertListEqual(nav.child_navs, [])
+        self.assertListEqual(nav.child_pages, [])
+        self.assertEqual(nav.has_page, True)
+        self.assertEqual(nav.is_top, True)
+        self.assertEqual(nav.level, 0)
+        self.assertIsNone(nav.name)
+        self.assertEqual(nav.page.page_path, '/my/content/index.md')
+
     def test_unsupported_extensions(self):
         """Unsupported extensions should be skipped."""
-        pass
+        self.fs.CreateFile('/my/content/index.xls')
 
-    @unittest.skip("Test not implemented")
+        nav = Navigation('/my/content')
+
+        self.assertListEqual(nav.child_navs, [])
+        self.assertListEqual(nav.child_pages, [])
+        self.assertFalse(nav.has_page)
+        self.assertEqual(nav.is_top, True)
+        self.assertEqual(nav.level, 0)
+        self.assertIsNone(nav.name)
+        self.assertIsNone(nav.page)
+        self.assertIsNone(nav.name)
+
     def test_file_persmissions(self):
-        """Inaccessible files (due to permissions) should raise NavigationUnparsable."""
-        pass
+        """Inaccessible files (due to permissions) should raise PermissionError."""
+        self.fs.CreateFile('/my/content/index.md')
+        self.os.chmod('/my/content/index.md', 0o000)
 
-    @unittest.skip("Test not implemented")
+        self.assertRaises(PermissionError, Navigation, '/my/content')
+
     def test_weird_path_and_filenames(self):
         """All valid paths and filenames should be supported."""
-        pass
+        self.fs.CreateFile('/Lopadotemachoselachogaleokranioleipsanodrimhypotrimmatosilphioparaomelitokatakechymenokichlepikossyphophattoperisteralektryonoptekephalliokigklopeleiolagoiosiraiobaphetraganopterygon/久有归天愿/diz çöktürmüş/index.md')
+
+        nav = Navigation('/Lopadotemachoselachogaleokranioleipsanodrimhypotrimmatosilphioparaomelitokatakechymenokichlepikossyphophattoperisteralektryonoptekephalliokigklopeleiolagoiosiraiobaphetraganopterygon/久有归天愿/diz çöktürmüş')
+
+        self.assertEqual(nav._root_content_path, '/Lopadotemachoselachogaleokranioleipsanodrimhypotrimmatosilphioparaomelitokatakechymenokichlepikossyphophattoperisteralektryonoptekephalliokigklopeleiolagoiosiraiobaphetraganopterygon/久有归天愿/diz çöktürmüş')
+        self.assertListEqual(nav.child_navs, [])
+        self.assertListEqual(nav.child_pages, [])
+        self.assertEqual(nav.has_page, True)
+        self.assertEqual(nav.is_top, True)
+        self.assertEqual(nav.level, 0)
+        self.assertIsNone(nav.name)
+        self.assertEqual(nav.page.page_path, '/Lopadotemachoselachogaleokranioleipsanodrimhypotrimmatosilphioparaomelitokatakechymenokichlepikossyphophattoperisteralektryonoptekephalliokigklopeleiolagoiosiraiobaphetraganopterygon/久有归天愿/diz çöktürmüş/index.md')

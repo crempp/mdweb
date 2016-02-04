@@ -47,31 +47,6 @@ class TestPageMeta(fake_filesystem_unittest.TestCase):
         self.assertIsNone(meta_inf.template)
         self.assertIsNone(meta_inf.title)
 
-    @unittest.skip("Test not implemented")
-    def test_parse_no_meta(self):
-        file_string = u"""##MDWeb is Not a CMS (NaCMS)
-
-MDWeb is a markdown based web site framework.
-
-MDWeb is painstakingly designed to be as minimalistic as possible while taking
-less than 5 minutes to setup and less than one minute to add content.
-
-This project was borne out of my frustration with maintaining websites and
-adding content. I'm a firm believer in the ethos that CMS is an evil that
-should be rid from this world. I spent years fighting horrific battles with
-enemies such as Drupal, Wordpress and Joomla. The things I saw during those
-dark days can not be unseen."""
-
-        meta_inf = PageMetaInf(file_string)
-
-        self.assertIsNone(meta_inf.author)
-        self.assertIsNone(meta_inf.date)
-        self.assertIsNone(meta_inf.description)
-        self.assertEqual(meta_inf.order, 0)
-        self.assertIsNone(meta_inf.robots)
-        self.assertIsNone(meta_inf.template)
-        self.assertIsNone(meta_inf.title)
-
     def test_parse_some_fields(self):
         file_string = u"""Title: MDWeb
 Description: The minimalistic markdown NaCMS
