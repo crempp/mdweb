@@ -16,7 +16,7 @@ before_script:
 
 script:
   - which python
-  - nosetests --with-coverage --cover-inclusive --cover-package=mdweb --with-xunit --xunit-file=shippable/testresults/nosetests.xm
+  - nosetests --with-coverage --cover-inclusive --cover-package=mdweb --with-xunit --xunit-file=shippable/testresults/nosetests.xml
   - coverage xml -o shippable/codecoverage/coverage.xml
 
 notifications:
