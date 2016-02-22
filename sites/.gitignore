@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!plugins
+!__init__.py
+!MySite.py.example
+!SiteConfig.py.example
