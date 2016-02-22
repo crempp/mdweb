@@ -42,6 +42,7 @@ Future Features:
 
 import re
 import os
+import sys
 
 from mdweb.Exceptions import *
 from mdweb.Page import Page
@@ -58,7 +59,12 @@ class Navigation(NavigationBaseItem):
     extensions = ['md']
 
     #: Special files to skip
-    skip_files = ['404.md']
+    skip_files = [
+        '400.md',
+        '403.md',
+        '404.md',
+        '500.md',
+    ]
 
     #: Root path to content
     _root_content_path = None
@@ -149,8 +155,6 @@ class Navigation(NavigationBaseItem):
                         self.has_page = True
                     else:
                         self.child_pages.append(page)
-                        if self.has_page is None:
-                            self.has_page = False
 
             elif os.path.isdir(filepath):
                 # We got a directory, create a new nav level
@@ -176,7 +180,7 @@ class Navigation(NavigationBaseItem):
 
         return pages
 
-    def print_debug_nav(self, nav=None, level=0):
+    def print_debug_nav(self, nav=None, level=0, out=sys.stdout):
         """Print the navigation structure for debugging.
 
         :param nav: Navigation object to print
@@ -192,21 +196,21 @@ class Navigation(NavigationBaseItem):
             nav = self
 
             # Print header
-            print("+-Navigation Structure----------------------------+")
-            print("|   N  = Navigtion Level                          |")
-            print("|          [*:9]] = [has_page:nav_level]          |")
-            print("|   P = Page                                      |")
-            print("+-------------------------------------------------+")
+            out.write("+-Navigation Structure----------------------------+")
+            out.write("|   N  = Navigtion Level                          |")
+            out.write("|          [*:9]] = [has_page:nav_level]          |")
+            out.write("|   P = Page                                      |")
+            out.write("+-------------------------------------------------+")
 
         hp = nav.has_page
-        print('%sN[%s:%s] %s (%s) {%s}' % (nav_indentation, '*' if hp else '-',
-                                           navigation_level, nav.name,
-                                           nav._content_path,
-                                           nav.page.url_path if hp else '-'))
+        out.write('%sN[%s:%s] %s (%s) {%s}' % (nav_indentation, '*' if hp else '-',
+                                               navigation_level, nav.name,
+                                               nav._content_path,
+                                               nav.page.url_path if hp else '-'))
 
         for page in nav.child_pages:
-            print('%sP %s' % (page_indentation,
-                              os.path.basename(page.page_path)))
+            out.write('%sP %s' % (page_indentation,
+                                  os.path.basename(page.page_path)))
 
         for child_nav in nav.child_navs:
             self.print_debug_nav(child_nav, navigation_level + indentation_inc)

@@ -1,0 +1,24 @@
+language: python
+build_image: shippableimages/ubuntu1204_python
+python:
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "pypy"
+
+install: "pip install -r requirements.txt"
+
+# Make folders for the reports
+before_script:
+  - mkdir -p shippable/testresults
+  - mkdir -p shippable/codecoverage
+
+script:
+  - which python
+  - `which nosetests` --with-coverage --cover-inclusive --cover-package=mdweb --with-xunit --xunit-file=shippable/testresults/nosetests.xm
+  - coverage xml -o shippable/codecoverage/coverage.xml
+
+notifications:
+  email:
+   - crempp@gmail.com
