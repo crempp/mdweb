@@ -17,14 +17,14 @@ class PageMetaInf(object):
     FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]*):(?P<value>.*)$'
 
     FIELD_TYPES = {
-        'title': (str, None),
-        'nav_name': (str, None),
-        'description': (str, None),
-        'author': (str, None),
-        'date': (str, None),
-        'order': (int, 0),
-        'template': (str, None),
-        'robots': (str, None),
+        'title': ('unicode', None),
+        'nav_name': ('unicode', None),
+        'description': ('unicode', None),
+        'author': ('unicode', None),
+        'date': ('unicode', None),
+        'order': ('int', 0),
+        'template': ('unicode', None),
+        'robots': ('unicode', None),
     }
 
     def __init__(self, meta_string):
@@ -59,7 +59,16 @@ class PageMetaInf(object):
             if key not in self.FIELD_TYPES.keys():
                 raise PageMetaInfFieldException("Unsupported field '%s'" % key)
             # Cast field value to appropriate type
-            value = self.FIELD_TYPES[key][0](value)
+            if 'int' == self.FIELD_TYPES[key][0]:
+                value = int(value)
+            elif 'unicode' == self.FIELD_TYPES[key][0]:
+                if 'unicode' in __builtins__.keys():
+                    # Python 2.x
+                    value = __builtins__['unicode'](value)
+                else:
+                    # Python 3.x
+                    value = str(value)
+
             setattr(self, key, value)
 
         self.nav_name = self.title if self.nav_name is None else self.nav_name
@@ -82,10 +91,12 @@ class Page(View, NavigationBaseItem):
         if matches:
             self.url_path = matches.group('path').rstrip('/').lstrip('/')
         else:
-            raise PageParseException("Unable to parse page path [%s]" % self.app.config['CONTENT_PATH'])
+            raise PageParseException("Unable to parse page path [%s]" %
+                                     content_path)
 
         if not os.path.exists(self.page_path):
-            raise ContentException('Could not find file for content page "%s"' % page_path)
+            raise ContentException('Could not find file for content page "%s"' %
+                                   page_path)
 
         # Read the page file
         with open(self.page_path, 'r') as f:
@@ -112,4 +123,4 @@ class Page(View, NavigationBaseItem):
         return page_html
 
     def __repr__(self):
-        return '{0}'.format(self.filepath)
+        return '{0}'.format(self.page_path)

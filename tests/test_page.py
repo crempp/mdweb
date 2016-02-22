@@ -191,6 +191,26 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.assertEqual(p.page_path, '/my/content/super/deep/url/path/index.md')
         self.assertEqual(p.url_path, 'super/deep/url/path')
 
+    def test_unparsable_path(self):
+        """An unparsable page path should raise PageParseException."""
+        file_string = u""
+        self.fs.CreateFile('/my/content/index',
+                           contents=file_string)
+
+        # Not an MD file
+        self.assertRaises(PageParseException, Page, '/my/content',
+                          '/my/content/index')
+
+    @mock.patch('mdweb.Page.PageMetaInf')
+    def test_repr(self, mock_page_meta_inf):
+        file_string = u""
+        self.fs.CreateFile('/my/content/index.md',
+                           contents=file_string)
+
+        p = Page('/my/content', '/my/content/index.md')
+
+        self.assertEqual(str(p), '/my/content/index.md')
+
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_parse_empty_file(self, mock_page_meta_inf):
         """An empty file should parse properly."""

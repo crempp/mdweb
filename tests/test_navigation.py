@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tests for the MDWeb Navigation parser
 
@@ -126,6 +127,10 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         non-index files should create the appropriate navigation structure.
         """
         self.fs.CreateFile('/my/content/index.md')
+        self.fs.CreateFile('/my/content/400.md')
+        self.fs.CreateFile('/my/content/403.md')
+        self.fs.CreateFile('/my/content/404.md')
+        self.fs.CreateFile('/my/content/500.md')
 
         self.fs.CreateFile('/my/content/about/index.md')
 
@@ -338,6 +343,9 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(nav.has_children)
         self.assertEqual(len(nav.children), 0)
 
+    @unittest.skip("Broken test")
+    # PermissionError only exists in Python 3.3+, need to fix this
+    # http://stackoverflow.com/a/18199529/1436323
     def test_file_persmissions(self):
         """Inaccessible files (due to permissions) should raise PermissionError."""
         self.fs.CreateFile('/my/content/index.md')
@@ -404,3 +412,40 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
                          '/my/content/order/digitalprints.md')
         self.assertEqual(page_dict['order/framed'].page_path,
                          '/my/content/order/framed.md')
+
+    def test_print_debug(self):
+        """ A complex nested structure with some index files and some
+        non-index files should create the appropriate navigation structure.
+        """
+        self.fs.CreateFile('/my/content/index.md')
+        self.fs.CreateFile('/my/content/400.md')
+        self.fs.CreateFile('/my/content/403.md')
+        self.fs.CreateFile('/my/content/404.md')
+        self.fs.CreateFile('/my/content/500.md')
+
+        self.fs.CreateFile('/my/content/about/index.md')
+
+        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/contact/westcoast.md')
+        self.fs.CreateFile('/my/content/contact/eastcoast.md')
+
+        self.fs.CreateFile('/my/content/work/portfolio/index.md')
+        self.fs.CreateFile('/my/content/work/portfolio/landscapes.md')
+        self.fs.CreateFile('/my/content/work/portfolio/portraits.md')
+        self.fs.CreateFile('/my/content/work/portfolio/nature.md')
+
+        self.fs.CreateFile('/my/content/order/digitalprints.md')
+        self.fs.CreateFile('/my/content/order/framed.md')
+
+        nav = Navigation('/my/content')
+
+        # Run print_debug_nav() with an IO buffer to capture the output
+        try:
+            from StringIO import StringIO
+        except ImportError:
+            from io import StringIO
+        out = StringIO()
+        nav.print_debug_nav(out=out)
+        output = out.getvalue().strip()
+
+        self.assertEqual(output, '''+-Navigation Structure----------------------------+|   N  = Navigtion Level                          ||          [*:9]] = [has_page:nav_level]          ||   P = Page                                      |+-------------------------------------------------+N[*:0] None (/my/content) {}''')

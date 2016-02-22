@@ -54,17 +54,11 @@ class MDSite(Flask):
     """
 
     #: Assets that must live at the root level and thus require special routing
-    ROOT_LEVEL_ASSETS = []
-    # [
-    #     'apple-touch-icon.png',
-    #     'browserconfig.xml',
-    #     'crossdomail.xml',
-    #     'favicon.ico',
-    #     'humans.txt',
-    #     'robots.txt',
-    #     'tile.png',
-    #     'tile-wide.png',
-    # ]
+    ROOT_LEVEL_ASSETS = [
+        'crossdomail.xml',
+        'humans.txt',
+        'robots.txt',
+    ]
 
     #: Navigation structure
     navigation = None
@@ -88,7 +82,8 @@ class MDSite(Flask):
         self.navigation = None
 
         self.start()
-        self._register_observers()
+        if not self.config['TESTING']:
+            self._register_observers()
 
     def start(self):
         """Go through the boot up process sending signals for each stage."""
@@ -183,9 +178,11 @@ class MDSite(Flask):
         super(MDSite, self).__init__(self.site_name, **self.app_options)
 
         # Setup special root-level asset routes
-        for asset in self.ROOT_LEVEL_ASSETS:
-            self.add_url_rule('/%s' % asset,
-                              redirect_to=url_for('static', filename=asset))
+        # NOTE: The usage of url_for doesn't work here. Rather, use a view with
+        # send_from_directory() - http://stackoverflow.com/a/20648053/1436323
+        # for asset in self.ROOT_LEVEL_ASSETS:
+        #     self.add_url_rule('/%s' % asset,
+        #                       redirect_to=url_for('static', filename=asset))
         # Route all remaining requests to the index view
         self.add_url_rule('/', view_func=Index.as_view('index'),
                           defaults={'path': ''})
