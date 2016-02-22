@@ -1,50 +1,92 @@
 <div class="navbar-header">
-  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+          data-target=".navbar-collapse" aria-expanded="false" aria-controls="navbar">
     <span class="sr-only">Toggle navigation</span>
     <span class="icon-bar"></span>
     <span class="icon-bar"></span>
     <span class="icon-bar"></span>
   </button>
-  <a class="navbar-brand" href="#">Project name</a>
+  <a class="navbar-brand" href="/">MDWeb</a>
 </div>
 <div class="collapse navbar-collapse">
   <ul class="nav navbar-nav">
-    <!-- Level 1 menu -->
-    {% for name, nav in navigation.children.items() %}
-    <li {% if nav.children %}class="dropdown"{% endif %}>
-      {% if nav.children %}
-      <a tabindex="0" data-toggle="dropdown" data-submenu href="{{ nav.page.url_path }}">
-        {{ name }}<span class="caret"></span>
+    {% for nav in navigation.children -%}
+    {# Level 1 menu LI elements -#}
+    <li {% if nav.has_children -%}class="dropdown"{% endif %}>
+      {% if nav.has_children -%}
+      <a tabindex="0" data-toggle="dropdown" data-submenu
+         {% if nav.has_page %}href="/{{ nav.page.url_path }}"{% endif %}>
+        {{ nav.name }}<span class="caret"></span>
       </a>
-      {% else %}
-        <a tabindex="0" href="{{ nav.page.url_path }}">{{ name }}</a>
-      {% endif %}
+      {% else -%}
+      <a tabindex="0" {%if nav.has_page %}href="/{{ nav.page.url_path }}"{% endif %}>
+        {{ nav.name }}
+      </a>
+      {% endif -%}
 
-      <!-- Level 2 menu -->
-      {% if nav.children %}
+      {# If this nav item has children create a new UL -#}
+      {% if nav.has_children or nav.has_page -%}
       <ul class="dropdown-menu">
-        {% for sub_name, sub_nav in nav.children.items() %}
-        <li {% if sub_nav.children %}class="dropdown-submenu"{% endif %}>
-          {% if nav.children %}
-          <a tabindex="0" data-toggle="dropdown" data-submenu href="{{ sub_nav.page.url_path }}">
-            {{ sub_name }}
+        {# If there is an index page list it -#}
+        {% if nav.has_page -%}
+        <li>
+          <a tabindex="0" href="/{{ nav.page.url_path }}">
+            {{ nav.page.meta_inf.nav_name }}
           </a>
-          {% else %}
-            <a tabindex="0" href="{{ sub_nav.page.url_path }}">{{ sub_name }}</a>
-          {% endif %}
-
-          <!-- Level 3 menu -->
-          {% if sub_nav.children %}
-          <ul class="dropdown-menu">
-            {% for sub_sub_name, sub_sub_nav in sub_nav.children.items() %}
-                <li><a tabindex="0" href="{{ sub_sub_nav.page.url_path }}">{{ sub_sub_name }}</a></li>
-            {% endfor %}
-          </ul>
-          {% endif %}
         </li>
-        {% endfor %}
+        {% endif -%}
+        {% for sub_nav in nav.children -%}
+        {# Level 2 menu LI elements -#}
+        {% if sub_nav.nav_type == 'Page' -%}
+        <li>
+          <a tabindex="0" href="/{{ sub_nav.url_path }}">
+            {{ sub_nav.meta_inf.nav_name }}
+          </a>
+        </li>
+        {% else -%}
+        <li {% if sub_nav.has_children or sub_nav.has_page %}class="dropdown-submenu"{% endif %}>
+          {% if nav.has_children -%}
+          <a tabindex="0" data-toggle="dropdown" data-submenu href="/{{ sub_nav.page.url_path }}">
+            {{ sub_nav.name }}
+          </a>
+          {% else -%}
+          <a tabindex="0" href="/{{ sub_nav.page.url_path }}">{{ sub_nav.name }}</a>
+          {% endif -%}
+
+          {#- Level 3 menu LI elements -#}
+          {% if sub_nav.has_children or sub_nav.has_page  -%}
+          <ul class="dropdown-menu">
+            {#- If there is an index page list it -#}
+            {% if sub_nav.has_page -%}
+            <li>
+              <a tabindex="0" href="/{{ sub_nav.page.url_path }}">
+                {{ sub_nav.page.meta_inf.nav_name }}
+              </a>
+            </li>
+            {% endif -%}
+            {% for sub_sub_nav in sub_nav.children -%}
+            {% if sub_sub_nav.nav_type == 'Page' %}
+            <li>
+              <a tabindex="0" href="/{{ sub_sub_nav.url_path }}">
+                {{ sub_sub_nav.meta_inf.nav_name }}
+              </a>
+            </li>
+            {% else -%}
+            <li>
+              <a tabindex="0" href="/{{ sub_sub_nav.page.url_path }}">
+                {{ sub_sub_nav.name }}
+              </a>
+            </li>
+            {% endif -%}
+          {% endfor -%}
+          </ul>
+          {% endif -%}
+        </li>
+        {% endif -%}
+      {% endfor -%}
       </ul>
-      {% endif %}
+    {% endif -%}
     </li>
-    {% endfor %}
+  {% endfor -%}
   </ul>
+</div>
