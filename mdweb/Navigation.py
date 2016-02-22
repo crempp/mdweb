@@ -3,6 +3,39 @@ MDWeb Navigation structure and parsing.
 
 TODO: Describe navigation parsing
 
+Navigation structure
+  Navigation(
+    _content_path: /my/content
+    _root_content_path: /my/content
+    child_navs: [
+      Navigation(
+        _content_path: /my/content/about
+        _root_content_path: /my/content
+        child_navs: []
+        child_pages: [
+          Page(),
+          Page(),
+          ...
+        ]
+        has_page: True
+        has_children: False
+        is_top: False
+        level: 1
+        name: 'about'
+        page: Page()
+      ),
+      ...
+    ]
+    child_pages: []
+    has_page: True
+    has_children: True
+    is_top: True
+    level: 0
+    name: None
+    page: Page()
+  )
+
+
 Future Features:
     * Ordering navigation levels
 """
@@ -12,17 +45,20 @@ import os
 
 from mdweb.Exceptions import *
 from mdweb.Page import Page
+from mdweb.NavigationBaseItem import NavigationBaseItem
 
-
-class Navigation(object):
-    ''' Navigation level representation
+class Navigation(NavigationBaseItem):
+    """ Navigation level representation
     Navigation is built rescursivly by walking the content directory. Each
     directory represents a navigation level, each file represents a page.
 
     Each nav level's name is determined by the directory name.
-    '''
+    """
     #: Allowed extensions for content files
     extensions = ['md']
+
+    #: Special files to skip
+    skip_files = ['404.md']
 
     #: Root path to content
     _root_content_path = None
@@ -65,12 +101,24 @@ class Navigation(object):
         # Build the nav level
         self._scan()
 
+    @property
+    def has_children(self):
+        return len(self.child_navs) > 0 or \
+               len(self.child_pages) > 0
+
+    @property
+    def children(self):
+        return self.child_navs + self.child_pages
+
     def _scan(self):
         # Get a list of files in content_directory
         directory_files = os.listdir(self._content_path)
 
         # Traverse through all files
         for filename in directory_files:
+            if filename in self.skip_files:
+                continue
+
             filepath = os.path.join(self._content_path, filename)
 
             # Check if it's a normal file or directory
@@ -92,7 +140,7 @@ class Navigation(object):
                         continue
 
                     # We have got a nav file!
-                    page = Page(self._content_path, filepath)
+                    page = Page(self._root_content_path, filepath)
 
                     # If it's an index file use it for the page for this nav
                     # object
@@ -107,6 +155,26 @@ class Navigation(object):
             elif os.path.isdir(filepath):
                 # We got a directory, create a new nav level
                 self.child_navs.append(Navigation(filepath, self.level + 1))
+
+    def get_page_dict(self, nav=None):
+        """Return a flattened dictionary of pages."""
+        pages = {}
+
+        # If no nav is given start at self (top level)
+        if nav is None:
+            nav = self
+
+        if nav.page is not None:
+            pages[nav.page.url_path] = nav.page
+
+        for page in nav.child_pages:
+            pages[page.url_path] = page
+
+        for child_nav in nav.child_navs:
+            p = self.get_page_dict(nav=child_nav)
+            pages.update(p)
+
+        return pages
 
     def print_debug_nav(self, nav=None, level=0):
         """Print the navigation structure for debugging.
@@ -131,13 +199,14 @@ class Navigation(object):
             print("+-------------------------------------------------+")
 
         hp = nav.has_page
-        print('%sN[%s:%s] %s (%s)' % (nav_indentation, '*' if hp else '-',
-                                      navigation_level, nav.name,
-                                      nav._content_path))
+        print('%sN[%s:%s] %s (%s) {%s}' % (nav_indentation, '*' if hp else '-',
+                                           navigation_level, nav.name,
+                                           nav._content_path,
+                                           nav.page.url_path if hp else '-'))
 
         for page in nav.child_pages:
             print('%sP %s' % (page_indentation,
                               os.path.basename(page.page_path)))
 
-        for cnav in nav.child_navs:
-            self.print_debug_nav(cnav, navigation_level + indentation_inc)
+        for child_nav in nav.child_navs:
+            self.print_debug_nav(child_nav, navigation_level + indentation_inc)

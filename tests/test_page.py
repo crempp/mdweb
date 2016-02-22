@@ -42,6 +42,7 @@ class TestPageMeta(fake_filesystem_unittest.TestCase):
         self.assertIsNone(meta_inf.author)
         self.assertIsNone(meta_inf.date)
         self.assertIsNone(meta_inf.description)
+        self.assertIsNone(meta_inf.nav_name)
         self.assertEqual(meta_inf.order, 0)
         self.assertIsNone(meta_inf.robots)
         self.assertIsNone(meta_inf.template)
@@ -170,6 +171,25 @@ class TestPage(fake_filesystem_unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def test_page_instantiation(self):
+        """ A page should be instantiated with appropriate attributes."""
+        file_string = u"This is a page"
+        self.fs.CreateFile('/my/content/about/history.md',
+                           contents=file_string)
+
+        p = Page('/my/content', '/my/content/about/history.md')
+
+        self.assertEqual(p.page_path, '/my/content/about/history.md')
+        self.assertEqual(p.url_path, 'about/history')
+
+        self.fs.CreateFile('/my/content/super/deep/url/path/index.md',
+                           contents=file_string)
+
+        p = Page('/my/content', '/my/content/super/deep/url/path/index.md')
+
+        self.assertEqual(p.page_path, '/my/content/super/deep/url/path/index.md')
+        self.assertEqual(p.url_path, 'super/deep/url/path')
 
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_parse_empty_file(self, mock_page_meta_inf):

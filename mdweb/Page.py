@@ -8,6 +8,7 @@ from mdweb.Exceptions import (
     ContentException,
     PageParseException,
 )
+from mdweb.NavigationBaseItem import NavigationBaseItem
 
 
 class PageMetaInf(object):
@@ -16,13 +17,14 @@ class PageMetaInf(object):
     FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]*):(?P<value>.*)$'
 
     FIELD_TYPES = {
-        'title': str,
-        'description': str,
-        'author': str,
-        'date': str,
-        'order': int,
-        'template': str,
-        'robots': str,
+        'title': (str, None),
+        'nav_name': (str, None),
+        'description': (str, None),
+        'author': (str, None),
+        'date': (str, None),
+        'order': (int, 0),
+        'template': (str, None),
+        'robots': (str, None),
     }
 
     def __init__(self, meta_string):
@@ -33,13 +35,9 @@ class PageMetaInf(object):
         :param file_string: Raw page content as a string
         """
 
-        self.title = None
-        self.description = None
-        self.author = None
-        self.date = None
-        self.order = 0
-        self.template = None
-        self.robots = None
+        # Initialize attributes defined in FIELD_TYPES
+        for attribute, attribute_details in self.FIELD_TYPES.items():
+            setattr(self, attribute, attribute_details[1])
 
         self._parse_meta_inf(meta_string)
 
@@ -56,16 +54,17 @@ class PageMetaInf(object):
             if l.strip(' ') == '' or re.match(r'^ *#', l):
                 continue
             match = re.search(self.FIELD_VALUE_REGEX, l)
-            key = match.group('key').strip().lower()
+            key = match.group('key').strip().lower().replace(' ', '_')
             value = match.group('value').strip()
             if key not in self.FIELD_TYPES.keys():
                 raise PageMetaInfFieldException("Unsupported field '%s'" % key)
             # Cast field value to appropriate type
-            value = self.FIELD_TYPES[key](value)
+            value = self.FIELD_TYPES[key][0](value)
             setattr(self, key, value)
 
+        self.nav_name = self.title if self.nav_name is None else self.nav_name
 
-class Page(View):
+class Page(View, NavigationBaseItem):
     """MDWeb Page View"""
 
     #: A regex for extracting meta information (and comments).
@@ -81,7 +80,7 @@ class Page(View):
         pattern = self.URL_PATH_REGEX % content_path
         matches = re.match(pattern, self.page_path)
         if matches:
-            self.url_path = matches.group('path').rstrip('/')
+            self.url_path = matches.group('path').rstrip('/').lstrip('/')
         else:
             raise PageParseException("Unable to parse page path [%s]" % self.app.config['CONTENT_PATH'])
 
@@ -114,44 +113,3 @@ class Page(View):
 
     def __repr__(self):
         return '{0}'.format(self.filepath)
-
-# class Page(View):
-#     """MDWeb Page"""
-#
-#     def __init__(self, app, file_string, page_path):
-#         """
-#         Content Page
-#
-#         :param app: Flask application
-#         :param file_string: Raw page content as a string
-#         :param page_path: Filesystme path to the page
-#         :return:
-#         """
-#         self.app = app
-#
-#         self.path = page_path
-#
-#         # Extract the part of the page_path that will be used as the URL path
-#         # I can't get the last '/' excluded in the regex so I am just stripping it.
-#         # TODO: Solve this regex puzzle
-#         pattern = r'^%s(?P<path>[^\0]*?)(index)?(\.md)' % self.app.config['CONTENT_PATH']
-#         matches = re.match(pattern, page_path)
-#         if matches:
-#             self.url_path = matches.group('path').rstrip('/')
-#         else:
-#             raise Exception("Unable to parse page path [%s]" % self.app.config['CONTENT_PATH'])
-#
-#         self._meta_inf_regex = app.config['META_INF_REGEX']
-#
-#         # Extract meta information
-#         self.meta_inf = PageMetaInf(app, file_string)
-#
-#         # Strip the meta information and comments
-#         self.markdown_str = self._meta_inf_regex.sub('', file_string)
-#
-#         # The page will be rendered on first view
-#         self.page_html = self.parse_markdown(self.markdown_str)
-#
-#         # Cache of the full rendered page
-#         self.page_cache = None
-#
