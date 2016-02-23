@@ -107,6 +107,10 @@ class Navigation(NavigationBaseItem):
         # Build the nav level
         self._scan()
 
+        # Ensure a root index
+        if 0 == self.level and (self.page is None or '' != self.page.url_path):
+            raise ContentException("Missing root index.md")
+
     @property
     def has_children(self):
         return len(self.child_navs) > 0 or \
