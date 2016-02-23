@@ -47,6 +47,11 @@ BASE_SETTINGS = {
     'THEME': 'alpha',
 }
 
+BASE_SITE_OPTIONS = {
+    #: Python logging level
+    'logging_level': "ERROR",
+}
+
 class MDSite(Flask):
     """ MDWeb site
 
@@ -63,7 +68,7 @@ class MDSite(Flask):
     #: Navigation structure
     navigation = None
 
-    def __init__(self, site_name, app_options={}):
+    def __init__(self, site_name, app_options={}, site_options={}):
         """
         Initialize the Flask application and start the app.
 
@@ -72,10 +77,14 @@ class MDSite(Flask):
 
         :param app_options: Additional parameters to be passed to Flask
                             constructor
+
+        :param site_options: Options specific to MDWeb sites
         """
 
         self.site_name = site_name
         self.app_options = app_options
+        self.site_options = BASE_SITE_OPTIONS
+        self.site_options.update(site_options)
         self.pages = []
         self.content_observer = None
         self.theme_observer = None
@@ -193,7 +202,8 @@ class MDSite(Flask):
         self.error_handler_spec[None][404] = self.error_page_not_found
 
         # Setup logging
-        logging.basicConfig(level=logging.DEBUG if self.config['DEBUG'] else logging.INFO,
+        log_level = getattr(logging, self.site_options['logging_level'])
+        logging.basicConfig(level=log_level,
                             format='%(asctime)s - %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S')
 

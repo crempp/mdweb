@@ -124,10 +124,6 @@ class Navigation(NavigationBaseItem):
         for filename in directory_files:
             # Check if the file has an extension allowable for nav
 
-            ext = os.path.splitext(filename)[1]
-            if ext not in self.extensions:
-                continue
-
             if filename in self.skip_files:
                 continue
 
@@ -135,7 +131,9 @@ class Navigation(NavigationBaseItem):
 
             # Check if it's a normal file or directory
             if os.path.isfile(filepath):
-                page_name = os.path.splitext(os.path.basename(filepath))[0]
+                page_name, ext = os.path.splitext(os.path.basename(filepath))
+                if ext not in self.extensions:
+                    continue
 
                 # Only allow index at the top level
                 # Allowing pages other than index at the top leads to

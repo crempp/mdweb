@@ -1,5 +1,5 @@
 /*
-Title: MDWeb Examples
+Title: Markdown Examples
 Description: Examples of how to use MDWeb
 Order: 4
 */

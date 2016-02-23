@@ -13,7 +13,7 @@ After years of battle, this weary web developmer built himself a tiny oasis.
 This is MDWeb, I hope you find respite in it.
 
 ## Requirements
-* Python 2.7+ 3.x
+* Python 2.7 or 3.x
 * Pip
 * Virtualenv (optional, highly recommended)
 

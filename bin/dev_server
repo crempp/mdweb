@@ -20,8 +20,11 @@ if __name__ == '__main__':
     parser.add_argument("-n", "--name", dest="name",
                         help="application name", type=str,
                         default="MDWeb")
-    parser.add_argument("-l", "--list-sites", dest="list",action="store_true",
+    parser.add_argument("-l", "--list-sites", dest="list", action="store_true",
                         help="list available applications")
+    parser.add_argument("--log-level", dest="log_level", type=str,
+                        help="logging level ('CRITICAL', 'ERROR, 'WARNING',"
+                        "'INFO', 'DEBUG', 'NOTSET')", default="ERROR")
     parser.add_argument('site', help='site class')
 
     cmd_args = parser.parse_args()
@@ -49,12 +52,19 @@ if __name__ == '__main__':
             'instance_relative_config': False,
         }
 
+        # Options specific to MDWeb sites (not Flask app options)
+        site_options = {
+            'logging_level': cmd_args.log_level,
+        }
+
         site = site_class(
             # Site name, this gets passed in as the Flask name
             cmd_args.name,
             # Flask options that will be passed through to the Flask()
             # constructor
-            app_options=app_options
+            app_options=app_options,
+            # MDWeb site options
+            site_options=site_options
         )
 
         site.start()
