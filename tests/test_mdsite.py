@@ -33,9 +33,14 @@ class TestSite(fake_filesystem_unittest.TestCase):
         self.setUpPyfakefs()
         self.os = fake_filesystem.FakeOsModule(self.fs)
 
+        self.fs.CreateFile('/my/content/400.md')
+        self.fs.CreateFile('/my/content/403.md')
+        self.fs.CreateFile('/my/content/404.md')
+        self.fs.CreateFile('/my/content/500.md')
         self.fs.CreateFile('/my/content/index.md')
         self.fs.CreateFile('/my/content/about/index.md')
         self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/assets/logo.png')
 
         self.fs.CreateFile('/my/theme/assets/css/style.css')
         self.fs.CreateFile('/my/theme/assets/js/site.js')
@@ -44,21 +49,35 @@ class TestSite(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/theme/templates/page.html')
         self.fs.CreateFile('/my/theme/templates/page_home.html')
 
+        self.app = MDTestSite(
+            "MDWeb",
+            app_options={}
+        )
+        self.app.start()
+
     def tearDown(self):
         pass
 
     def test_site_created(self):
         """Site should initalize properly."""
-        app = MDTestSite(
-            "MDWeb",
-            app_options={}
-        )
-        app.start()
+        self.assertEqual(self.app.site_name, 'MDWeb')
+        self.assertEqual(self.app._static_folder, '/my/theme/assets')
+        self.assertIsNotNone(self.app.navigation)
+        self.assertGreater(len(self.app.pages), 0)
 
-        self.assertEqual(app.site_name, 'MDWeb')
-        self.assertEqual(app._static_folder, '/my/theme/assets')
-        self.assertIsNotNone(app.navigation)
-        self.assertGreater(len(app.pages), 0)
+    def test_existing_content_asset(self):
+        """Content assets should be returned with a 200 status."""
+        with self.app.test_client() as c:
+            result = c.get('/contentassets/logo.png')
+
+        self.assertEqual(result.status_code, 200)
+
+    def test_missing_content_asset(self):
+        """Missing content assets should be returned with a 404 status."""
+        with self.app.test_client() as c:
+            result = c.get('/contentassets/missing_logo.png')
+
+        self.assertEqual(result.status_code, 404)
 
     @unittest.skip("Test not implemented")
     def test_no_theme_directory(self):
