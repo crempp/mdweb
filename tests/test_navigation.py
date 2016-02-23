@@ -31,18 +31,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         """An empty content directory should create an empty nav structure."""
         self.fs.CreateDirectory('/my/content')
 
-        nav = Navigation('/my/content')
-
-        self.assertListEqual(nav.child_navs, [])
-        self.assertListEqual(nav.child_pages, [])
-        self.assertFalse(nav.has_page)
-        self.assertEqual(nav.is_top, True)
-        self.assertEqual(nav.level, 0)
-        self.assertIsNone(nav.name)
-        self.assertIsNone(nav.page)
-        self.assertIsNone(nav.name)
-        self.assertFalse(nav.has_children)
-        self.assertEqual(len(nav.children), 0)
+        self.assertRaises(ContentException, Navigation, '/my/content')
 
     def test_single_page(self):
         """A single index page should generate a single-page nav structure."""
@@ -328,20 +317,19 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
 
     def test_unsupported_extensions(self):
         """Unsupported extensions should be skipped."""
-        self.fs.CreateFile('/my/content/index.xls')
+        self.fs.CreateFile('/my/content/index.md')
+        self.fs.CreateFile('/my/content/stuff/index.xls')
 
         nav = Navigation('/my/content')
 
-        self.assertListEqual(nav.child_navs, [])
-        self.assertListEqual(nav.child_pages, [])
-        self.assertFalse(nav.has_page)
-        self.assertEqual(nav.is_top, True)
-        self.assertEqual(nav.level, 0)
-        self.assertIsNone(nav.name)
-        self.assertIsNone(nav.page)
-        self.assertIsNone(nav.name)
-        self.assertFalse(nav.has_children)
-        self.assertEqual(len(nav.children), 0)
+        stuff_nav = nav.child_navs[0]
+
+        self.assertListEqual(stuff_nav.child_navs, [])
+        self.assertListEqual(stuff_nav.child_pages, [])
+        self.assertFalse(stuff_nav.has_page)
+        self.assertIsNone(stuff_nav.page)
+        self.assertFalse(stuff_nav.has_children)
+        self.assertEqual(len(stuff_nav.children), 0)
 
     @unittest.skip("Broken test")
     # PermissionError only exists in Python 3.3+, need to fix this
@@ -412,6 +400,16 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
                          '/my/content/order/digitalprints.md')
         self.assertEqual(page_dict['order/framed'].page_path,
                          '/my/content/order/framed.md')
+
+    def test_mising_root_index(self):
+        """A missing root level index should throw ContentException"""
+        self.fs.CreateFile('/my/content/about/index.md')
+
+        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/contact/westcoast.md')
+        self.fs.CreateFile('/my/content/contact/eastcoast.md')
+
+        self.assertRaises(ContentException, Navigation, '/my/content')
 
     def test_print_debug(self):
         """ A complex nested structure with some index files and some
