@@ -1,7 +1,7 @@
 # Markdown based web site framework
 
 MDWeb is painstakingly designed to be as minimalistic as possible while taking 
-less than 5 minutes to setup and less than one minute to add content.
+less than 5 minutes to setup and less than a minute to add content.
 
 This project was borne out of my frustration with maintaining websites and 
 adding content. I'm a firm believer in the ethos that CMS is an evil that 
@@ -9,13 +9,13 @@ should be rid from this world. I spent years fighting horrific battles with
 enemies such as Drupal, Wordpress and Joomla. The things I saw during those
 dark days can not be unseen.
 
-After years of battle, this weary web development soldier built himself a a 
-tiny oasis. This is MDWeb, I hope you find respite in it.
+After years of battle, this weary web developmer built himself a tiny oasis.
+This is MDWeb, I hope you find respite in it.
 
 ## Requirements
-* Python 3.x (dropped support for 2.x)
+* Python 2.7+ 3.x
 * Pip
-* Virtualenv (optional)
+* Virtualenv (optional, highly recommended)
 
 ## How to use
 
@@ -23,32 +23,35 @@ tiny oasis. This is MDWeb, I hope you find respite in it.
 
 * Clone your forked repository on your local machine.
 
-* Copy `SiteConfig.py.example` to `SiteConfig.py`. Edit the config according
-  to your needs.
+* Copy `sites/MySite.py.example` to `sites/MySite.py` or what ever name you 
+  choose for your site class. Inside the copied file rename the class to match
+  the file name - for example if you call the file `JoesSite.py` the Class
+  should be named `JoesSite`.
   
-* Copy `Site.py.example` to `Site.py`. Edit the config according to your
-  needs.
+* Update the config attributes in the site class, specifically `THEME` and 
+  `CONTENT_PATH` (I suggest using the provided, empty, `content` directory).
+  The `demo-content` directory is provided with example content to get you 
+  started. 
   
-* Add your content to the content directory.
+* Add your content to the content directory defined.
 
-* Edit (or add) your theme. If you add a new theme update the THEME config
-  option.
-  
-* Run the application (assuming you have a virtual environment setup)
-```
-$ source ./venv/bin/activate
-$ python Site.py
-```
+* (optional) Create a new theme for your site in the `themes` directory. If 
+  you add a new theme remember to update the THEME config value.
+
+* Run the application (assuming you have a virtual environment setup). The
+  dev_server script has one required parameter which is the site class name,
+  in the example about the class name was `JoesSite`.
+
 
 ## Quick setup
 * Setup a virtual environment and activate
 ```
-$ virtualenv venv
-$ source ./venv/bin/activate
+$ virtualenv mymdwebenv
+$ source ./mymdwebenv/bin/activate
 ```
 * Clone the project
 ```
-$ git clone https://bitbucket.org/crempp/mdweb.git
+$ git clone git@github.com:crempp/mdweb.git
 ```
 * Go into the directory
 ```
@@ -58,14 +61,28 @@ $ cd mdweb
 ```
 $ pip install -r requirements.txt
 ```
+* Setup site class
+```
+$ cp sites/MySite.py.example sites/JoesSite.py
+$ nano sites/JoesSite.py
+# Edit the class name and config as described above
+```
 * Run the server
 ```
-$ python Site.py
+$ ./bin/dev_server JoesSite
 ```
 
 Now visit [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 ## Documentation
+
+###Forking for your own site
+
+The suggested method for using MDWeb and also tracking any udpates you make for
+your own site is to fork the MDWeb repository. Any changes you make will be
+commited to your personally forked repository and you'll be able to pull down
+upstream changes by following the procedure outlined here 
+[How to update a GitHub forked repository?](http://stackoverflow.com/a/7244456/1436323)
 
 ###Content
 
@@ -192,4 +209,6 @@ is ready to start handling requests.
 
 ## Credits
 * Alpha theme modified from the [Alpha site template](http://html5up.net/alpha) on [html5up.net](http://html5up.net).
-This site template was licenced under [CCA 3.0](html5up.net/license)
+This site template was licensed under [CCA 3.0](html5up.net/license)
+* Bootstrap theme modified from [Bootstrap examples](http://getbootstrap.com/getting-started/#examples).
+The Bootstrap examples are licensed under the [MIT License](https://github.com/twbs/bootstrap/blob/master/LICENSE).
