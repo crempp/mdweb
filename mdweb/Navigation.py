@@ -56,7 +56,7 @@ class Navigation(NavigationBaseItem):
     Each nav level's name is determined by the directory name.
     """
     #: Allowed extensions for content files
-    extensions = ['md']
+    extensions = ['.md']
 
     #: Special files to skip
     skip_files = [
@@ -122,6 +122,12 @@ class Navigation(NavigationBaseItem):
 
         # Traverse through all files
         for filename in directory_files:
+            # Check if the file has an extension allowable for nav
+
+            ext = os.path.splitext(filename)[1]
+            if ext not in self.extensions:
+                continue
+
             if filename in self.skip_files:
                 continue
 
@@ -139,22 +145,16 @@ class Navigation(NavigationBaseItem):
                             "Only index allowed in top level navigation,"
                             " found %s" % page_name)
 
-                # Check if the file has an extension allowable for nav
-                for extension in self.extensions:
-                    # Not a content file, ignore
-                    if not filepath.endswith(extension):
-                        continue
+                # We have got a nav file!
+                page = Page(self._root_content_path, filepath)
 
-                    # We have got a nav file!
-                    page = Page(self._root_content_path, filepath)
-
-                    # If it's an index file use it for the page for this nav
-                    # object
-                    if 'index' == page_name:
-                        self.page = page
-                        self.has_page = True
-                    else:
-                        self.child_pages.append(page)
+                # If it's an index file use it for the page for this nav
+                # object
+                if 'index' == page_name:
+                    self.page = page
+                    self.has_page = True
+                else:
+                    self.child_pages.append(page)
 
             elif os.path.isdir(filepath):
                 # We got a directory, create a new nav level
