@@ -5,7 +5,7 @@ import blinker
 import jinja2
 from flask import (
     Flask,
-    url_for,
+    send_from_directory
 )
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -96,6 +96,8 @@ class MDSite(Flask):
 
     def start(self):
         """Go through the boot up process sending signals for each stage."""
+        super(MDSite, self).__init__(self.site_name, **self.app_options)
+
         #: START THE BOOT PROCESS
         mdw_signaler['pre-boot'].send(self)
         self._stage_pre_boot()
@@ -184,14 +186,10 @@ class MDSite(Flask):
     def _stage_create_app(self):
         """Create the Flask application."""
 
-        super(MDSite, self).__init__(self.site_name, **self.app_options)
-
-        # Setup special root-level asset routes
-        # NOTE: The usage of url_for doesn't work here. Rather, use a view with
-        # send_from_directory() - http://stackoverflow.com/a/20648053/1436323
-        # for asset in self.ROOT_LEVEL_ASSETS:
-        #     self.add_url_rule('/%s' % asset,
-        #                       redirect_to=url_for('static', filename=asset))
+        # Setup content asset route
+        def custom_static(filename):
+            return send_from_directory(self.config['CONTENT_ASSET_PATH'], filename)
+        self.add_url_rule('/contentassets/<path:filename>', view_func=custom_static)
         # Route all remaining requests to the index view
         self.add_url_rule('/', view_func=Index.as_view('index'),
                           defaults={'path': ''})
@@ -243,9 +241,6 @@ class MDSite(Flask):
             ])
         self.jinja_loader = my_loader
 
-        # Set the static folder path
-        self.static_folder = os.path.join(self.config['THEME_FOLDER'], 'assets')
-
         # Extend the content path to the absolute path
         if not self.config['CONTENT_PATH'].startswith('/'):
             self.config['CONTENT_PATH'] = os.path.join(
@@ -258,6 +253,14 @@ class MDSite(Flask):
                 not os.path.exists(self.config['CONTENT_PATH']):
             raise FileExistsError("Content directory %s does not exist" %
                                   self.config['CONTENT_PATH'])
+
+        # Set the static theme assets folder path
+        self.static_folder = os.path.join(self.config['THEME_FOLDER'],
+                                          'assets')
+
+        # Set the content asset path
+        self.config['CONTENT_ASSET_PATH'] = os.path.join(
+            self.config['CONTENT_PATH'], 'assets')
 
     def _stage_post_boot(self):
         """Do post-boot tasks."""
