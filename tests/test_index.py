@@ -34,6 +34,11 @@ class TestIndex(fake_filesystem_unittest.TestCase):
         self.setUpPyfakefs()
         self.os = fake_filesystem.FakeOsModule(self.fs)
 
+        self.fs.CreateFile('/my/content/robots.txt')
+        self.fs.CreateFile('/my/content/humans.txt')
+        self.fs.CreateFile('/my/content/favicon.ico')
+        self.fs.CreateFile('/my/content/crossdomain.xml')
+
         self.fs.CreateFile('/my/content/index.md')
         self.fs.CreateFile('/my/content/about/index.md')
         self.fs.CreateFile('/my/content/contact/index.md')
@@ -69,10 +74,17 @@ class TestIndex(fake_filesystem_unittest.TestCase):
 
         self.assertEqual(result.status_code, 404)
 
-    @unittest.skip("Test not implemented")
     def test_root_level_asset(self):
         """Special root-level assets should be returned properly."""
         with self.app.test_client() as c:
             result = c.get('/robots.txt')
+            self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(result.status_code, 200)
+            result = c.get('/humans.txt')
+            self.assertEqual(result.status_code, 200)
+
+            result = c.get('/favicon.ico')
+            self.assertEqual(result.status_code, 200)
+
+            result = c.get('/crossdomain.xml')
+            self.assertEqual(result.status_code, 200)
