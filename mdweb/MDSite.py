@@ -5,7 +5,8 @@ import blinker
 import jinja2
 from flask import (
     Flask,
-    send_from_directory
+    send_from_directory,
+    send_file,
 )
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -60,7 +61,8 @@ class MDSite(Flask):
 
     #: Assets that must live at the root level and thus require special routing
     ROOT_LEVEL_ASSETS = [
-        'crossdomail.xml',
+        'crossdomain.xml',
+        'favicon.ico',
         'humans.txt',
         'robots.txt',
     ]
@@ -186,10 +188,22 @@ class MDSite(Flask):
     def _stage_create_app(self):
         """Create the Flask application."""
 
+        # Setup special root-level asset routes
+        # NOTE: The usage of url_for doesn't work here. Rather, use a view with
+        # send_from_directory() - http://stackoverflow.com/a/20648053/1436323
+        def special_root_file(filename):
+            return send_file(os.path.join(self.config['CONTENT_PATH'],
+                                          filename))
+        for asset in self.ROOT_LEVEL_ASSETS:
+            self.add_url_rule('/%s' % asset, view_func=special_root_file,
+                              defaults={'filename': asset})
+
         # Setup content asset route
         def custom_static(filename):
-            return send_from_directory(self.config['CONTENT_ASSET_PATH'], filename)
-        self.add_url_rule('/contentassets/<path:filename>', view_func=custom_static)
+            return send_from_directory(self.config['CONTENT_ASSET_PATH'],
+                                       filename)
+        self.add_url_rule('/contentassets/<path:filename>',
+                          view_func=custom_static)
         # Route all remaining requests to the index view
         self.add_url_rule('/', view_func=Index.as_view('index'),
                           defaults={'path': ''})
