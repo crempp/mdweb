@@ -45,8 +45,20 @@ import os
 import sys
 
 from mdweb.Exceptions import *
-from mdweb.Page import Page
-from mdweb.NavigationBaseItem import NavigationBaseItem
+from mdweb.Page import Page, MetaInfParser
+from mdweb.BaseObjects import NavigationBaseItem, MetaInfParser
+
+
+class NavigationMetaInf(MetaInfParser):
+    """MDWeb Navigation Meta Information"""
+
+    FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]*):(?P<value>.*)$'
+
+    FIELD_TYPES = {
+        'nav_name': ('unicode', None),
+        'order': ('int', 0),
+    }
+
 
 class Navigation(NavigationBaseItem):
     """ Navigation level representation
@@ -55,6 +67,9 @@ class Navigation(NavigationBaseItem):
 
     Each nav level's name is determined by the directory name.
     """
+    #: MetaInf file name
+    nav_metainf_file_name = '_navlevel.txt'
+
     #: Allowed extensions for content files
     extensions = ['.md']
 
@@ -72,6 +87,9 @@ class Navigation(NavigationBaseItem):
     def __init__(self, content_path, nav_level=0):
         #: path to content for current navigation level
         self._content_path = os.path.abspath(content_path)
+
+        #: Navigation level meta information
+        self.meta_inf = None
 
         #: Ordered list of child Navigatyion objects
         self.child_navs = []
@@ -93,6 +111,9 @@ class Navigation(NavigationBaseItem):
 
         #: Does the nav level have an associated page?  (populated during scan)
         self.has_page = False
+
+        #: Order in the navigation
+        self.order = 0
 
         #: Path to the root path to content
         if self.level == 0:
@@ -123,6 +144,21 @@ class Navigation(NavigationBaseItem):
     def _scan(self):
         # Get a list of files in content_directory
         directory_files = os.listdir(self._content_path)
+
+        if self.nav_metainf_file_name in directory_files:
+            # We have a nav-level metainf file, parse it
+            absolut_meta_inf_path = os.path.join(self._content_path,
+                                                 self.nav_metainf_file_name)
+            # Read the meta-inf file
+            with open(absolut_meta_inf_path, 'r') as f:
+                file_string = f.read()
+            self.meta_inf = NavigationMetaInf(file_string)
+
+            if hasattr(self.meta_inf, 'order'):
+                self.order = self.meta_inf.order
+
+            if hasattr(self.meta_inf, 'nav_name'):
+                self.name = self.meta_inf.nav_name
 
         # Traverse through all files
         for filename in directory_files:
