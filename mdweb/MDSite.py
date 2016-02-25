@@ -14,6 +14,10 @@ from watchdog.observers import Observer
 from mdweb.Index import Index
 from mdweb.Navigation import Navigation
 
+# Shim Python 3.x Exceptions
+if 'FileExistsError' not in __builtins__.keys():
+    from mdweb.Exceptions import FileExistsError
+
 # Setup signals
 sig_namespace = blinker.Namespace()
 mdw_signaler = {

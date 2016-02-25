@@ -4,7 +4,7 @@ Tests for the MDWeb Navigation parser
 
 """
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
-import unittest
+import sys
 try:
     # Python >= 3.3
     from unittest import mock
@@ -331,15 +331,14 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(stuff_nav.has_children)
         self.assertEqual(len(stuff_nav.children), 0)
 
-    @unittest.skip("Broken test")
     # PermissionError only exists in Python 3.3+, need to fix this
     # http://stackoverflow.com/a/18199529/1436323
     def test_file_persmissions(self):
-        """Inaccessible files (due to permissions) should raise PermissionError."""
+        """Inaccessible files (due to perms) should raise IOError."""
         self.fs.CreateFile('/my/content/index.md')
         self.os.chmod('/my/content/index.md', 0o000)
 
-        self.assertRaises(PermissionError, Navigation, '/my/content')
+        self.assertRaises(IOError, Navigation, '/my/content')
 
     def test_weird_path_and_filenames(self):
         """All valid paths and filenames should be supported."""

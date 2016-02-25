@@ -2,6 +2,7 @@
 Tests for the MDWeb Site
 """
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
+from flask.ext.testing import TestCase
 import unittest
 try:
     # Python >= 3.3
@@ -11,6 +12,10 @@ except ImportError:
     import mock
 
 from mdweb.MDSite import MDSite
+
+# Shim Python 3.x Exceptions
+if 'FileExistsError' not in __builtins__.keys():
+    from mdweb.Exceptions import FileExistsError
 
 
 class MDTestSite(MDSite):
@@ -25,10 +30,10 @@ class MDTestSite(MDSite):
     pass
 
 
-class TestSite(fake_filesystem_unittest.TestCase):
+class TestSite(fake_filesystem_unittest.TestCase, TestCase):
     """MDSite object tests """
 
-    def setUp(self):
+    def create_app(self):
         """Create fake filesystem and flask app"""
         self.setUpPyfakefs()
         self.os = fake_filesystem.FakeOsModule(self.fs)
@@ -49,11 +54,16 @@ class TestSite(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/theme/templates/page.html')
         self.fs.CreateFile('/my/theme/templates/page_home.html')
 
-        self.app = MDTestSite(
+        app = MDTestSite(
             "MDWeb",
             app_options={}
         )
-        self.app.start()
+        app.start()
+
+        return app
+
+    def setUp(self):
+        pass
 
     def tearDown(self):
         pass
@@ -67,70 +77,152 @@ class TestSite(fake_filesystem_unittest.TestCase):
 
     def test_existing_content_asset(self):
         """Content assets should be returned with a 200 status."""
-        with self.app.test_client() as c:
-            result = c.get('/contentassets/logo.png')
+        response = self.client.get('/contentassets/logo.png')
 
-        self.assertEqual(result.status_code, 200)
+        self.assert200(response)
 
     def test_missing_content_asset(self):
         """Missing content assets should be returned with a 404 status."""
-        with self.app.test_client() as c:
-            result = c.get('/contentassets/missing_logo.png')
+        response = self.client.get('/contentassets/missing_logo.png')
 
-        self.assertEqual(result.status_code, 404)
+        self.assert404(response)
 
-    @unittest.skip("Test not implemented")
-    def test_no_theme_directory(self):
-        """Missing theme directory should raise FileExistsError."""
-        pass
-
-    @unittest.skip("Test not implemented")
-    def test_no_content_directory(self):
-        """Missing content directory should raise FileExistsError."""
-        pass
-
-    @unittest.skip("Test not implemented")
     def test_page_lookup(self):
         """Page lookup should return the correct page based on URL path."""
-        pass
+        p = self.app.get_page('')
+        self.assertEqual(p.page_path, '/my/content/index.md')
 
-    @unittest.skip("Test not implemented")
+        p = self.app.get_page('about')
+        self.assertEqual(p.page_path, '/my/content/about/index.md')
+
     def test_error_page(self):
         """Error should return status 404 and content from 404 template."""
-        pass
+        response = self.client.get('/non/existent/page')
 
-    @unittest.skip("Test not implemented")
-    def test_template_observer(self):
-        """Changes to template files should restart application."""
-        pass
+        # TODO: Test that the 404 template was used
+        # self.assert_template_used('404.html')
 
-    @unittest.skip("Test not implemented")
-    def test_content_observer(self):
-        """Changes to content files should restart application."""
-        pass
+        self.assert404(response)
 
-    @unittest.skip("Test not implemented")
-    def test_stage_pre_boot(self):
-        """Pre-boot stage should run."""
-        pass
+    # @unittest.skip("Test not implemented")
+    # def test_template_observer(self):
+    #     """Changes to template files should restart application."""
+    #     pass
 
-    @unittest.skip("Test not implemented")
-    def test_stage_create_app(self):
-        """Create app stage should run."""
-        pass
+    # @unittest.skip("Test not implemented")
+    # def test_content_observer(self):
+    #     """Changes to content files should restart application."""
+    #     pass
 
-    @unittest.skip("Test not implemented")
-    def test_stage_load_config(self):
-        """Load config stage should run."""
-        pass
-
-    @unittest.skip("Test not implemented")
-    def test_stage_post_boot(self):
-        """Post-boot stage should run."""
-        pass
-
-    @unittest.skip("Test not implemented")
     def test_navigation_context(self):
         """Navigation should be added to context."""
-        pass
+        with self.app.test_client() as c:
+            result = c.get('/about')
+            self.assertContext('navigation', self.app.navigation)
 
+
+class TestSiteBoot(fake_filesystem_unittest.TestCase):
+    """MDSite object tests """
+
+    def setUp(self):
+        """Create fake filesystem and flask app"""
+        self.setUpPyfakefs()
+        self.os = fake_filesystem.FakeOsModule(self.fs)
+
+        self.fs.CreateFile('/my/content/400.md')
+        self.fs.CreateFile('/my/content/403.md')
+        self.fs.CreateFile('/my/content/404.md')
+        self.fs.CreateFile('/my/content/500.md')
+        self.fs.CreateFile('/my/content/robots.txt')
+        self.fs.CreateFile('/my/content/humans.txt')
+        self.fs.CreateFile('/my/content/favicon.ico')
+        self.fs.CreateFile('/my/content/crossdomain.xml')
+        self.fs.CreateFile('/my/content/index.md')
+        self.fs.CreateFile('/my/content/about/index.md')
+        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/assets/logo.png')
+
+        self.fs.CreateFile('/my/theme/assets/css/style.css')
+        self.fs.CreateFile('/my/theme/assets/js/site.js')
+        self.fs.CreateFile('/my/theme/templates/layout.html')
+        self.fs.CreateFile('/my/theme/templates/navigation.html')
+        self.fs.CreateFile('/my/theme/templates/page.html')
+        self.fs.CreateFile('/my/theme/templates/page_home.html')
+
+    @mock.patch('mdweb.MDSite.MDSite._stage_pre_boot')
+    def test_stage_pre_boot(self, mock_stage_pre_boot):
+        """Pre-boot stage should run."""
+        app = MDTestSite(
+            "MDWeb",
+            app_options={}
+        )
+        app.start()
+
+        self.assertTrue(mock_stage_pre_boot.called)
+
+    @mock.patch('mdweb.MDSite.MDSite._stage_create_app')
+    def test_stage_create_app(self, mock_stage_create_app):
+        """Create app stage should run."""
+        app = MDTestSite(
+            "MDWeb",
+            app_options={}
+        )
+        app.start()
+
+        self.assertTrue(mock_stage_create_app.called)
+
+    # @mock.patch('mdweb.MDSite.MDSite._stage_load_config')
+    # def test_stage_load_config(self, mock_stage_load_config):
+    #     """Load config stage should run."""
+    #     app = MDTestSite(
+    #         "MDWeb",
+    #         app_options={}
+    #     )
+    #     app.start()
+    #
+    #     self.assertTrue(mock_stage_load_config.called)
+
+    @mock.patch('mdweb.MDSite.MDSite._stage_post_boot')
+    def test_stage_post_boot(self, mock_stage_post_boot):
+        """Post-boot stage should run."""
+        app = MDTestSite(
+            "MDWeb",
+            app_options={}
+        )
+        app.start()
+
+        self.assertTrue(mock_stage_post_boot.called)
+
+class TestSiteMissingTemplate(fake_filesystem_unittest.TestCase):
+    """MDSite object tests """
+
+    def setUp(self):
+        """Create fake filesystem and flask app"""
+        self.setUpPyfakefs()
+        self.os = fake_filesystem.FakeOsModule(self.fs)
+
+        self.fs.CreateFile('/my/content/index.md')
+
+    def test_no_theme_directory(self):
+        """Missing theme directory should raise FileExistsError."""
+        self.assertRaises(FileExistsError, MDTestSite, "MDWeb")
+
+
+class TestSiteMissingContent(fake_filesystem_unittest.TestCase):
+    """MDSite object tests """
+
+    def setUp(self):
+        """Create fake filesystem and flask app"""
+        self.setUpPyfakefs()
+        self.os = fake_filesystem.FakeOsModule(self.fs)
+
+        self.fs.CreateFile('/my/theme/assets/css/style.css')
+        self.fs.CreateFile('/my/theme/assets/js/site.js')
+        self.fs.CreateFile('/my/theme/templates/layout.html')
+        self.fs.CreateFile('/my/theme/templates/navigation.html')
+        self.fs.CreateFile('/my/theme/templates/page.html')
+        self.fs.CreateFile('/my/theme/templates/page_home.html')
+
+    def test_no_content_directory(self):
+        """Missing content directory should raise FileExistsError."""
+        self.assertRaises(FileExistsError, MDTestSite, "MDWeb")

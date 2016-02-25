@@ -2,6 +2,7 @@ import re
 from flask.views import View
 import markdown
 import os
+import sys
 
 from mdweb.Exceptions import (
     PageMetaInfFieldException,

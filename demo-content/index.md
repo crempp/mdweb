@@ -5,8 +5,7 @@ Order: 1
 Template: page_home.html
 */
 
-
-##MDWeb is Not a CMS (NaCMS)
+<img src="/contentassets/MDWeb_logo_275x190.png"/>
 
 MDWeb is a markdown based web site framework.
 

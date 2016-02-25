@@ -20,3 +20,12 @@ class PageMetaInfFieldException(Exception):
 
 class PageParseException(Exception):
     pass
+
+
+# Shims for Python 3.x Exceptions
+class FileExistsError(Exception):
+    pass
+
+
+class PermissionError(Exception):
+    pass
