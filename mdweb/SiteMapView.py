@@ -1,3 +1,4 @@
+"""MDWeb SiteMap View Object."""
 import datetime
 import logging
 import numbers
@@ -36,9 +37,13 @@ SITEMAP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 
 
 class SiteMapView(View):
+
+    """Sitemap View Object."""
+
     sitemap_cache = None
 
     def dispatch_request(self):
+        """Flask dispatch method."""
         if self.sitemap_cache is None:
             self.sitemap_cache = self.generate_sitemap()
 
@@ -72,7 +77,7 @@ class SiteMapView(View):
         sitemap_xml = render_template_string(SITEMAP_TEMPLATE, pages=pages)
 
         end = time.time()
-        logging.info("completed sitemap generation in %s seconds" %
+        logging.info("completed sitemap generation in %s seconds",
                      (end - start))
 
         return sitemap_xml

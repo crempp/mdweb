@@ -12,10 +12,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
     def setUp(self):
         """Create fake filesystem."""
         self.setUpPyfakefs()
-        self.os = fake_filesystem.FakeOsModule(self.fs)
-
-    def tearDown(self):
-        pass
+        self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
     def test_empty_content_directory(self):
         """An empty content directory should create an empty nav structure."""
@@ -42,7 +39,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertEqual(len(nav.children), 0)
         self.assertEqual(nav.order, 0)
 
-    def test_multiple_pages_at_top_level(self):
+    def test_multiple_toplevel_pages(self):
         """Multiple pages at the top level should raise an error.
 
         Only index supported at the top level. Allowing pages other than
@@ -53,7 +50,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertRaises(ContentStructureException, Navigation, '/my/content')
 
     def test_simple_nested_structure(self):
-        """ A simple nested structure should create navigation structure."""
+        """A simple nested structure should create navigation structure."""
         self.fs.CreateFile('/my/content/index.md')
         self.fs.CreateFile('/my/content/about/index.md')
         self.fs.CreateFile('/my/content/contact/index.md')
@@ -104,7 +101,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertEqual(contact_nav.order, 0)
 
     def test_complex_nested_structure(self):
-        """ A complex nested structure should create navigation structure."""
+        """A complex nested structure should create navigation structure."""
         self.fs.CreateFile('/my/content/index.md')
         self.fs.CreateFile('/my/content/400.md')
         self.fs.CreateFile('/my/content/403.md')
@@ -298,9 +295,11 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         """Parsing open files should succeed."""
         fs_open = fake_filesystem.FakeFileOpen(self.fs)
         self.fs.CreateFile('/my/content/index.md')
-        open_fd = fs_open('/my/content/index.md', 'r') # pylint: disable=W0612
+        open_fd = fs_open('/my/content/index.md', 'r')
 
         nav = Navigation('/my/content')
+
+        open_fd.close()
 
         self.assertEqual(nav.root_content_path, '/my/content')
         self.assertListEqual(nav.child_navs, [])
@@ -336,7 +335,7 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
     def test_file_persmissions(self):
         """Inaccessible files (due to perms) should raise IOError."""
         self.fs.CreateFile('/my/content/index.md')
-        self.os.chmod('/my/content/index.md', 0o000)
+        self.fake_os.chmod('/my/content/index.md', 0o000)
 
         self.assertRaises(IOError, Navigation, '/my/content')
 
@@ -471,7 +470,7 @@ Order: 8
         self.assertEqual(about_nav.order, 8)
 
     def test_nav_home_metainf_file(self):
-        """Top-level _navlevel.txt should parse properly. """
+        """Top-level _navlevel.txt should parse properly."""
         file_string = u"""# The home page is where the important things are
 
 Nav Name: home
@@ -561,7 +560,7 @@ Order: -34
         self.assertEqual(nav.child_navs[1].content_path, '/my/content/about')
         self.assertEqual(nav.child_navs[2].content_path, '/my/content/work')
         self.assertEqual(nav.child_navs[2].child_navs[0].child_pages[0]
-                         .page_path,'/my/content/work/portfolio/nature.md')
+                         .page_path, '/my/content/work/portfolio/nature.md')
         self.assertEqual(nav.child_navs[2].child_navs[0].child_pages[1]
                          .page_path, '/my/content/work/portfolio/landscapes.md')
         self.assertEqual(nav.child_navs[2].child_navs[0].child_pages[2]

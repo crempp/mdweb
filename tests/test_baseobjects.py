@@ -35,10 +35,12 @@ class TesNavigationBaseItem(fake_filesystem_unittest.TestCase):
 
 
 class TestMetaInfParserx(unittest.TestCase):
-    """Index object tests """
 
-    class MockMetaInf(MetaInfParser):
-        """MDWeb Navigation Meta Information"""
+    """Index object tests."""
+
+    class MockMetaInf(MetaInfParser):  # pylint: disable=R0903
+
+        """MDWeb Navigation Meta Information."""
 
         FIELD_TYPES = {
             'nav_name': ('unicode', None),
@@ -46,6 +48,7 @@ class TestMetaInfParserx(unittest.TestCase):
         }
 
     def test_blank_value(self):
+        """A blank value in a meta-inf definition should raise exception."""
         self.assertRaises(PageMetaInfFieldException,
                           self.MockMetaInf,
                           '''Nav Name: Documentation

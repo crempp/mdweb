@@ -1,8 +1,14 @@
 class ThemeException(Exception):
+
+    """Theme directory or content error."""
+
     pass
 
 
 class ConfigException(Exception):
+
+    """Configuration error."""
+
     pass
 
 
@@ -34,14 +40,14 @@ class PageParseException(Exception):
     pass
 
 
-class FileExistsError(Exception): # pylint: disable=W0622
+class FileExistsError(Exception):  # pylint: disable=W0622
 
     """Shim for FileExistsError in Python 2.x."""
 
     pass
 
 
-class PermissionError(Exception): # pylint: disable=W0622
+class PermissionError(Exception):  # pylint: disable=W0622
 
     """Shim for FileExistsError in Python 2.x."""
 

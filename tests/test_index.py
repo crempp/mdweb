@@ -13,6 +13,7 @@ class MDTestSite(MDSite):
     class MDConfig:
 
         """Config for testing use."""
+
         DEBUG = False
         CONTENT_PATH = '/my/content/'
         THEME = '/my/theme/'
@@ -24,7 +25,7 @@ class TestIndex(fake_filesystem_unittest.TestCase):
     """Index object tests."""
 
     def setUp(self):
-        """Create fake filesystem and flask app"""
+        """Create fake filesystem and flask app."""
         self.setUpPyfakefs()
         self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 

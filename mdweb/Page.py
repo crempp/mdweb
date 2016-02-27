@@ -1,3 +1,4 @@
+"""MDWeb Page Objects."""
 import os
 import re
 
@@ -10,8 +11,9 @@ from mdweb.Exceptions import (
 )
 
 
-class PageMetaInf(MetaInfParser):
-    """MDWeb Page Meta Information"""
+class PageMetaInf(MetaInfParser):  # pylint: disable=R0903
+
+    """MDWeb Page Meta Information."""
 
     FIELD_TYPES = {
         'title': ('unicode', None),
@@ -38,7 +40,8 @@ class PageMetaInf(MetaInfParser):
 
 
 class Page(NavigationBaseItem):
-    """MDWeb Page View"""
+
+    """MDWeb Page View."""
 
     #: A regex for extracting meta information (and comments).
     META_INF_REGEX = r'(/\*(?P<metainf>.*)\*/)?(?P<content>.*)'
@@ -47,6 +50,7 @@ class Page(NavigationBaseItem):
     URL_PATH_REGEX = r'^%s(?P<path>[^\0]*?)(index)?(\.md)'
 
     def __init__(self, content_path, page_path):
+        """Initialize Page object."""
         self.page_path = page_path
 
         # Extract the part of the page_path that will be used as the URL path
@@ -63,8 +67,8 @@ class Page(NavigationBaseItem):
                                    page_path)
 
         # Read the page file
-        with open(self.page_path, 'r') as f:
-            file_string = f.read()
+        with open(self.page_path, 'r') as file:
+            file_string = file.read()
 
         # Separate the meta information and the page content
         meta_inf_regex = re.compile(self.META_INF_REGEX, flags=re.DOTALL)
@@ -83,8 +87,8 @@ class Page(NavigationBaseItem):
 
     @staticmethod
     def parse_markdown(page_markdown):
-        """
-        Parse given markdown string into rendered html.
+        """Parse given markdown string into rendered html.
+
         :param page_markdown: Markdown to be parsed
         :return: Rendered page HTML
         """
