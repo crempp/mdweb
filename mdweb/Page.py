@@ -1,18 +1,16 @@
-import re
-from flask.views import View
-import markdown
 import os
-import sys
+import re
 
+import markdown
+
+from mdweb.BaseObjects import NavigationBaseItem, MetaInfParser
 from mdweb.Exceptions import (
-    PageMetaInfFieldException,
     ContentException,
     PageParseException,
 )
-from mdweb.NavigationBaseItem import NavigationBaseItem
 
 
-class PageMetaInf(object):
+class PageMetaInf(MetaInfParser):
     """MDWeb Page Meta Information"""
 
     FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]*):(?P<value>.*)$'
@@ -36,47 +34,12 @@ class PageMetaInf(object):
 
         :param meta_string: Raw meta-inf content as a string
         """
-
-        # Initialize attributes defined in FIELD_TYPES
-        for attribute, attribute_details in self.FIELD_TYPES.items():
-            setattr(self, attribute, attribute_details[1])
-
-        self._parse_meta_inf(meta_string)
-
-    def _parse_meta_inf(self, meta_inf_string):
-        """Parse given meta information string into a dictionary of meta
-        information key:value pairs.
-
-        :param meta_inf_string: Raw meta content
-        """
-
-        lines = meta_inf_string.split('\n')
-
-        for l in lines:
-            if l.strip(' ') == '' or re.match(r'^ *#', l):
-                continue
-            match = re.search(self.FIELD_VALUE_REGEX, l)
-            key = match.group('key').strip().lower().replace(' ', '_')
-            value = match.group('value').strip()
-            if key not in self.FIELD_TYPES.keys():
-                raise PageMetaInfFieldException("Unsupported field '%s'" % key)
-            # Cast field value to appropriate type
-            if 'int' == self.FIELD_TYPES[key][0]:
-                value = int(value)
-            elif 'unicode' == self.FIELD_TYPES[key][0]:
-                if 'unicode' in __builtins__.keys():
-                    # Python 2.x
-                    value = __builtins__['unicode'](value)
-                else:
-                    # Python 3.x
-                    value = str(value)
-
-            setattr(self, key, value)
+        super(PageMetaInf, self).__init__(meta_string)
 
         self.nav_name = self.title if self.nav_name is None else self.nav_name
 
 
-class Page(View, NavigationBaseItem):
+class Page(NavigationBaseItem):
     """MDWeb Page View"""
 
     #: A regex for extracting meta information (and comments).

@@ -1,0 +1,6 @@
+# The about section is about me and my life on earth
+#
+# I intend on filling it with all the interesting things I've done.
+
+Nav Name: About
+Order: 8
