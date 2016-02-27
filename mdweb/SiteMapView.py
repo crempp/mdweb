@@ -1,3 +1,4 @@
+"""MDWeb SiteMap View Object."""
 import datetime
 import logging
 import numbers
@@ -15,6 +16,8 @@ from flask.views import View
 
 #: Template string to use for the sitemap generation
 # (is there a better place to put this?, not in the theme)
+# pylint: disable=C0301
+# pylint: disable=E501
 SITEMAP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -36,9 +39,13 @@ SITEMAP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 
 
 class SiteMapView(View):
+
+    """Sitemap View Object."""
+
     sitemap_cache = None
 
     def dispatch_request(self):
+        """Flask dispatch method."""
         if self.sitemap_cache is None:
             self.sitemap_cache = self.generate_sitemap()
 
@@ -54,7 +61,7 @@ class SiteMapView(View):
 
         pages = []
 
-        index_url = url_for('index',_external=True)
+        index_url = url_for('index', _external=True)
 
         for url, page in app.navigation.get_page_dict().items():
             mtime = os.path.getmtime(page.page_path)
@@ -72,7 +79,7 @@ class SiteMapView(View):
         sitemap_xml = render_template_string(SITEMAP_TEMPLATE, pages=pages)
 
         end = time.time()
-        logging.info("completed sitemap generation in %s seconds" %
+        logging.info("completed sitemap generation in %s seconds",
                      (end - start))
 
         return sitemap_xml
