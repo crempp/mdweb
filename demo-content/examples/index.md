@@ -1,7 +1,6 @@
 /*
 Title: Markdown Examples
 Description: Examples of how to use MDWeb
-Order: 4
 */
 
 Examples taken from https://daringfireball.net/projects/markdown/basics

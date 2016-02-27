@@ -1,6 +1,7 @@
 """
-Tests for the MDWeb Site
+Tests for the MDWeb Base Objects
 """
+import unittest
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
 try:
     # Python >= 3.3
@@ -9,12 +10,14 @@ except ImportError:
     # Python < 3.3
     import mock
 
+from mdweb.BaseObjects import MetaInfParser
+from mdweb.Exceptions import PageMetaInfFieldException
 from mdweb.Navigation import Navigation
 from mdweb.Page import Page
 
 
-class TestSite(fake_filesystem_unittest.TestCase):
-    """MDSite object tests """
+class TesNavigationBaseItem(fake_filesystem_unittest.TestCase):
+    """MDSite Navigation Base tests """
 
     def setUp(self):
         """Create fake filesystem"""
@@ -38,3 +41,21 @@ class TestSite(fake_filesystem_unittest.TestCase):
         p = Page('/my/content', '/my/content/index.md')
 
         self.assertEqual(p.nav_type, "Page")
+
+
+class TestMetaInfParserx(unittest.TestCase):
+    """Index object tests """
+
+    class MockMetaInf(MetaInfParser):
+        """MDWeb Navigation Meta Information"""
+
+        FIELD_TYPES = {
+            'nav_name': ('unicode', None),
+            'order': ('int', 0),
+        }
+
+    def test_blank_value(self):
+        self.assertRaises(PageMetaInfFieldException,
+                          self.MockMetaInf,
+                          '''Nav Name: Documentation
+Order: ''')
