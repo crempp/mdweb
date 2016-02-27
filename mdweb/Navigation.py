@@ -144,6 +144,14 @@ class Navigation(NavigationBaseItem):
     def children(self):
         return self.child_navs + self.child_pages
 
+    @property
+    def root_content_path(self):
+        return self._root_content_path
+
+    @property
+    def content_path(self):
+        return self._content_path
+
     def _scan(self):
         # Get a list of files in content_directory
         directory_files = os.listdir(self._content_path)
