@@ -513,3 +513,53 @@ Order: -34
         self.assertFalse(about_nav.has_children)
         self.assertEqual(len(about_nav.children), 0)
         self.assertEqual(about_nav.order, 0)
+
+    def test_nav_ordering(self):
+        """ Navigation should follow ordering defined in meta-inf."""
+        self.fs.CreateFile('/my/content/about/_navlevel.txt',
+                           contents='Order: 4')
+        self.fs.CreateFile('/my/content/contact/_navlevel.txt',
+                           contents='Order: 1')
+        self.fs.CreateFile('/my/content/work/_navlevel.txt',
+                           contents='Order: 7')
+
+        self.fs.CreateFile('/my/content/index.md')
+        self.fs.CreateFile('/my/content/about/index.md', contents='''/*
+                            Order: 5
+                            */''')
+        self.fs.CreateFile('/my/content/contact/index.md', contents='''/*
+                            Order: 10
+                            */''')
+        self.fs.CreateFile('/my/content/contact/westcoast.md', contents='''/*
+                            Order: 6
+                            */''')
+        self.fs.CreateFile('/my/content/contact/eastcoast.md', contents='''/*
+                            Order: 3
+                            */''')
+        self.fs.CreateFile('/my/content/work/portfolio/index.md',
+                           contents='''/*
+                           Order: 9
+                           */''')
+        self.fs.CreateFile('/my/content/work/portfolio/landscapes.md',
+                           contents='''/*
+                            Order: 10
+                            */''')
+        self.fs.CreateFile('/my/content/work/portfolio/portraits.md',
+                           contents='''/*
+                            Order: 11
+                            */''')
+        self.fs.CreateFile('/my/content/work/portfolio/nature.md',
+                           contents='''/*
+                            Order: 8
+                            */''')
+
+        nav = Navigation('/my/content')
+
+        self.assertEqual(nav.child_navs[0]._content_path, '/my/content/contact')
+        self.assertEqual(nav.child_navs[0].child_pages[0].page_path, '/my/content/contact/eastcoast.md')
+        self.assertEqual(nav.child_navs[0].child_pages[1].page_path, '/my/content/contact/westcoast.md')
+        self.assertEqual(nav.child_navs[1]._content_path, '/my/content/about')
+        self.assertEqual(nav.child_navs[2]._content_path, '/my/content/work')
+        self.assertEqual(nav.child_navs[2].child_navs[0].child_pages[0].page_path, '/my/content/work/portfolio/nature.md')
+        self.assertEqual(nav.child_navs[2].child_navs[0].child_pages[1].page_path, '/my/content/work/portfolio/landscapes.md')
+        self.assertEqual(nav.child_navs[2].child_navs[0].child_pages[2].page_path, '/my/content/work/portfolio/portraits.md')

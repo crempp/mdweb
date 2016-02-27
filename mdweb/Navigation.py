@@ -52,8 +52,6 @@ from mdweb.BaseObjects import NavigationBaseItem, MetaInfParser
 class NavigationMetaInf(MetaInfParser):
     """MDWeb Navigation Meta Information"""
 
-    FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]*):(?P<value>.*)$'
-
     FIELD_TYPES = {
         'nav_name': ('unicode', None),
         'order': ('int', 0),
@@ -80,6 +78,10 @@ class Navigation(NavigationBaseItem):
         '403.md',
         '404.md',
         '500.md',
+    ]
+
+    skip_directories = [
+        'assets',
     ]
 
     #: Root path to content
@@ -165,13 +167,13 @@ class Navigation(NavigationBaseItem):
         for filename in directory_files:
             # Check if the file has an extension allowable for nav
 
-            if filename in self.skip_files:
-                continue
-
             filepath = os.path.join(self._content_path, filename)
 
             # Check if it's a normal file or directory
             if os.path.isfile(filepath):
+                if filename in self.skip_files:
+                    continue
+
                 page_name, ext = os.path.splitext(os.path.basename(filepath))
                 if ext not in self.extensions:
                     continue
@@ -196,8 +198,15 @@ class Navigation(NavigationBaseItem):
                     self.child_pages.append(page)
 
             elif os.path.isdir(filepath):
+                if filename in self.skip_directories:
+                    continue
+
                 # We got a directory, create a new nav level
                 self.child_navs.append(Navigation(filepath, self.level + 1))
+
+        # Now sort
+        self.child_navs.sort(key=lambda x: x.order)
+        self.child_pages.sort(key=lambda x: x.meta_inf.order)
 
     def get_page_dict(self, nav=None):
         """Return a flattened dictionary of pages."""

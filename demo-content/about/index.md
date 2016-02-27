@@ -2,7 +2,6 @@
 Title: About MDWeb
 Description: This description will go in the meta description tag
 Nav Name: About MDWeb
-Order: 1
 Sitemap Priority: 0.9
 Sitemap Changefreq: monthly
 */

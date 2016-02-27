@@ -13,8 +13,6 @@ from mdweb.Exceptions import (
 class PageMetaInf(MetaInfParser):
     """MDWeb Page Meta Information"""
 
-    FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]*):(?P<value>.*)$'
-
     FIELD_TYPES = {
         'title': ('unicode', None),
         'nav_name': ('unicode', None),

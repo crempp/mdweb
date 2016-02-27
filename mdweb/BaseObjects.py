@@ -18,7 +18,7 @@ class NavigationBaseItem(object):
 class MetaInfParser(object):
     """ Base Meta Inf Parser """
     FIELD_TYPES = {}
-    FIELD_VALUE_REGEX = ""
+    FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]*):(?P<value>.*)$'
 
     def __init__(self, meta_string):
 
@@ -46,6 +46,9 @@ class MetaInfParser(object):
             if key not in self.FIELD_TYPES.keys():
                 raise PageMetaInfFieldException("Unsupported field '%s'" % key)
             # Cast field value to appropriate type
+            if '' == value:
+                raise PageMetaInfFieldException(
+                    "Empty value for meta-inf field '%s'" % key)
             if 'int' == self.FIELD_TYPES[key][0]:
                 value = int(value)
             elif 'unicode' == self.FIELD_TYPES[key][0]:
