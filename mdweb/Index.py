@@ -10,7 +10,7 @@ class Index(View):
 
     methods = ['GET']
 
-    def dispatch_request(self, path):
+    def dispatch_request(self, path): # pylint: disable=W0221
         """Dispatch request"""
 
         page = app.get_page(path)

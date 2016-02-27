@@ -181,38 +181,3 @@ class Navigation(NavigationBaseItem):
             pages.update(p)
 
         return pages
-
-    def print_debug_nav(self, nav=None, level=0, out=sys.stdout):
-        """Print the navigation structure for debugging.
-
-        :param nav: Navigation object to print
-        :param level: Nav level of the
-        """
-        indentation_inc = 2
-        navigation_level = 0 if nav is None else nav.level
-        nav_indentation = ' ' * navigation_level
-        page_indentation = ' ' * (navigation_level + indentation_inc)
-
-        # If no nav is given start at self (top level)
-        if nav is None:
-            nav = self
-
-            # Print header
-            out.write("+-Navigation Structure----------------------------+")
-            out.write("|   N  = Navigtion Level                          |")
-            out.write("|          [*:9]] = [has_page:nav_level]          |")
-            out.write("|   P = Page                                      |")
-            out.write("+-------------------------------------------------+")
-
-        hp = nav.has_page
-        out.write('%sN[%s:%s] %s (%s) {%s}' % (nav_indentation, '*' if hp else '-',
-                                               navigation_level, nav.name,
-                                               nav._content_path,
-                                               nav.page.url_path if hp else '-'))
-
-        for page in nav.child_pages:
-            out.write('%sP %s' % (page_indentation,
-                                  os.path.basename(page.page_path)))
-
-        for child_nav in nav.child_navs:
-            self.print_debug_nav(child_nav, navigation_level + indentation_inc)

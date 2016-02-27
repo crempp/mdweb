@@ -1,11 +1,18 @@
 language: python
-build_image: shippableimages/ubuntu1204_python
+build_image: shippableimages/ubuntu1404_python
 python:
   - "2.7"
   - "3.3"
   - "3.4"
 
 install: "pip install -r requirements.txt"
+
+cache: true
+
+branches:
+  only:
+    - feature
+    - release
 
 # Make folders for the reports
 before_script:

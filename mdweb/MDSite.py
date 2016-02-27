@@ -74,7 +74,7 @@ class MDSite(Flask):
     #: Navigation structure
     navigation = None
 
-    def __init__(self, site_name, app_options={}, site_options={}):
+    def __init__(self, site_name, app_options=None, site_options=None):
         """
         Initialize the Flask application and start the app.
 
@@ -88,9 +88,9 @@ class MDSite(Flask):
         """
 
         self.site_name = site_name
-        self.app_options = app_options
+        self.app_options = {} if app_options is None else app_options
         self.site_options = BASE_SITE_OPTIONS
-        self.site_options.update(site_options)
+        self.site_options.update({} if site_options is None else site_options)
         self.pages = []
         self.content_observer = None
         self.theme_observer = None
@@ -160,11 +160,11 @@ class MDSite(Flask):
 
         class ContentHandler(FileSystemEventHandler):
             def on_modified(self, event):
-                logging.debug('%s "%s" was "%s"' % (
-                    'Directory' if event.is_directory else "File",
-                    event.src_path,
-                    event.event_type
-                ))
+                logging.debug('%s "%s" was "%s"',
+                              'Directory' if event.is_directory else "File",
+                               event.src_path,
+                               event.event_type
+                              )
 
                 _this.start()
 
