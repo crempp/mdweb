@@ -42,15 +42,15 @@ Future Features:
 from collections import OrderedDict
 import os
 import re
-import sys
 
-from mdweb.Exceptions import *
-from mdweb.Page import Page, MetaInfParser
+from mdweb.Exceptions import ContentException, ContentStructureException
+from mdweb.Page import Page
 from mdweb.BaseObjects import NavigationBaseItem, MetaInfParser
 
 
-class NavigationMetaInf(MetaInfParser):
-    """MDWeb Navigation Meta Information"""
+class NavigationMetaInf(MetaInfParser):   # pylint: disable=R0903
+
+    """MDWeb Navigation Meta Information."""
 
     FIELD_TYPES = {
         'nav_name': ('unicode', None),
@@ -58,14 +58,15 @@ class NavigationMetaInf(MetaInfParser):
     }
 
 
-
 class Navigation(NavigationBaseItem):
-    """ Navigation level representation
+
+    """ Navigation level representation.
+
     Navigation is built rescursivly by walking the content directory. Each
     directory represents a navigation level, each file represents a page.
 
-    Each nav level's name is determined by the directory name.
-    """
+    Each nav level's name is determined by the directory name."""
+
     #: MetaInf file name
     nav_metainf_file_name = '_navlevel.txt'
 
@@ -88,6 +89,7 @@ class Navigation(NavigationBaseItem):
     _root_content_path = None
 
     def __init__(self, content_path, nav_level=0):
+        """Initialize navigation level."""
         #: path to content for current navigation level
         self._content_path = os.path.abspath(content_path)
 
@@ -137,22 +139,27 @@ class Navigation(NavigationBaseItem):
 
     @property
     def has_children(self):
+        """Does the navigatin level have any page or nav children."""
         return len(self.child_navs) > 0 or \
                len(self.child_pages) > 0
 
     @property
     def children(self):
+        """Return a list of the child_navs and child_pages."""
         return self.child_navs + self.child_pages
 
     @property
     def root_content_path(self):
+        """Return the root_content_path."""
         return self._root_content_path
 
     @property
     def content_path(self):
+        """Return the content_path."""
         return self._content_path
 
     def _scan(self):
+        """Scan the root content path recursively for pages and navigation."""
         # Get a list of files in content_directory
         directory_files = os.listdir(self._content_path)
 
@@ -161,8 +168,8 @@ class Navigation(NavigationBaseItem):
             absolut_meta_inf_path = os.path.join(self._content_path,
                                                  self.nav_metainf_file_name)
             # Read the meta-inf file
-            with open(absolut_meta_inf_path, 'r') as f:
-                file_string = f.read()
+            with open(absolut_meta_inf_path, 'r') as file:
+                file_string = file.read()
             self.meta_inf = NavigationMetaInf(file_string)
 
             if hasattr(self.meta_inf, 'order'):
@@ -191,8 +198,8 @@ class Navigation(NavigationBaseItem):
                 # a confusing navigation structure.
                 if self.level == 0 and 'index' != page_name:
                     raise ContentStructureException(
-                            "Only index allowed in top level navigation,"
-                            " found %s" % page_name)
+                        "Only index allowed in top level navigation, found %s"
+                        % page_name)
 
                 # We have got a nav file!
                 page = Page(self._root_content_path, filepath)
@@ -231,7 +238,7 @@ class Navigation(NavigationBaseItem):
             pages[page.url_path] = page
 
         for child_nav in nav.child_navs:
-            p = self.get_page_dict(nav=child_nav)
-            pages.update(p)
+            page = self.get_page_dict(nav=child_nav)
+            pages.update(page)
 
         return pages

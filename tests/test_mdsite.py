@@ -1,7 +1,4 @@
-"""
-Tests for the MDWeb Site
-"""
-import datetime
+"""Tests for the MDWeb Site."""
 from dateutil import parser
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
 from flask.ext.testing import TestCase
@@ -16,28 +13,31 @@ from mdweb.MDSite import MDSite
 
 # Shim Python 3.x Exceptions
 if 'FileExistsError' not in __builtins__.keys():
-    from mdweb.Exceptions import FileExistsError
+    from mdweb.Exceptions import FileExistsError  # pylint: disable=W0622
 
 
 class MDTestSite(MDSite):
-    """Site to use for testing"""
-    class MDConfig:
+
+    """Site to use for testing."""
+
+    class MDConfig:  # pylint: disable=R0903
+
+        """Config class for testing."""
+
         DEBUG = False
-        SECRET_KEY = '\x85\xa2\x1c\xfd\x07MF\xcb_ ]\x1e\x9e\xab\xa2qn\xd1\x82\xcb^\x11x\xc5'
         CONTENT_PATH = '/my/content/'
         THEME = '/my/theme/'
         TESTING = True
 
-    pass
-
 
 class TestSite(fake_filesystem_unittest.TestCase, TestCase):
-    """MDSite object tests """
+
+    """MDSite object tests."""
 
     def create_app(self):
-        """Create fake filesystem and flask app"""
+        """Create fake filesystem and flask app."""
         self.setUpPyfakefs()
-        self.os = fake_filesystem.FakeOsModule(self.fs)
+        self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
         file_string = u"""/*
 Title: MDWeb
@@ -54,7 +54,7 @@ Sitemap ChangeFreq: daily
         self.fs.CreateFile('/my/content/500.md')
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string).SetMTime(
-                           parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
+            parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
         )
         self.fs.CreateFile('/my/content/about/index.md').SetMTime(
             parser.parse('Wed, 27 Jun 2015 13:12:15 +0000')
@@ -79,15 +79,10 @@ Sitemap ChangeFreq: daily
 
         return app
 
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_site_created(self):
         """Site should initalize properly."""
         self.assertEqual(self.app.site_name, 'MDWeb')
+        # pylint: disable=W0212
         self.assertEqual(self.app._static_folder, '/my/theme/assets')
         self.assertIsNotNone(self.app.navigation)
         self.assertGreater(len(self.app.pages), 0)
@@ -106,11 +101,11 @@ Sitemap ChangeFreq: daily
 
     def test_page_lookup(self):
         """Page lookup should return the correct page based on URL path."""
-        p = self.app.get_page('')
-        self.assertEqual(p.page_path, '/my/content/index.md')
+        page = self.app.get_page('')
+        self.assertEqual(page.page_path, '/my/content/index.md')
 
-        p = self.app.get_page('about')
-        self.assertEqual(p.page_path, '/my/content/about/index.md')
+        page = self.app.get_page('about')
+        self.assertEqual(page.page_path, '/my/content/about/index.md')
 
     def test_error_page(self):
         """Error should return status 404 and content from 404 template."""
@@ -133,17 +128,18 @@ Sitemap ChangeFreq: daily
 
     def test_navigation_context(self):
         """Navigation should be added to context."""
-        with self.app.test_client() as c:
-            result = c.get('/about')
+        with self.app.test_client() as client:
+            client.get('/about')
             self.assertContext('navigation', self.app.navigation)
 
     def test_sitemap_xml(self):
-        with self.app.test_client() as c:
-            response = c.get('/sitemap.xml')
+        with self.app.test_client() as client:
+            response = client.get('/sitemap.xml')
 
         print(str(response.data).replace("\\n", "\n"))
 
         self.assert200(response)
+        # pylint: disable=C0301
         self.assertEqual(response.data, b"""<?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -163,12 +159,13 @@ Sitemap ChangeFreq: daily
 </urlset>""")
 
 class TestSiteBoot(fake_filesystem_unittest.TestCase):
-    """MDSite object tests """
+
+    """MDSite object tests."""
 
     def setUp(self):
-        """Create fake filesystem and flask app"""
+        """Create fake filesystem and flask app."""
         self.setUpPyfakefs()
-        self.os = fake_filesystem.FakeOsModule(self.fs)
+        self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
         self.fs.CreateFile('/my/content/400.md')
         self.fs.CreateFile('/my/content/403.md')
@@ -225,12 +222,13 @@ class TestSiteBoot(fake_filesystem_unittest.TestCase):
 
 
 class TestSiteMissingTemplate(fake_filesystem_unittest.TestCase):
-    """MDSite object tests """
+
+    """MDSite object tests."""
 
     def setUp(self):
-        """Create fake filesystem and flask app"""
+        """Create fake filesystem and flask app."""
         self.setUpPyfakefs()
-        self.os = fake_filesystem.FakeOsModule(self.fs)
+        self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
         self.fs.CreateFile('/my/content/index.md')
 
@@ -240,12 +238,13 @@ class TestSiteMissingTemplate(fake_filesystem_unittest.TestCase):
 
 
 class TestSiteMissingContent(fake_filesystem_unittest.TestCase):
-    """MDSite object tests """
+
+    """MDSite object tests."""
 
     def setUp(self):
-        """Create fake filesystem and flask app"""
+        """Create fake filesystem and flask app."""
         self.setUpPyfakefs()
-        self.os = fake_filesystem.FakeOsModule(self.fs)
+        self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
         self.fs.CreateFile('/my/theme/assets/css/style.css')
         self.fs.CreateFile('/my/theme/assets/js/site.js')

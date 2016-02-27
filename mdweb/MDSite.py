@@ -1,3 +1,4 @@
+"""The MDWeb Site object."""
 import logging
 import os
 
@@ -17,19 +18,19 @@ from mdweb.Navigation import Navigation
 
 # Shim Python 3.x Exceptions
 if 'FileExistsError' not in __builtins__.keys():
-    from mdweb.Exceptions import FileExistsError
+    from mdweb.Exceptions import FileExistsError  # pylint: disable=W0622
 
 # Setup signals
-sig_namespace = blinker.Namespace()
-mdw_signaler = {
-    'pre-boot' : sig_namespace.signal('pre-boot'),
-    'pre-navigation-scan': sig_namespace.signal('pre-navigation-scan'),
-    'post-navigation-scan': sig_namespace.signal('post-navigation-scan'),
-    'pre-app-start' : sig_namespace.signal('pre-app-start'),
-    'post-app-start' : sig_namespace.signal('post-app-start'),
-    'pre-config' : sig_namespace.signal('pre-config'),
-    'post-config' : sig_namespace.signal('post-config'),
-    'post-boot': sig_namespace.signal('post-boot'),
+SIG_NAMESPACE = blinker.Namespace()
+MDW_SIGNALER = {
+    'pre-boot': SIG_NAMESPACE.signal('pre-boot'),
+    'pre-navigation-scan': SIG_NAMESPACE.signal('pre-navigation-scan'),
+    'post-navigation-scan': SIG_NAMESPACE.signal('post-navigation-scan'),
+    'pre-app-start': SIG_NAMESPACE.signal('pre-app-start'),
+    'post-app-start': SIG_NAMESPACE.signal('post-app-start'),
+    'pre-config': SIG_NAMESPACE.signal('pre-config'),
+    'post-config': SIG_NAMESPACE.signal('post-config'),
+    'post-boot': SIG_NAMESPACE.signal('post-boot'),
 }
 
 BASE_SETTINGS = {
@@ -59,7 +60,8 @@ BASE_SITE_OPTIONS = {
 }
 
 class MDSite(Flask):
-    """ MDWeb site
+
+    """MDWeb site.
 
     An MDWeb Site is very closely related to a Flask application.
     """
@@ -75,19 +77,16 @@ class MDSite(Flask):
     #: Navigation structure
     navigation = None
 
+    # pylint: disable=W0231
     def __init__(self, site_name, app_options=None, site_options=None):
-        """
-        Initialize the Flask application and start the app.
+        """Initialize the Flask application and start the app.
 
         :param site_name: The name of the site, will be used as the flask
                           import_name.
-
         :param app_options: Additional parameters to be passed to Flask
                             constructor
-
         :param site_options: Options specific to MDWeb sites
         """
-
         self.site_name = site_name
         self.app_options = {} if app_options is None else app_options
         self.site_options = BASE_SITE_OPTIONS
@@ -106,36 +105,35 @@ class MDSite(Flask):
         super(MDSite, self).__init__(self.site_name, **self.app_options)
 
         #: START THE BOOT PROCESS
-        mdw_signaler['pre-boot'].send(self)
+        MDW_SIGNALER['pre-boot'].send(self)
         self._stage_pre_boot()
 
         #: START THE FLASK APP
         # We must start the app straight away because we can't get the config
         # easily until we do. The rest of the boot tasks will require the
         # config.
-        mdw_signaler['pre-app-start'].send(self)
+        MDW_SIGNALER['pre-app-start'].send(self)
         self._stage_create_app()
-        mdw_signaler['post-app-start'].send(self)
+        MDW_SIGNALER['post-app-start'].send(self)
 
         #: LOAD THE CONFIG
-        mdw_signaler['pre-config'].send(self)
+        MDW_SIGNALER['pre-config'].send(self)
         self._stage_load_config()
-        mdw_signaler['post-config'].send(self)
+        MDW_SIGNALER['post-config'].send(self)
 
         #: SETUP NAVIGATION
-        mdw_signaler['pre-navigation-scan'].send(self)
+        MDW_SIGNALER['pre-navigation-scan'].send(self)
         self.navigation = Navigation(self.config['CONTENT_PATH'])
         self.pages = self.navigation.get_page_dict()
         self.context_processor(self._inject_navigation)
-        mdw_signaler['post-navigation-scan'].send(self)
+        MDW_SIGNALER['post-navigation-scan'].send(self)
 
         #: FINISH THINGS UP
         self._stage_post_boot()
-        mdw_signaler['post-boot'].send(self)
+        MDW_SIGNALER['post-boot'].send(self)
 
     def get_page(self, url_path):
-        """
-        Lookup the page for the given url path
+        """Lookup the page for the given url path.
 
         :param url_path:
         :return: Page object matching the requested url path
@@ -146,8 +144,8 @@ class MDSite(Flask):
 
         return None
 
-    def error_page_not_found(self, e):
-        """ Show custom 404 page
+    def error_page_not_found(self, error):
+        """Show custom 404 page.
 
         :param e:
         """
@@ -155,17 +153,18 @@ class MDSite(Flask):
         return "404 - TODO: Make this use the 404.md", 404
 
     def _register_observers(self):
-        """Setup a watcher to rebuild the nav whenever a file has changed in
-        content."""
+        """Setup a watcher to rebuild the nav whenever a file has changed."""
         _this = self
 
         class ContentHandler(FileSystemEventHandler):
+
+            """Custom event handler for changed files."""
+
             def on_modified(self, event):
                 logging.debug('%s "%s" was "%s"',
                               'Directory' if event.is_directory else "File",
-                               event.src_path,
-                               event.event_type
-                              )
+                              event.src_path,
+                              event.event_type)
 
                 _this.start()
 
@@ -192,11 +191,11 @@ class MDSite(Flask):
 
     def _stage_create_app(self):
         """Create the Flask application."""
-
         # Setup special root-level asset routes
         # NOTE: The usage of url_for doesn't work here. Rather, use a view with
         # send_from_directory() - http://stackoverflow.com/a/20648053/1436323
         def special_root_file(filename):
+            """Root file Flask view."""
             return send_file(os.path.join(self.config['CONTENT_PATH'],
                                           filename))
         for asset in self.ROOT_LEVEL_ASSETS:
@@ -205,6 +204,7 @@ class MDSite(Flask):
 
         # Setup content asset route
         def custom_static(filename):
+            """Custom static file Flask view."""
             return send_from_directory(self.config['CONTENT_ASSET_PATH'],
                                        filename)
         self.add_url_rule('/contentassets/<path:filename>',
@@ -230,10 +230,7 @@ class MDSite(Flask):
                             datefmt='%Y-%m-%d %H:%M:%S')
 
     def _stage_load_config(self):
-        """Load the configuration of the application being started.
-
-         :param filename: Application's configuration filename
-         """
+        """Load the configuration of the application being started."""
         self_fqcn = self.__module__ + "." + self.__class__.__name__
         self.config.from_object('%s.MDConfig' % self_fqcn)
 
@@ -258,11 +255,11 @@ class MDSite(Flask):
         # directory
         # http://stackoverflow.com/a/13598839
         my_loader = jinja2.ChoiceLoader([
-                self.jinja_loader,
-                jinja2.FileSystemLoader([
-                    os.path.join(self.config['THEME_FOLDER'], 'templates'),
-                ]),
-            ])
+            self.jinja_loader,
+            jinja2.FileSystemLoader([
+                os.path.join(self.config['THEME_FOLDER'], 'templates'),
+            ]),
+        ])
         self.jinja_loader = my_loader
 
         # Extend the content path to the absolute path

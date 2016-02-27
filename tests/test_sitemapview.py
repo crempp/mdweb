@@ -1,9 +1,7 @@
-"""
-Tests for the MDWeb Sitemap View
+"""Tests for the MDWeb Sitemap View.
 
 TODO: Test that the sitemap cache is regenerated when a file changes
 """
-import datetime
 from dateutil import parser
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
 from flask.ext.testing import TestCase
@@ -13,25 +11,27 @@ from mdweb.SiteMapView import SiteMapView
 
 
 class MDTestSite(MDSite):
-    """Site to use for testing"""
 
-    class MDConfig:
+    """Site to use for testing."""
+
+    class MDConfig:  # pylint: disable=R0903
+
+        """Config class for testing."""
+
         DEBUG = False
-        SECRET_KEY = '\x85\xa2\x1c\xfd\x07MF\xcb_ ]\x1e\x9e\xab\xa2qn\xd1\x82\xcb^\x11x\xc5'
         CONTENT_PATH = '/my/content/'
         THEME = '/my/theme/'
         TESTING = True
 
-    pass
-
 
 class TestSiteMapView(fake_filesystem_unittest.TestCase, TestCase):
-    """Navigation object tests """
+
+    """Navigation object tests."""
 
     def create_app(self):
-        """Create fake filesystem"""
+        """Create fake filesystem."""
         self.setUpPyfakefs()
-        self.os = fake_filesystem.FakeOsModule(self.fs)
+        self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
         file_string = u"""/*
 Title: MDWeb
@@ -48,7 +48,7 @@ Sitemap ChangeFreq: daily
         self.fs.CreateFile('/my/content/500.md')
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string).SetMTime(
-                           parser.parse('Thu, 26 Jun 2015 11:21:15 +0000')
+            parser.parse('Thu, 26 Jun 2015 11:21:15 +0000')
         )
         self.fs.CreateFile('/my/content/about/index.md').SetMTime(
             parser.parse('Thu, 26 Jun 2015 12:21:15 +0000')
@@ -97,9 +97,9 @@ Sitemap ChangeFreq: daily
 
     def test_sitemap_generation(self):
         """Generated sitemap should match pages in the filesystem."""
-
         sitemap = SiteMapView.generate_sitemap()
 
+        # pylint: disable=C0301
         self.assertEqual(sitemap, '''<?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
