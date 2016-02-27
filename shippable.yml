@@ -10,10 +10,9 @@ install: "pip install -r requirements.txt"
 cache: true
 
 # We only want to build feature/* and release/* branches but shippable doesn't
-# support wildcards so we exclude master and develop
+# support wildcards so we exclude develop
 branches:
   except:
-    - master
     - develop
 
 # Make folders for the reports
