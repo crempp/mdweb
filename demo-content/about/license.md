@@ -1,4 +1,12 @@
-##Source Code
+/*
+Title: MDWeb License
+Description: MDWeb Opensource License
+Nav Name: License
+Order: 99
+Sitemap Priority: 0.1
+Sitemap Changefreq: never
+*/
+## MDWeb License
 
 MDWeb is released under the MIT license.
 

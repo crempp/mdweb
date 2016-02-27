@@ -1,4 +1,4 @@
-# Markdown based web site framework
+# Markdown based web site framework [![Code Health](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup/landscape.svg?style=flat)](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup) [![Build Status](https://img.shields.io/shippable/56bc32841895ca447473c981.svg)](https://app.shippable.com/projects/56bc32841895ca447473c981)
 
 MDWeb is painstakingly designed to be as minimalistic as possible while taking 
 less than 5 minutes to setup and less than a minute to add content.
@@ -206,6 +206,21 @@ created \]
 
 13. *post-boot:* Triggered after all site setup is complete and the application
 is ready to start handling requests.
+
+## Running in Production
+
+* Setup a site module and class as outlined above.
+
+* Copy `wsgi.py.example` to `wsgi.py`. Inside the copied file rename 
+  `MySite` to the site class name used in the previous step. Set the
+  sitename parameter and app_options appropriately.
+  
+* Point your webserver to the `wsgi.py` file. For example, for Gunicorn
+  a command similar to the following would run the site
+  `gunicorn -b 0.0.0.0:5010 -b [::1]:5010 --pythonpath /srv/mysite wsgi:app`
+  
+Any further setup is outside the scope of this README. I'll try to add
+example cases as time allows.
 
 ## Credits
 * Alpha theme modified from the [Alpha site template](http://html5up.net/alpha) on [html5up.net](http://html5up.net).

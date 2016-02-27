@@ -3,10 +3,11 @@ Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Order: 1
 Template: page_home.html
+Sitemap Priority: 0.9
+Sitemap Changefreq: daily
 */
 
-
-##MDWeb is Not a CMS (NaCMS)
+<img src="/contentassets/MDWeb_logo_275x190.png"/>
 
 MDWeb is a markdown based web site framework.
 
