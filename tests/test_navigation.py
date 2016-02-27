@@ -1,16 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Tests for the MDWeb Navigation parser
-
 """
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
-import sys
-try:
-    # Python >= 3.3
-    from unittest import mock
-except ImportError:
-    # Python < 3.3
-    import mock
 
 from mdweb.Navigation import Navigation, NavigationMetaInf
 from mdweb.Exceptions import *

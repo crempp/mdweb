@@ -39,9 +39,9 @@ Navigation structure
 Future Features:
     * Ordering navigation levels
 """
-
-import re
+from collections import OrderedDict
 import os
+import re
 import sys
 
 from mdweb.Exceptions import *
@@ -58,6 +58,7 @@ class NavigationMetaInf(MetaInfParser):
         'nav_name': ('unicode', None),
         'order': ('int', 0),
     }
+
 
 
 class Navigation(NavigationBaseItem):
@@ -200,7 +201,7 @@ class Navigation(NavigationBaseItem):
 
     def get_page_dict(self, nav=None):
         """Return a flattened dictionary of pages."""
-        pages = {}
+        pages = OrderedDict()
 
         # If no nav is given start at self (top level)
         if nav is None:

@@ -23,13 +23,16 @@ class PageMetaInf(MetaInfParser):
         'date': ('unicode', None),
         'order': ('int', 0),
         'template': ('unicode', None),
-        'robots': ('unicode', None),
+        'sitemap_priority': ('unicode', None),
+        'sitemap_changefreq': ('unicode', None),
     }
 
     def __init__(self, meta_string):
         """Content page meta-information.
 
-        :param file_string: Raw meta-inf content as a string
+        If a page defines a non-standard meta value it is blindly included.
+
+        :param meta_string: Raw meta-inf content as a string
         """
         super(PageMetaInf, self).__init__(meta_string)
 
@@ -68,7 +71,8 @@ class Page(NavigationBaseItem):
         # Separate the meta information and the page content
         meta_inf_regex = re.compile(self.META_INF_REGEX, flags=re.DOTALL)
         match = meta_inf_regex.search(file_string)
-        meta_inf_string = match.group('metainf') if match.group('metainf') else ''
+        meta_inf_string = match.group('metainf') if match.group('metainf') \
+            else ''
         content_string = match.group('content')
 
         self.meta_inf = PageMetaInf(meta_inf_string)
@@ -79,8 +83,13 @@ class Page(NavigationBaseItem):
         # The page will be rendered on first view
         self.page_html = self.parse_markdown(self.markdown_str)
 
-    def parse_markdown(self, page_markdown):
-        """Parse given markdown string into rendered html."""
+    @staticmethod
+    def parse_markdown(page_markdown):
+        """
+        Parse given markdown string into rendered html.
+        :param page_markdown: Markdown to be parsed
+        :return: Rendered page HTML
+        """
         page_html = markdown.markdown(page_markdown)
 
         return page_html
