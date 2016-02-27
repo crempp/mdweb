@@ -3,6 +3,8 @@ Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Order: 1
 Template: page_home.html
+Sitemap Priority: 0.9
+Sitemap Changefreq: daily
 */
 
 <img src="/contentassets/MDWeb_logo_275x190.png"/>
