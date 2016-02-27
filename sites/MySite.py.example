@@ -21,5 +21,3 @@ class MySite(MDSite):
 
         #: Name of theme (should be a sub-folder in themes/
         THEME = 'bootstrap'
-
-    pass
