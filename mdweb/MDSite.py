@@ -59,6 +59,7 @@ BASE_SITE_OPTIONS = {
     'logging_level': "ERROR",
 }
 
+
 class MDSite(Flask):
 
     """MDWeb site.

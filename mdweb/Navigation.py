@@ -60,13 +60,13 @@ class NavigationMetaInf(MetaInfParser):   # pylint: disable=R0903
 
 class Navigation(NavigationBaseItem):
 
-    """ Navigation level representation.
+    """Navigation level representation.
 
     Navigation is built rescursivly by walking the content directory. Each
     directory represents a navigation level, each file represents a page.
 
-    Each nav level's name is determined by the directory name."""
-
+    Each nav level's name is determined by the directory name.
+    """
     #: MetaInf file name
     nav_metainf_file_name = '_navlevel.txt'
 
@@ -139,9 +139,9 @@ class Navigation(NavigationBaseItem):
 
     @property
     def has_children(self):
-        """Does the navigatin level have any page or nav children."""
+        """Check if the navigatin level has any pages or nav children."""
         return len(self.child_navs) > 0 or \
-               len(self.child_pages) > 0
+            len(self.child_pages) > 0
 
     @property
     def children(self):

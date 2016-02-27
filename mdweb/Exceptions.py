@@ -1,3 +1,5 @@
+"""MDWeb Exceptions."""
+
 class ThemeException(Exception):
 
     """Theme directory or content error."""

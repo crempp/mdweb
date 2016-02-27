@@ -10,7 +10,7 @@ class MDTestSite(MDSite):
 
     """Site to use for testing."""
 
-    class MDConfig:
+    class MDConfig:  # pylint: disable=R0903
 
         """Config for testing use."""
 

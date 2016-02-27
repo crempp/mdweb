@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Tests for the MDWeb Navigation parser
+"""Tests for the MDWeb Navigation parser.
 
 Tests to write
   * Handle symlinks
@@ -13,7 +12,6 @@ Maybe test?
 
 """
 from pyfakefs import fake_filesystem_unittest
-import unittest
 try:
     # Python >= 3.3
     from unittest import mock
@@ -22,20 +20,23 @@ except ImportError:
     import mock
 
 from mdweb.Page import PageMetaInf, Page
-from mdweb.Exceptions import *
+from mdweb.Exceptions import (
+    PageMetaInfFieldException,
+    PageParseException,
+    ContentException,
+)
 
 
 class TestPageMeta(fake_filesystem_unittest.TestCase):
-    """PageMetaInf object tests """
+
+    """PageMetaInf object tests."""
 
     def setUp(self):
-        """Create fake filesystem"""
+        """Create fake filesystem."""
         self.setUpPyfakefs()
 
-    def tearDown(self):
-        pass
-
     def test_parse_empty_string(self):
+        """Empty string should parse successfully."""
         file_string = u""
 
         meta_inf = PageMetaInf(file_string)
@@ -49,6 +50,7 @@ class TestPageMeta(fake_filesystem_unittest.TestCase):
         self.assertIsNone(meta_inf.title)
 
     def test_parse_some_fields(self):
+        """A few defined fields should parse successfully."""
         file_string = u"""Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Date: February 1st, 2016
@@ -58,12 +60,15 @@ Date: February 1st, 2016
 
         self.assertIsNone(meta_inf.author)
         self.assertEqual(meta_inf.date, u'February 1st, 2016')
-        self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
+        self.assertEqual(meta_inf.description,
+                         u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 0)
         self.assertIsNone(meta_inf.template)
         self.assertEqual(meta_inf.title, u'MDWeb')
 
     def test_parse_all_fields(self):
+        """All available fields should parse successfully."""
+        # TODO Add new fields to this test
         file_string = u"""Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Author: Chad Rempp
@@ -76,12 +81,14 @@ Template: page_home.html
 
         self.assertEqual(meta_inf.author, u'Chad Rempp')
         self.assertEqual(meta_inf.date, u'February 1st, 2016')
-        self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
+        self.assertEqual(meta_inf.description,
+                         u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
     def test_metainf_spacing(self):
+        """Spacing should not matter in parsing."""
         file_string = u"""Title: MDWeb
  Description: The minimalistic markdown NaCMS
 Author: Chad Rempp
@@ -96,12 +103,14 @@ Template:     page_home.html
 
         self.assertEqual(meta_inf.author, u'Chad Rempp')
         self.assertEqual(meta_inf.date, u'February 1st, 2016')
-        self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
+        self.assertEqual(meta_inf.description,
+                         u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
     def test_comments(self):
+        """Comments should be skipped during parsing."""
         file_string = u"""# This is a comment
 Title: MDWeb
 Description: The minimalistic markdown NaCMS
@@ -117,12 +126,14 @@ Template: page_home.html
 
         self.assertIsNone(meta_inf.author)
         self.assertIsNone(meta_inf.date)
-        self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
+        self.assertEqual(meta_inf.description,
+                         u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
     def test_unsupported_field(self):
+        """Unsupported fields should raise PageMetaInfFieldException."""
         file_string = u"""Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Badfield: Dragons be here
@@ -134,6 +145,7 @@ Template: page_home.html
         self.assertRaises(PageMetaInfFieldException, PageMetaInf, file_string)
 
     def test_unicode(self):
+        """Parser should handle unicode."""
         file_string = u"""Title: советских
 Description: ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ
 Author: Οδυσσέα Ελύτη
@@ -153,14 +165,12 @@ Template: ღმერთსი.html
 
 
 class TestPage(fake_filesystem_unittest.TestCase):
-    """Page object tests """
+
+    """Page object tests."""
 
     def setUp(self):
-        """Create fake filesystem"""
+        """Create fake filesystem."""
         self.setUpPyfakefs()
-
-    def tearDown(self):
-        pass
 
     def test_page_instantiation(self):
         """ A page should be instantiated with appropriate attributes."""
@@ -168,18 +178,19 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/about/history.md',
                            contents=file_string)
 
-        p = Page('/my/content', '/my/content/about/history.md')
+        page = Page('/my/content', '/my/content/about/history.md')
 
-        self.assertEqual(p.page_path, '/my/content/about/history.md')
-        self.assertEqual(p.url_path, 'about/history')
+        self.assertEqual(page.page_path, '/my/content/about/history.md')
+        self.assertEqual(page.url_path, 'about/history')
 
         self.fs.CreateFile('/my/content/super/deep/url/path/index.md',
                            contents=file_string)
 
-        p = Page('/my/content', '/my/content/super/deep/url/path/index.md')
+        page = Page('/my/content', '/my/content/super/deep/url/path/index.md')
 
-        self.assertEqual(p.page_path, '/my/content/super/deep/url/path/index.md')
-        self.assertEqual(p.url_path, 'super/deep/url/path')
+        self.assertEqual(page.page_path,
+                         '/my/content/super/deep/url/path/index.md')
+        self.assertEqual(page.url_path, 'super/deep/url/path')
 
     def test_unparsable_path(self):
         """An unparsable page path should raise PageParseException."""
@@ -193,13 +204,14 @@ class TestPage(fake_filesystem_unittest.TestCase):
 
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_repr(self, mock_page_meta_inf):
+        """A Page object should return the proper repr."""
         file_string = u""
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        p = Page('/my/content', '/my/content/index.md')
+        page = Page('/my/content', '/my/content/index.md')
 
-        self.assertEqual(str(p), '/my/content/index.md')
+        self.assertEqual(str(page), '/my/content/index.md')
 
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_parse_empty_file(self, mock_page_meta_inf):
@@ -208,27 +220,22 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        p = Page('/my/content', '/my/content/index.md')
+        page = Page('/my/content', '/my/content/index.md')
 
         mock_page_meta_inf.assert_called_once_with('')
-        self.assertEqual(p.markdown_str, '')
-        self.assertEqual(p.page_html, '')
+        self.assertEqual(page.markdown_str, '')
+        self.assertEqual(page.page_html, '')
 
     def test_no_file(self):
-        """If the path doesn't contain a file a ContentException should be raised."""
-        file_string = u"""Now is the time for all good men to come to
-the aid of their country. This is just a
-regular paragraph.
-
-The quick brown fox jumped over the lazy
-dog's back."""
-
+        """If the path has no file a ContentException should be raised."""
         self.assertRaises(ContentException, Page, '/my/content',
                           '/my/content/index.md')
 
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_no_meta_inf(self, mock_page_meta_inf):
         """A page with no meta information should parse."""
+        # pylint: disable=C0301
+        # pylint: disable=E501
         file_string = u"""Now is the time for all good men to come to
 the aid of their country. This is just a
 regular paragraph.
@@ -238,16 +245,16 @@ dog's back."""
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        p = Page('/my/content', '/my/content/index.md')
+        page = Page('/my/content', '/my/content/index.md')
 
         mock_page_meta_inf.assert_called_once_with('')
-        self.assertEqual(p.markdown_str, '''Now is the time for all good men to come to
+        self.assertEqual(page.markdown_str, '''Now is the time for all good men to come to
 the aid of their country. This is just a
 regular paragraph.
 
 The quick brown fox jumped over the lazy
 dog's back.''')
-        self.assertEqual(p.page_html, '''<p>Now is the time for all good men to come to
+        self.assertEqual(page.page_html, '''<p>Now is the time for all good men to come to
 the aid of their country. This is just a
 regular paragraph.</p>
 <p>The quick brown fox jumped over the lazy
@@ -271,14 +278,14 @@ dog's back.'''
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        p = Page('/my/content', '/my/content/index.md')
+        page = Page('/my/content', '/my/content/index.md')
 
         mock_page_meta_inf.assert_called_once_with('''
 Title: MDWeb Examples
 Description: Examples of how to use MDWeb
 Order: 4
 ''')
-        self.assertEqual(p.markdown_str, '''
+        self.assertEqual(page.markdown_str, '''
 
 Now is the time for all good men to come to
 the aid of their country. This is just a
@@ -286,19 +293,20 @@ regular paragraph.
 
 The quick brown fox jumped over the lazy
 dog's back.''')
-        self.assertEqual(p.page_html, '''<p>Now is the time for all good men to come to
+        self.assertEqual(page.page_html,
+                         '''<p>Now is the time for all good men to come to
 the aid of their country. This is just a
 regular paragraph.</p>
 <p>The quick brown fox jumped over the lazy
 dog's back.</p>''')
-
 
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_markdown_formatting(self, mock_page_meta_inf):
         """Markdown should parse correctly.
 
         We won't test this extensively as we should trust the markdown
-        libraries to test themselves."""
+        libraries to test themselves.
+        """
         file_string = '''/*
 Title: MDWeb Examples
 Description: Examples of how to use MDWeb
@@ -405,14 +413,14 @@ you've got to put paragraph tags in your blockquotes:
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        p = Page('/my/content', '/my/content/index.md')
+        page = Page('/my/content', '/my/content/index.md')
 
         mock_page_meta_inf.assert_called_once_with('''
 Title: MDWeb Examples
 Description: Examples of how to use MDWeb
 Order: 4
 ''')
-        self.assertEqual(p.markdown_str, '''
+        self.assertEqual(page.markdown_str, '''
 
 Examples taken from https://daringfireball.net/projects/markdown/basics
 
@@ -511,7 +519,10 @@ you've got to put paragraph tags in your blockquotes:
 
 
 ---------------------------------------''')
-        self.assertEqual(p.page_html, '''<p>Examples taken from https://daringfireball.net/projects/markdown/basics</p>
+        # pylint: disable=C0301
+        # pylint: disable=E501
+        self.assertEqual(page.page_html,
+                         '''<p>Examples taken from https://daringfireball.net/projects/markdown/basics</p>
 <h1>A First Level Header</h1>
 <h2>A Second Level Header</h2>
 <p>Now is the time for all good men to come to
