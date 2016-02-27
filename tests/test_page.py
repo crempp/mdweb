@@ -45,7 +45,6 @@ class TestPageMeta(fake_filesystem_unittest.TestCase):
         self.assertIsNone(meta_inf.description)
         self.assertIsNone(meta_inf.nav_name)
         self.assertEqual(meta_inf.order, 0)
-        self.assertIsNone(meta_inf.robots)
         self.assertIsNone(meta_inf.template)
         self.assertIsNone(meta_inf.title)
 
@@ -61,7 +60,6 @@ Date: February 1st, 2016
         self.assertEqual(meta_inf.date, u'February 1st, 2016')
         self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 0)
-        self.assertIsNone(meta_inf.robots)
         self.assertIsNone(meta_inf.template)
         self.assertEqual(meta_inf.title, u'MDWeb')
 
@@ -72,7 +70,6 @@ Author: Chad Rempp
 Date: February 1st, 2016
 Order: 1
 Template: page_home.html
-Robots: User-agent: *
 """
 
         meta_inf = PageMetaInf(file_string)
@@ -81,7 +78,6 @@ Robots: User-agent: *
         self.assertEqual(meta_inf.date, u'February 1st, 2016')
         self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
-        self.assertEqual(meta_inf.robots, u'User-agent: *')
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
@@ -93,7 +89,6 @@ Author: Chad Rempp
 Date : February 1st, 2016
 Order: 1
 Template:     page_home.html
-Robots: User-agent: *
 
 """
 
@@ -103,7 +98,6 @@ Robots: User-agent: *
         self.assertEqual(meta_inf.date, u'February 1st, 2016')
         self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
-        self.assertEqual(meta_inf.robots, u'User-agent: *')
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
@@ -116,7 +110,6 @@ Description: The minimalistic markdown NaCMS
 Order: 1
 Template: page_home.html
 #
-Robots: User-agent: *
 # Nothing to see here
 """
 
@@ -126,7 +119,6 @@ Robots: User-agent: *
         self.assertIsNone(meta_inf.date)
         self.assertEqual(meta_inf.description, u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
-        self.assertEqual(meta_inf.robots, u'User-agent: *')
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
@@ -138,7 +130,6 @@ Author: Chad Rempp
 Date: February 1st, 2016
 Order: 1
 Template: page_home.html
-Robots: User-agent: *
 """
         self.assertRaises(PageMetaInfFieldException, PageMetaInf, file_string)
 
@@ -149,7 +140,6 @@ Author: Οδυσσέα Ελύτη
 Date: February 1st, 2016
 Order: 1
 Template: ღმერთსი.html
-Robots: User-agent: *
 """
 
         meta_inf = PageMetaInf(file_string)
@@ -158,7 +148,6 @@ Robots: User-agent: *
         self.assertEqual(meta_inf.date, u'February 1st, 2016')
         self.assertEqual(meta_inf.description, u'ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ')
         self.assertEqual(meta_inf.order, 1)
-        self.assertEqual(meta_inf.robots, u'User-agent: *')
         self.assertEqual(meta_inf.template, u'ღმერთსი.html')
         self.assertEqual(meta_inf.title, u'советских')
 

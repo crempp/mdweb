@@ -12,6 +12,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from mdweb.Index import Index
+from mdweb.SiteMapView import SiteMapView
 from mdweb.Navigation import Navigation
 
 # Shim Python 3.x Exceptions
@@ -208,6 +209,11 @@ class MDSite(Flask):
                                        filename)
         self.add_url_rule('/contentassets/<path:filename>',
                           view_func=custom_static)
+
+        # Sitemap route
+        self.add_url_rule('/sitemap.xml',
+                          view_func=SiteMapView.as_view('sitemap'))
+
         # Route all remaining requests to the index view
         self.add_url_rule('/', view_func=Index.as_view('index'),
                           defaults={'path': ''})

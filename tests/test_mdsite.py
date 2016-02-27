@@ -1,9 +1,10 @@
 """
 Tests for the MDWeb Site
 """
+import datetime
+from dateutil import parser
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
 from flask.ext.testing import TestCase
-import unittest
 try:
     # Python >= 3.3
     from unittest import mock
@@ -38,13 +39,29 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
         self.setUpPyfakefs()
         self.os = fake_filesystem.FakeOsModule(self.fs)
 
+        file_string = u"""/*
+Title: MDWeb
+Description: The minimalistic markdown NaCMS
+Date: February 1st, 2016
+Sitemap Priority: 0.9
+Sitemap ChangeFreq: daily
+*/
+"""
+
         self.fs.CreateFile('/my/content/400.md')
         self.fs.CreateFile('/my/content/403.md')
         self.fs.CreateFile('/my/content/404.md')
         self.fs.CreateFile('/my/content/500.md')
-        self.fs.CreateFile('/my/content/index.md')
-        self.fs.CreateFile('/my/content/about/index.md')
-        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/index.md',
+                           contents=file_string).SetMTime(
+                           parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
+        )
+        self.fs.CreateFile('/my/content/about/index.md').SetMTime(
+            parser.parse('Wed, 27 Jun 2015 13:12:15 +0000')
+        )
+        self.fs.CreateFile('/my/content/contact/index.md').SetMTime(
+            parser.parse('Tue, 26 Jun 2015 12:06:15 +0000')
+        )
         self.fs.CreateFile('/my/content/assets/logo.png')
 
         self.fs.CreateFile('/my/theme/assets/css/style.css')
@@ -120,6 +137,30 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
             result = c.get('/about')
             self.assertContext('navigation', self.app.navigation)
 
+    def test_sitemap_xml(self):
+        with self.app.test_client() as c:
+            response = c.get('/sitemap.xml')
+
+        print(str(response.data).replace("\\n", "\n"))
+
+        self.assert200(response)
+        self.assertEqual(response.data, b"""<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    <url>
+        <loc>http://localhost/</loc>
+        <lastmod>2015-06-28T14:17:15+0000</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url><url>
+        <loc>http://localhost/about</loc>
+        <lastmod>2015-06-27T13:12:15+0000</lastmod>
+    </url><url>
+        <loc>http://localhost/contact</loc>
+        <lastmod>2015-06-26T12:06:15+0000</lastmod>
+    </url>
+</urlset>""")
 
 class TestSiteBoot(fake_filesystem_unittest.TestCase):
     """MDSite object tests """
@@ -171,17 +212,6 @@ class TestSiteBoot(fake_filesystem_unittest.TestCase):
 
         self.assertTrue(mock_stage_create_app.called)
 
-    # @mock.patch('mdweb.MDSite.MDSite._stage_load_config')
-    # def test_stage_load_config(self, mock_stage_load_config):
-    #     """Load config stage should run."""
-    #     app = MDTestSite(
-    #         "MDWeb",
-    #         app_options={}
-    #     )
-    #     app.start()
-    #
-    #     self.assertTrue(mock_stage_load_config.called)
-
     @mock.patch('mdweb.MDSite.MDSite._stage_post_boot')
     def test_stage_post_boot(self, mock_stage_post_boot):
         """Post-boot stage should run."""
@@ -192,6 +222,7 @@ class TestSiteBoot(fake_filesystem_unittest.TestCase):
         app.start()
 
         self.assertTrue(mock_stage_post_boot.called)
+
 
 class TestSiteMissingTemplate(fake_filesystem_unittest.TestCase):
     """MDSite object tests """
