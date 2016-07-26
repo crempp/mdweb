@@ -1,4 +1,4 @@
-# Markdown based web site framework [![Code Health](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup/landscape.svg?style=flat)](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup) [![Build Status](https://img.shields.io/shippable/56bc32841895ca447473c981.svg)](https://app.shippable.com/projects/56bc32841895ca447473c981)
+# Markdown based web site framework [![Code Health](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup/landscape.svg?style=flat)](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup) [![Run Status](https://api.shippable.com/projects/56bc32841895ca447473c981/badge?branch=develop)](https://app.shippable.com/projects/56bc32841895ca447473c981) [![Coverage Badge](https://api.shippable.com/projects/56bc32841895ca447473c981/coverageBadge?branch=master)](https://app.shippable.com/projects/56bc32841895ca447473c981)
 
 MDWeb is painstakingly designed to be as minimalistic as possible while taking 
 less than 5 minutes to setup and less than a minute to add content.

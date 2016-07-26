@@ -13,7 +13,7 @@ cache: true
 # support wildcards so we exclude develop
 branches:
   except:
-    - develop
+    # - develop
 
 # Make folders for the reports
 before_script:
