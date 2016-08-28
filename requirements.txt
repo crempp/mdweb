@@ -1,2 +1,9 @@
-# Setup for production
+# For simplicity we use the base requirements.txt for setting up CircleCI
+# testing.
+# For other environments use
+#   - requirements/development.txt
+#   - requirements/production.txt
+#   - requirements/test.txt
+
 -r requirements/production.txt
+-r requirements/test.txt
