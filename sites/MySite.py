@@ -7,7 +7,7 @@ from mdweb.MDSite import MDSite
 class MySite(MDSite):
     class MDConfig:
         #: enable/disable Flask debug mode
-        DEBUG = False
+        DEBUG = True
 
         #: Flask secret key
         # To generate a secret key you can use the os.urandom function

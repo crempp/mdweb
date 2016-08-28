@@ -5,5 +5,4 @@
 !.gitignore
 !plugins
 !__init__.py
-!MySite.py.example
-!SiteConfig.py.example
+!MySite.py

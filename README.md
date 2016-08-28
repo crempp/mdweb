@@ -95,6 +95,23 @@ MDWeb project.
 docker run -d -p 80:5000 -v <</host/directory>>:/opt/mdweb --name mdweb-dev mdweb
 ```
 
+This will run MDWeb using the default `MySite`. To run a Docker
+container with a custom site it is possible to pass the site
+configuration to MDWeb using environment variables. You must pass *all
+five* environment variables or MDWeb will fall back to the default
+site.
+
+```
+docker run -d -p 80:5000 \
+           -v <</host/directory>>:/opt/mdweb \
+           -e "SITE_NAME=JoesSite" \
+           -e "DEBUG=True" \
+           -e "SECRET_KEY=\x85\xa2\x1c\xfd\x07MF\xcb_ ]\x1e\x9e\xab\xa2qn\xd1\x82\xcb^\x11x\xc5" \
+           -e "CONTENT_PATH=demo-content/" \
+           -e "THEME=bootstrap" \
+           --name mdweb-dev mdweb
+```
+
 ## Build and Run Production MDWeb in Docker
 
 To run the project in production mode in a Docker container.
@@ -110,6 +127,22 @@ docker build -t mdweb .
 Start a container based on the image just built:
 ```
 docker run -d -p 80:5000 --name mdweb-dev mdweb
+```
+
+This will run MDWeb using the default `MySite`. To run a Docker
+container with a custom site it is possible to pass the site
+configuration to MDWeb using environment variables. You must pass *all
+five* environment variables or MDWeb will fall back to the default
+site.
+
+```
+docker run -d -p 80:5000 \
+           -e "SITE_NAME=JoesSite" \
+           -e "DEBUG=True" \
+           -e "SECRET_KEY=\x85\xa2\x1c\xfd\x07MF\xcb_ ]\x1e\x9e\xab\xa2qn\xd1\x82\xcb^\x11x\xc5" \
+           -e "CONTENT_PATH=demo-content/" \
+           -e "THEME=bootstrap" \
+           --name mdweb-dev mdweb
 ```
 
 ## Documentation
