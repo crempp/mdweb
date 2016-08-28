@@ -12,7 +12,8 @@ test:
   override:
     - mkdir $CIRCLE_ARTIFACTS/testresults
     - mkdir $CIRCLE_ARTIFACTS/codecoverage
-    - nosetests --with-coverage --cover-inclusive --cover-html --cover-package=mdweb --with-html --html-file=$CIRCLE_ARTIFACTS/testresults/nosetests.html --cover-html-dir=$CIRCLE_ARTIFACTS/codecoverage/
+    - nosetests --with-coverage --cover-inclusive --cover-html --cover-package=mdweb --with-html --html-file=$CIRCLE_ARTIFACTS/testresults/nosetests.html --cover-html-dir=$CIRCLE_ARTIFACTS/codecoverage/ --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nosetests/nosetests.xml
+
 deployment:
   prod:
     branch: master
