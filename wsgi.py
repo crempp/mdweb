@@ -1,4 +1,15 @@
 #!/usr/bin/env python
+"""WSGI server implementation for use by Gunicorn
+
+If the following OS environment variables are provided they will be used to
+generate a site class
+  * SITE_NAME
+  * DEBUG
+  * SECRET_KEY
+  * CONTENT_PATH
+  * THEME
+otherwise the default MySite will be used.
+"""
 import os
 from mdweb.MDSite import MDSite
 
@@ -19,14 +30,16 @@ if ( 'SITE_NAME' in os.environ and
 
     app = SiteClass(
         os.environ['SITE_NAME'],
-        app_options={} # Flask options that will be passed through to the Flask() constructor
+        # Flask options that will be passed through to the Flask() constructor
+        app_options={}
     )
 
 else:
     from sites.MySite import MySite
     app = MySite(
         "MySite",
-        app_options={}  # Flask options that will be passed through to the Flask() constructor
+        # Flask options that will be passed through to the Flask() constructor
+        app_options={}
     )
 
 if __name__ == "__main__":

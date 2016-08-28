@@ -1,11 +1,11 @@
-"""
-Sample site class
-"""
+"""Sample site class"""
 from mdweb.MDSite import MDSite
 
 
 class MySite(MDSite):
-    class MDConfig:
+    """An example MDWeb site"""
+    class MDConfig: # pylint: disable=R0903
+        """Configuration of the example site"""
         #: enable/disable Flask debug mode
         DEBUG = True
 
@@ -14,7 +14,7 @@ class MySite(MDSite):
         #
         # >>> import os
         # >>> os.urandom(24)
-        SECRET_KEY = '\x85\xa2\x1c\xfd\x07MF\xcb_ ]\x1e\x9e\xab\xa2qn\xd1\x82\xcb^\x11x\xc5'
+        SECRET_KEY = 'create_a_secret_key_for_use_in_production'
 
         #: Path to page content relative to application root
         CONTENT_PATH = 'demo-content/'

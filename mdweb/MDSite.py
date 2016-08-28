@@ -61,7 +61,6 @@ BASE_SITE_OPTIONS = {
 
 
 class MDSite(Flask):
-
     """MDWeb site.
 
     An MDWeb Site is very closely related to a Flask application.
