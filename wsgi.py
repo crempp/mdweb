@@ -21,13 +21,13 @@ if ('SITE_NAME' in os.environ and
     'THEME' in os.environ
     ):
     class SiteClass(MDSite):
-        
+
         """SiteClass is MDSite class created from OS env vars."""
-        
+
         class MDConfig:  # pylint: disable=R0903
-            
+
             """Set the config values based on OS env vars."""
-            
+
             DEBUG = os.environ['DEBUG']
             SECRET_KEY = os.environ['SECRET_KEY']
             CONTENT_PATH = os.environ['CONTENT_PATH']
