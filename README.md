@@ -1,4 +1,4 @@
-# Markdown based web site framework [![Code Health](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup/landscape.svg?style=flat)](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup) [![Run Status](https://api.shippable.com/projects/56bc32841895ca447473c981/badge?branch=develop)](https://app.shippable.com/projects/56bc32841895ca447473c981) [![Coverage Badge](https://api.shippable.com/projects/56bc32841895ca447473c981/coverageBadge?branch=master)](https://app.shippable.com/projects/56bc32841895ca447473c981)
+# Markdown based web site framework [![Code Health](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup/landscape.svg?style=flat)](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup) [![CircleCI](https://circleci.com/gh/crempp/mdweb/tree/develop.svg?style=svg)](https://circleci.com/gh/crempp/mdweb/tree/develop)
 
 MDWeb is painstakingly designed to be as minimalistic as possible while taking 
 less than 5 minutes to setup and less than a minute to add content.
@@ -59,7 +59,7 @@ $ cd mdweb
 ```
 * Install requirements
 ```
-$ pip install -r requirements.txt
+$ pip install -r requirements/development.txt
 ```
 * Setup site class
 ```
@@ -73,6 +73,44 @@ $ ./bin/dev_server JoesSite
 ```
 
 Now visit [http://127.0.0.1:5000](http://127.0.0.1:5000)
+
+## Develop in Docker
+
+To run MDWeb in Docker while developing follow these steps.
+
+First, follow the instructions
+[here](https://docs.docker.com/engine/installation/) to setup Docker.
+
+Build the image from the Dockerfile in this project:
+```
+docker build -t mdweb .
+```
+
+Start a container based on the image just built but share your
+development directory.
+
+Replace `<</host/directory>>` with the directory where you cloned the
+MDWeb project.
+```
+docker run -d -p 80:5000 -v <</host/directory>>:/opt/mdweb --name mdweb-dev mdweb
+```
+
+## Build and Run Production MDWeb in Docker
+
+To run the project in production mode in a Docker container.
+
+First, follow the instructions
+[here](https://docs.docker.com/engine/installation/) to setup Docker.
+
+Build the image from the Dockerfile in this project:
+```
+docker build -t mdweb .
+```
+
+Start a container based on the image just built:
+```
+docker run -d -p 80:5000 --name mdweb-dev mdweb
+```
 
 ## Documentation
 
