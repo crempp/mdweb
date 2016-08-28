@@ -100,7 +100,6 @@ Sitemap ChangeFreq: daily
         sitemap = SiteMapView.generate_sitemap()
 
         # pylint: disable=C0301
-        # pylint: disable=E501
         self.assertEqual(sitemap, '''<?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

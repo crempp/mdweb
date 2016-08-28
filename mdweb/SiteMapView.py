@@ -17,7 +17,6 @@ from flask.views import View
 #: Template string to use for the sitemap generation
 # (is there a better place to put this?, not in the theme)
 # pylint: disable=C0301
-# pylint: disable=E501
 SITEMAP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
