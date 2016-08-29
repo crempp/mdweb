@@ -14,6 +14,8 @@ dark days can not be unseen.
 After years of battle, this weary web developmer built himself a tiny oasis.
 This is MDWeb, I hope you find respite in it.
 
+You can see a live demo of MDWeb here: [http://mdweb.lapinlabs.com/](http://mdweb.lapinlabs.com/ )
+
 ## Requirements
 
 
