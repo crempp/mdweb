@@ -5,7 +5,7 @@ MDWeb is designed to be simple to use. Adding content to your site is as simple 
 After the initial setup (which is also incredibly easy) maintaining and updating your site should be easy-peasy.
 
 ## Content
-----
+
 
 Site content is simply Markdown formatted files. Each page on the site has it's
 own file and the directory structure defines the navigation.
@@ -17,7 +17,7 @@ the content scan.
 If you'd like to learn how to write Markdown I suggest reading [Daring Fireball](https://daringfireball.net/projects/markdown/basics).
 
 ## Example about/index.md
-----
+
 
 ```
 /*
@@ -43,7 +43,7 @@ oasis. This is MDWeb, I hope you find respite in it.
 ```
 
 ## Navigation Structure
-----
+
 
 Each directory under /content defines a section in the navigation structure.
 If a file named index.md exists in the directory it is used as the landing page
@@ -66,7 +66,7 @@ levels could easily be added by updating (overriding) the navigation template.
 ```
 
 ## Content Meta Fields
-----
+
 A meta-information section may be added to the beginning of each file. This section allows you to define customizations or override default behaviors for the page.
 
 * *Author:* The page author. This is useful for blog posts and articles.

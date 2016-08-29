@@ -3,7 +3,7 @@
 This section is intended primarily for those who wish to build themes or plugins. This section is still a work in progress but will stabalize after the plugin architecture is completed and as we approach the 1.0 release.
 
 ## Building a Theme
-----
+
 
 Themes are composed of the HTML templates and assets required for a site's display. Themes can be as simple or as complicated as you'd like.
 
@@ -45,12 +45,12 @@ To use your theme make sure the theme directory is located within `themes` insid
 
 
 ## Building a Plugin
-----
+
 
 The plugin architecture is not yet completed this section will be added once plugins are supported.
 
 ## Testing
-----
+
 
 MDWeb uses nose as the test runner. Running tests are as simple as
 ```

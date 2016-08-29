@@ -15,14 +15,14 @@ After years of battle, this weary web developmer built himself a tiny oasis.
 This is MDWeb, I hope you find respite in it.
 
 ## Requirements
-----
+
 
 * Python 2.7 or 3.x
 * Pip
 * Virtualenv (optional, highly recommended)
 
 ## Forking for your own site
-----
+
 
 The suggested method for using MDWeb and also tracking any udpates you make for
 your own site is to fork the MDWeb repository. Any changes you make will be
@@ -31,7 +31,7 @@ upstream changes by following the procedure outlined here
 [How to update a GitHub forked repository?](http://stackoverflow.com/a/7244456/1436323)
 
 ## Quickstart
-----
+
 
 For more ways to run MDWeb see [Setup](docs/setup.md) and [Basic Usage](docs/basic_usage.md).
 
@@ -66,7 +66,7 @@ $ ./bin/dev_server JoesSite
 Now visit [http://127.0.0.1:5000](http://127.0.0.1:5000) and you should see your site.
 
 ## Documentation
-----
+
 * [Setup](docs/setup.md) - How to get MDWeb running locally or in Docker either in development or production environments
 * [Basic Usage](docs/basic_usage.md) - How to use MDWeb to host your site
 * [Development](docs/development.md) - How to build themes and plugins for MDWeb
@@ -74,11 +74,11 @@ Now visit [http://127.0.0.1:5000](http://127.0.0.1:5000) and you should see your
 * [Contributing](docs/contributing.md) - How to report bugs and contribute to the development of MDWeb
 
 ## License
-----
+
 MIT © [Chad Rempp](https://github.com/crempp/mdweb/blob/master/LICENSE.txt)
 
 ## Credits
-----
+
 Some portions of MDWeb uses other F/OSS content. Below is a sourced list of content used in MDWeb.
 * Alpha theme modified from the [Alpha site template](http://html5up.net/alpha) on [html5up.net](http://html5up.net).
 This site template was licensed under [CCA 3.0](html5up.net/license)

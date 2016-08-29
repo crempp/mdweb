@@ -1,7 +1,7 @@
 # Reference
 
 ## Navigation Object
-----
+
 
 The navigation object is available within page templates and provides the
 site navigation structure as well as access to the page objects.
@@ -24,7 +24,7 @@ to the content directory).
 * *children:* A dictionary containing the child NavigationLevel objects.
 
 ## Page Object
-----
+
 
 The page object contains all the data related to a page. The rendered page
 is also cached in this object.
@@ -42,7 +42,7 @@ is also cached in this object.
 * *page_cache:* Then entire rendered page including the dependant layout.
 
 ## System Events
-----
+
 
 The following is an overview of the site start-up process including the
 subscribable events. The following process occurs in the order it's presented
