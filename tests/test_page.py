@@ -68,13 +68,17 @@ Date: February 1st, 2016
 
     def test_parse_all_fields(self):
         """All available fields should parse successfully."""
-        # TODO Add new fields to this test
         file_string = u"""Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Author: Chad Rempp
 Date: February 1st, 2016
 Order: 1
 Template: page_home.html
+Nav Name: Home Page
+Sitemap Changefreq: Monthly
+Sitemap Priority: 0.5
+Teaser: This is a teaser paragraph that will be availble to pages
+Teaser Image: /contentassets/home/00041_thumb.jpg
 """
 
         meta_inf = PageMetaInf(file_string)
@@ -87,10 +91,16 @@ Template: page_home.html
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
+        self.assertEqual(meta_inf.nav_name, u'Home Page')
+        self.assertEqual(meta_inf.sitemap_changefreq, u'Monthly')
+        self.assertEqual(meta_inf.sitemap_priority, u'0.5')
+        self.assertEqual(meta_inf.teaser, u'This is a teaser paragraph that will be availble to pages')
+        self.assertEqual(meta_inf.teaser_image, u'/contentassets/home/00041_thumb.jpg')
+
     def test_metainf_spacing(self):
         """Spacing should not matter in parsing."""
         file_string = u"""Title: MDWeb
- Description: The minimalistic markdown NaCMS
+Description: The minimalistic markdown NaCMS
 Author: Chad Rempp
 
 Date : February 1st, 2016
@@ -162,6 +172,29 @@ Template: ღმერთსი.html
         self.assertEqual(meta_inf.order, 1)
         self.assertEqual(meta_inf.template, u'ღმერთსი.html')
         self.assertEqual(meta_inf.title, u'советских')
+
+    def test_parse_multiline_field(self):
+        """Multiline fields should parse successfully."""
+        file_string = u"""Title: MDWeb
+Description: The minimalistic markdown NaCMS
+Author: Chad Rempp
+Date: February 1st, 2016
+Order: 1
+Template: page_home.html
+Nav Name: Home Page
+Sitemap Changefreq: Monthly
+Sitemap Priority: 0.5
+Teaser: This is a teaser paragraph that will be available to pages
+  and the teaser may
+    span multiple lines indented with whitespace even if the line looks
+    like a metainf field
+    Not A Field: This won't get parsed as a field
+Teaser Image: /contentassets/home/00041_thumb.jpg
+"""
+
+        meta_inf = PageMetaInf(file_string)
+
+        self.assertEqual(meta_inf.teaser, u'This is a teaser paragraph that will be available to pages and the teaser may span multiple lines indented with whitespace even if the line looks like a metainf field Not A Field: This won\'t get parsed as a field')
 
 
 class TestPage(fake_filesystem_unittest.TestCase):

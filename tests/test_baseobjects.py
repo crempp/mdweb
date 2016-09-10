@@ -34,7 +34,7 @@ class TesNavigationBaseItem(fake_filesystem_unittest.TestCase):
         self.assertEqual(page.nav_type, "Page")
 
 
-class TestMetaInfParserx(unittest.TestCase):
+class TestMetaInfParser(unittest.TestCase):
 
     """Index object tests."""
 
