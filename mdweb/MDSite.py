@@ -8,6 +8,7 @@ from flask import (
     Flask,
     send_from_directory,
     send_file,
+    abort,
 )
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -196,8 +197,11 @@ class MDSite(Flask):
         # send_from_directory() - http://stackoverflow.com/a/20648053/1436323
         def special_root_file(filename):
             """Root file Flask view."""
-            return send_file(os.path.join(self.config['CONTENT_PATH'],
-                                          filename))
+            path = os.path.join(self.config['CONTENT_PATH'], filename)
+            if os.path.isfile(path):
+                return send_file(path)
+            else:
+                abort(404)
         for asset in self.ROOT_LEVEL_ASSETS:
             self.add_url_rule('/%s' % asset, view_func=special_root_file,
                               defaults={'filename': asset})
