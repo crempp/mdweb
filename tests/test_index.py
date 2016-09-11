@@ -41,10 +41,18 @@ class TestIndex(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/theme/assets/robots.txt')
         self.fs.CreateFile('/my/theme/assets/css/style.css')
         self.fs.CreateFile('/my/theme/assets/js/site.js')
-        self.fs.CreateFile('/my/theme/templates/layout.html')
+        self.fs.CreateFile('/my/theme/templates/layout.html',
+                           contents="""<html><body>
+{% block body %}{% endblock %}
+</body></html>""")
         self.fs.CreateFile('/my/theme/templates/navigation.html')
-        self.fs.CreateFile('/my/theme/templates/page.html')
+        self.fs.CreateFile('/my/theme/templates/page.html',
+                           contents="""{% extends "layout.html" %}
+{% block body %}{{ page | safe}}{% endblock %}""")
         self.fs.CreateFile('/my/theme/templates/page_home.html')
+
+        self.fs.CreateFile('/my/content/404.md', contents='''404 Test''')
+        self.fs.CreateFile('/my/content/500.md', contents='''500 Test''')
 
         self.app = MDTestSite(
             "MDWeb",
@@ -80,3 +88,27 @@ class TestIndex(fake_filesystem_unittest.TestCase):
 
             result = client.get('/crossdomain.xml')
             self.assertEqual(result.status_code, 200)
+            
+    def test_4xx_5xx_custom_renders(self):
+        """Custom 4XX/5XX should render on those status.'"""
+        with self.app.test_client() as client:
+            result = client.get('/nowhere')
+            self.assertEqual(result.status_code, 404)
+            self.assertEqual(result.data,
+                             b'<html><body>\n<p>404 Test</p>\n</body></html>')
+
+            result = client.get('/boom')
+            self.assertEqual(result.status_code, 500)
+            self.assertEqual(result.data,
+                             b'<html><body>\n<p>500 Test</p>\n</body></html>')
+            
+    def test_4xx_5xx_non_custom_renders(self):
+        """4XX/5XX without custom files should render with default message.'"""
+        with self.app.test_client() as client:
+            result = client.put('/')
+            self.assertEqual(result.status_code, 405)
+            self.assertEqual(
+                result.data,
+                b'The method is not allowed for the requested URL.')
+            
+            

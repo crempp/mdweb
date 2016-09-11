@@ -1,4 +1,5 @@
 """The MDWeb Site object."""
+import glob
 import logging
 import os
 
@@ -12,10 +13,12 @@ from flask import (
 )
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from werkzeug.debug import get_current_traceback
 
 from mdweb.Index import Index
 from mdweb.SiteMapView import SiteMapView
 from mdweb.Navigation import Navigation
+from mdweb.Page import Page
 
 # Shim Python 3.x Exceptions
 if 'FileExistsError' not in __builtins__.keys():
@@ -145,13 +148,49 @@ class MDSite(Flask):
 
         return None
 
-    def error_page_not_found(self, error):
-        """Show custom 404 page.
+    def error_page(self, error):
+        """Show custom error pages.
 
-        :param e:
+        :param error:
         """
-        # TODO: Make this use the 404.md
-        return "404 - TODO: Make this use the 404.md", 404
+        def render_custom_error(code, path):
+            """Render an error page with a custom content file."""
+            track = get_current_traceback(skip=1, show_hidden_frames=True,
+                                          ignore_system_exceptions=False)
+            track.log()
+            
+            page = Page(self.config['CONTENT_PATH'], path)
+            return Index.render(page), code
+        
+        def render_simple_error(code):
+            """Render an error page without a content file."""
+            track = get_current_traceback(skip=1, show_hidden_frames=True,
+                                          ignore_system_exceptions=False)
+            track.log()
+            
+            if hasattr(error, 'description'):
+                error_message = error.description
+            else:
+                error_message = str(error)
+                
+            return error_message, code
+
+        # Determine the error code for this error
+        if not hasattr(error, 'code') and isinstance(error, Exception):
+            error_code = 500
+        else:
+            error_code = error.code
+
+        # Construct the path to the content file for this error
+        custom_file_path = os.path.join(self.config['CONTENT_PATH'],
+                                        '%s.md' % error_code)
+        
+        # If there exists a file for this error use it, otherwise just return
+        # a simple error message
+        if os.path.isfile(custom_file_path):
+            return render_custom_error(error_code, custom_file_path)
+        else:
+            return render_simple_error(error_code)
 
     def _register_observers(self):
         """Setup a watcher to rebuild the nav whenever a file has changed."""
@@ -195,23 +234,33 @@ class MDSite(Flask):
         # Setup special root-level asset routes
         # NOTE: The usage of url_for doesn't work here. Rather, use a view with
         # send_from_directory() - http://stackoverflow.com/a/20648053/1436323
-        def special_root_file(filename):
+        def special_root_file(root_filename):
             """Root file Flask view."""
-            path = os.path.join(self.config['CONTENT_PATH'], filename)
+            path = os.path.join(self.config['CONTENT_PATH'], root_filename)
             if os.path.isfile(path):
                 return send_file(path)
             else:
                 abort(404)
+                
         for asset in self.ROOT_LEVEL_ASSETS:
             self.add_url_rule('/%s' % asset, view_func=special_root_file,
-                              defaults={'filename': asset})
+                              defaults={'root_filename': asset})
+        
+        def boom():
+            """A view that will result in a server error.
+            
+            Used to test 500 errors
+            """
+            a = 1 / 0
+            return a
+        self.add_url_rule('/boom', view_func=boom)
 
         # Setup content asset route
-        def custom_static(filename):
+        def custom_static(asset_filename):
             """Custom static file Flask view."""
             return send_from_directory(self.config['CONTENT_ASSET_PATH'],
-                                       filename)
-        self.add_url_rule('/contentassets/<path:filename>',
+                                       asset_filename)
+        self.add_url_rule('/contentassets/<path:asset_filename>',
                           view_func=custom_static)
 
         # Sitemap route
@@ -224,8 +273,10 @@ class MDSite(Flask):
         self.add_url_rule('/<path:path>',
                           view_func=Index.as_view('index_with_path'))
 
-        # Setup error handler pages
-        self.error_handler_spec[None][404] = self.error_page_not_found
+        # Setup error handler
+        for code in [400, 403, 404, 405, 410, 500, 501, 503, Exception]:
+            # self.error_handler_spec[None][code] = self.error_page
+            self.register_error_handler(code, self.error_page)
 
         # Setup logging
         log_level = getattr(logging, self.site_options['logging_level'])
