@@ -78,6 +78,7 @@ class Navigation(NavigationBaseItem):
         '400.md',
         '403.md',
         '404.md',
+        '405.md',
         '500.md',
     ]
 
