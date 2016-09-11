@@ -56,6 +56,10 @@ BASE_SETTINGS = {
 
     #: Name of theme (should be a sub-folder in themes/
     'THEME': 'alpha',
+    
+    #: Google Analytics tracking ID. If False GA tracking will not be used.
+    # Your GA tracking ID will look like 'UA-00000000-1'
+    'GA_TRACKING_ID': False,
 }
 
 BASE_SITE_OPTIONS = {
@@ -130,6 +134,7 @@ class MDSite(Flask):
         self.navigation = Navigation(self.config['CONTENT_PATH'])
         self.pages = self.navigation.get_page_dict()
         self.context_processor(self._inject_navigation)
+        self.context_processor(self._inject_ga_tracking)
         MDW_SIGNALER['post-navigation-scan'].send(self)
 
         #: FINISH THINGS UP
@@ -288,6 +293,10 @@ class MDSite(Flask):
         """Load the configuration of the application being started."""
         self_fqcn = self.__module__ + "." + self.__class__.__name__
         self.config.from_object('%s.MDConfig' % self_fqcn)
+        
+        # Extend the base config with the loaded config values. This will ensure
+        # we have every config set.
+        self.config = dict(BASE_SETTINGS, **self.config)
 
         path_to_here = os.path.dirname(os.path.realpath(__file__))
         self.config['BASE_PATH'] = os.path.abspath(os.path.join(path_to_here,
@@ -343,4 +352,22 @@ class MDSite(Flask):
         pass
 
     def _inject_navigation(self):
+        """Inject the entire navigation structure into the context"""
         return dict(navigation=self.navigation)
+
+    def _inject_ga_tracking(self):
+        """Render the Google Analytics tracking code if enabled and add to the
+        context."""
+        context = dict(ga_tracking="")
+        if self.config['GA_TRACKING_ID']:
+            context['ga_tracking'] = """<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+    ga('create', '%s', 'auto');
+    ga('send', 'pageview');
+</script>""" % self.config['GA_TRACKING_ID']
+        
+        return context
