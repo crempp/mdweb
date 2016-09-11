@@ -15,18 +15,6 @@ class PageMetaInf(MetaInfParser):  # pylint: disable=R0903
 
     """MDWeb Page Meta Information."""
 
-    FIELD_TYPES = {
-        'title': ('unicode', None),
-        'nav_name': ('unicode', None),
-        'description': ('unicode', None),
-        'author': ('unicode', None),
-        'date': ('unicode', None),
-        'order': ('int', 0),
-        'template': ('unicode', None),
-        'sitemap_priority': ('unicode', None),
-        'sitemap_changefreq': ('unicode', None),
-    }
-
     def __init__(self, meta_string):
         """Content page meta-information.
 
@@ -35,7 +23,6 @@ class PageMetaInf(MetaInfParser):  # pylint: disable=R0903
         :param meta_string: Raw meta-inf content as a string
         """
         super(PageMetaInf, self).__init__(meta_string)
-
         self.nav_name = self.title if self.nav_name is None else self.nav_name
 
 
@@ -84,6 +71,8 @@ class Page(NavigationBaseItem):
 
         # The page will be rendered on first view
         self.page_html = self.parse_markdown(self.markdown_str)
+        
+        self.abstract = self.page_html[0:100]
 
     @staticmethod
     def parse_markdown(page_markdown):

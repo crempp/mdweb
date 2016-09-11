@@ -67,7 +67,14 @@ levels could easily be added by updating (overriding) the navigation template.
 
 ## Content Meta Fields
 
-A meta-information section may be added to the beginning of each file. This section allows you to define customizations or override default behaviors for the page.
+A meta-information section may be added to the beginning of each file.
+This section allows you to define customizations or override default 
+behaviors for the page.
+
+Meta field lines have the following rules
+* May not begin with whitespace
+* May be commented with the "#" character at the beginning of the line
+* May span multiple lines by indenting subsequent lines with whitespace
 
 * *Author:* The page author. This is useful for blog posts and articles.
 

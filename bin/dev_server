@@ -70,15 +70,3 @@ if __name__ == '__main__':
         site.start()
 
         site.run()
-
-        # run_options = {}
-        # if cmd_args.debug_mode:
-        #     run_options["debug"] = True
-        #     run_options["use_debugger"] = False
-        #     run_options["use_reloader"] = False
-        # site.run(**run_options)
-
-
-
-
-
