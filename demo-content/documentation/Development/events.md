@@ -1,6 +1,12 @@
 /*
-Title: System Events
+Title: Event Hooks
 Nav Name: Event Hooks
+Description: MDWeb Event Hooks
+Order: 4
+Teaser: MDWeb system event hook reference. Useful reference for writing
+    plugins.
+Sitemap Priority: 0.5
+Sitemap Changefreq: monthly
 */
 
 #System Event Hooks

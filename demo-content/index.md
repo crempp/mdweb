@@ -5,9 +5,8 @@ Order: 1
 Template: page_home.html
 Sitemap Priority: 0.9
 Sitemap Changefreq: daily
+Teaser Image: /contentassets/teaser.png
 */
-
-<img src="/contentassets/MDWeb_logo_275x190.png"/>
 
 MDWeb is a markdown based web site framework.
 
@@ -21,7 +20,7 @@ enemies such as Drupal, Wordpress and Joomla. The things I saw during those
 dark days can not be unseen.
 
 
-After years of batlle, this weary web development soldier built himself a a 
+After years of battle, this weary web development soldier built himself a a 
 tiny oasis. This is MDWeb, I hope you find respite in it.
 
 

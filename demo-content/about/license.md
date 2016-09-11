@@ -1,11 +1,14 @@
 /*
 Title: MDWeb License
+Nav Name: MDWeb License
 Description: MDWeb Opensource License
 Nav Name: License
 Order: 99
+Teaser: MDWeb is released under the MIT license.
 Sitemap Priority: 0.1
 Sitemap Changefreq: never
 */
+
 ## MDWeb License
 
 MDWeb is released under the MIT license.

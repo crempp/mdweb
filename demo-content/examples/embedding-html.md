@@ -1,9 +1,12 @@
 /*
-Title: Embedding HTML
-Description: How to embed HTML
-Author: Chad Rempp
-Date: 2014/12/28
-Order: 2
+Title: Embedding HTML Example
+Nav Name: Embedding HTML
+Description: An example of embedding HTML into a page
+Order: 4
+Teaser: A helpful example for embedding raw HTML into a content file
+    for advanced content rendering.
+Sitemap Priority: 0.5
+Sitemap Changefreq: monthly
 */
 
 # Embedding HTML

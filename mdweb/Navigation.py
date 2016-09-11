@@ -139,7 +139,7 @@ class Navigation(NavigationBaseItem):
 
     @property
     def has_children(self):
-        """Check if the navigatin level has any pages or nav children."""
+        """Check if the navigation level has any pages or nav children."""
         return len(self.child_navs) > 0 or \
             len(self.child_pages) > 0
 
