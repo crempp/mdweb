@@ -28,6 +28,7 @@ class MDTestSite(MDSite):
         CONTENT_PATH = '/my/content/'
         THEME = '/my/theme/'
         TESTING = True
+        GA_TRACKING_ID = 'UA-00000000-1'
 
 
 class TestSite(fake_filesystem_unittest.TestCase, TestCase):
@@ -137,8 +138,6 @@ Sitemap ChangeFreq: daily
         with self.app.test_client() as client:
             response = client.get('/sitemap.xml')
 
-        print(str(response.data).replace("\\n", "\n"))
-
         self.assert200(response)
         # pylint: disable=C0301
         # pylint: disable=E501
@@ -159,7 +158,21 @@ Sitemap ChangeFreq: daily
         <lastmod>2015-06-26T12:06:15+0000</lastmod>
     </url>
 </urlset>""")
-
+        
+    def test_ga_tracking_context(self):
+        """GA Tracking should be added to context."""
+        with self.app.test_client() as client:
+            client.get('/')
+        self.assertContext('ga_tracking', '''<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+    ga('create', 'UA-00000000-1', 'auto');
+    ga('send', 'pageview');
+</script>''')
+        
 
 class TestSiteBoot(fake_filesystem_unittest.TestCase):
 
