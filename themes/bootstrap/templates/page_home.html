@@ -1,4 +1,67 @@
 {% extends "layout.html" %}
 {% block body %}
-  {{ page | safe}}
+  <article class="home-page">
+    {# Home Section #}
+    <div class="jumbotron">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <img src="{{ navigation.page.meta_inf.teaser_image }}">
+          </div>
+          <div class="col-md-8">
+            <h1>{{ navigation.page.meta_inf.title }}</h1>
+            <p>{{ page | safe}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Section for each nav entry #}
+    {% for nav in navigation.children if nav.children|length > 0 -%}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <span class="panel-title">
+          {{ nav.name }}
+        </span>
+        <span class="pull-right">
+          <a href="{{ nav.page.url_path }}">
+            more {{ nav.name | lower }}
+            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+          </a>
+        </span>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+
+          {% for page in nav.child_pages[0:3] %}
+          <div class="col-sm-6 col-md-4">
+            <div class="thumbnail">
+              {% if page.meta_inf.teaser_image %}
+              <img src="{{ page.meta_inf.teaser_image }}">
+              {% endif %}
+              <div class="caption">
+                <h3><a href="/{{ page.url_path }}">{{ page.meta_inf.title }}</a></h3>
+                <p>
+                  <div class="text-muted">
+                    {% if page.meta_inf.author %}
+                    by {{ page.meta_inf.author }}
+                    {% endif %}
+                    {% if page.meta_inf.date %}
+                    on {{ page.meta_inf.date }}
+                    {% endif %}
+                  </div>
+                  {{ page.meta_inf.teaser }}
+                </p>
+                <a href="/{{ page.url_path }}">Read more...</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </article>
 {% endblock %}

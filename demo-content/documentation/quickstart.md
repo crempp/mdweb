@@ -1,7 +1,12 @@
 /*
 Title: MDWeb Quick Start
 Nav Name: Quick Start
-Order: 4
+Description: How to quickly get MDWeb running
+Order: 1
+Teaser: Learn how to setup MDWeb in 5 minutes or less. Step-by-step
+    instructions are given.
+Sitemap Priority: 0.5
+Sitemap Changefreq: monthly
 */
 
 # Quickstart

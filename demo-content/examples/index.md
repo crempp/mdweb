@@ -1,6 +1,11 @@
 /*
 Title: Markdown Examples
-Description: Examples of how to use MDWeb
+Nav Name: Markdown Examples
+Description: An example of writing markdown for MDWeb content
+Order: 4
+Teaser: A helpful example of writing markdown for MDWeb content.
+Sitemap Priority: 0.5
+Sitemap Changefreq: monthly
 */
 
 Examples taken from https://daringfireball.net/projects/markdown/basics

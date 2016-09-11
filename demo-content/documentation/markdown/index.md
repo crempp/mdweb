@@ -1,7 +1,12 @@
 /*
 Title: MDWeb Markdown
+Nav Name: Dev Server
 Description: How to write Markdown
 Order: 4
+Teaser: Learn how to write markdown. This reference should cover almost
+    all your markdown needs.
+Sitemap Priority: 0.5
+Sitemap Changefreq: monthly
 */
 
 Markdown Basics
