@@ -62,7 +62,7 @@ class Navigation(NavigationBaseItem):
 
     """Navigation level representation.
 
-    Navigation is built rescursivly by walking the content directory. Each
+    Navigation is built recursively by walking the content directory. Each
     directory represents a navigation level, each file represents a page.
 
     Each nav level's name is determined by the directory name.

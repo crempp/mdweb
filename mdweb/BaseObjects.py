@@ -7,6 +7,7 @@ import re
 from mdweb.Exceptions import PageMetaInfFieldException
 from mdweb.metafields import META_FIELDS as MDW_META_FIELDS
 
+
 class NavigationBaseItem(object):  # pylint: disable=R0903
 
     """Base object for navigation items such as nav-levels or pages."""
@@ -24,10 +25,10 @@ class MetaInfParser(object):  # pylint: disable=R0903
 
     #: Registered meta fields, can be overridden by inheriting class.
     META_FIELDS = MDW_META_FIELDS
-    
+
     #: Regular expression to extract meta field key-value pairs.
     # can be overridden by inheriting class.
-    FIELD_VALUE_REGEX = r'^(?P<key>[a-zA-Z0-9 ]+):(?P<value>.+)$'
+    FIELD_VALUE_REGEX = r"^(?P<key>[a-zA-Z0-9 ]+):(?P<value>.+)$"
 
     def __init__(self, meta_string):
         """Initialize the parser."""
@@ -60,12 +61,13 @@ class MetaInfParser(object):  # pylint: disable=R0903
                     continue
                 # Strip beginning and trailing whitespace and newlines
                 line = line.strip(' \t\n\r')
-                
+
                 processed_line += ' ' + line
-            
+
             match = re.search(self.FIELD_VALUE_REGEX, processed_line)
             if match is None:
-                raise PageMetaInfFieldException("Improperly formated metainf line '%s'" % line)
+                raise PageMetaInfFieldException(
+                    "Improperly formated metainf line '%s'" % processed_line)
             key = match.group('key').strip().lower().replace(' ', '_')
             value = match.group('value').strip()
             if key not in self.META_FIELDS.keys():

@@ -1,4 +1,4 @@
-""" Metainf block field registrations
+""" Metainf block field registrations.
 
 The META_FIELDS dictionary registers allowable fields in the markdown
 metainf block as well as the type and default value.
