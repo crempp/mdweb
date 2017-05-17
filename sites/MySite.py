@@ -29,3 +29,5 @@ class MySite(MDSite):
         #: Google Analytics tracking ID. If False GA tracking will not be used.
         # Your GA tracking ID will look like 'UA-00000000-1'
         GA_TRACKING_ID = False
+
+        DEBUG_HELPER = False
