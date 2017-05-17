@@ -1,0 +1,11 @@
+# We ignore all themes except those listed so that we can create test themes
+# without accidentally commiting test sites.
+
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!alpha/**/*
+!bootstrap/**/*
+!mdweb/**/*

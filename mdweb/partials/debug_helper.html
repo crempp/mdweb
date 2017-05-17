@@ -1,0 +1,240 @@
+<style>
+  #md_debug_helper {
+    /* Fix to the bottom of the screen */
+    position: fixed;
+    bottom: 0px;
+    height: 200px;
+    width: 100%;
+    {# display: none;#}
+    background-color: rgba(15, 15, 15, 0.8);
+
+  }
+
+  /* Debug Nav */
+  #md_debug_helper .md_navbar {
+    position: relative;
+  }
+  #md_debug_helper .md_navbar .md_container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+  #md_debug_helper .md_navbar .md_container ul.md_navbar_nav {
+    float: left;
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  #md_debug_helper .md_navbar .md_container ul.md_navbar_nav li {
+    float: left;
+    position: relative;
+    display: block;
+  }
+  #md_debug_helper nav {
+    height: 22px;
+    border-radius: 0;
+    min-height: 0;
+    margin-bottom: 0;
+    background-color: rgba(6, 6, 6, 0.5);
+    border: none;
+  }
+  #md_debug_helper ul.md_navbar_nav a,
+  #md_debug_helper ul.md_navbar_nav button,
+  #md_debug_helper ul.md_navbar_nav form,
+  #md_debug_helper ul.md_navbar_nav input {
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+    line-height: 20px;
+  }
+  #md_debug_helper ul.md_navbar_nav a {
+    position: relative;
+    display: block;
+    padding-right: 15px;
+    padding-left: 15px;
+    text-decoration: none;
+    color: #777;
+    line-height: 20px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+  }
+  #md_debug_helper ul.md_navbar_nav a:hover {
+    color: #eeeeee;
+  }
+  #md_debug_helper ul.md_navbar_nav a.active {
+    color: #e9e9e9;
+  }
+  #md_debug_helper .md_navbar .md_navbar_nav_right {
+    float: right;
+    margin-right: -15px;
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  #md_debug_helper .md_navbar .md_form_group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
+  }
+  #md_debug_helper .md_navbar form {
+    border-color: #e7e7e7;
+    float: left;
+    width: auto;
+    margin-right: 0;
+    margin-left: 0;
+    border: 0;
+    box-shadow: none;
+  }
+  #md_debug_helper .md_navbar input {
+    height: auto;
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  }
+  #md_debug_helper .md_navbar button {
+        color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+
+  /* Debug Display */
+  #md_debug_display {
+    height: 178px;
+    overflow-y: scroll;
+  }
+  .md_debug_display_section {
+    display: none;
+  }
+  #md_debug_display pre {
+    background-color: inherit;
+    border: none;
+    color: #F4F7F5;
+  }
+</style>
+
+<div id="md_debug_helper">
+{#  <nav class="navbar navbar-default">#}
+  <nav class="md_navbar">
+{#    <div class="container-fluid">#}
+    <div class="md_container">
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="">
+        <ul class="md_navbar_nav">
+          {% for section in debug|sort %}
+          <li class="md_debug_menu_section">
+            <a id="md_debug_section_link_{{ section }}"
+               data-section="{{ section }}"
+               href="#">{{ section }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {#
+        <ul class="md_navbar_nav_right">
+          <li>
+            <form class="navbar-form navbar-left">
+              <div class="md_form_group">
+                <input type="text" class="form-control" placeholder="Search">
+              </div>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+          </li>
+        </ul>
+        #}
+
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+  <div id="md_debug_display">
+    {% for section in debug|sort %}
+    <div id="md_debug_display_{{ section }}" class="md_debug_display_section">
+      <pre>
+{{ debug[section] }}
+      </pre>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  var MDDebug = {
+    sections: [{% for section in debug|sort %}"{{ section }}",{% endfor -%}],
+    hasClass: function(el, className) {
+    if (el.classList)
+      return el.classList.contains(className);
+    else
+      return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+    },
+    addClass: function(el, className) {
+      if (el.classList)
+        el.classList.add(className);
+      else if (!hasClass(el, className)) el.className += " " + className
+    },
+    removeClass: function(el, className) {
+      if (el.classList)
+        el.classList.remove(className);
+      else if (hasClass(el, className)) {
+        var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+        el.className = el.className.replace(reg, ' ')
+      }
+    },
+    setup: function () {
+      for (var i in MDDebug.sections) {
+        var section = MDDebug.sections[i];
+        document.getElementById("md_debug_section_link_" + section).onclick = MDDebug.selectSection;
+      }
+      MDDebug.selectSection(MDDebug.sections[0]);
+    },
+    selectSection: function (e) {
+      var section;
+      if (typeof e == "string"){
+        section = e;
+      } else {
+        e.preventDefault();
+        section = this.dataset.section;
+      }
+
+      for (var i in MDDebug.sections) {
+        var sDisable = MDDebug.sections[i];
+        MDDebug.removeClass(
+          document.getElementById("md_debug_section_link_" + sDisable),
+          "active"
+        );
+        document.getElementById("md_debug_display_" + sDisable).style.display = "none";
+      }
+
+      MDDebug.addClass(
+        document.getElementById("md_debug_section_link_" + section),
+        "active"
+      );
+      document.getElementById("md_debug_display_" + section).style.display = "block";
+    }
+  };
+
+  window.onload = MDDebug.setup;
+</script>

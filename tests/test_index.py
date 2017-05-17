@@ -3,6 +3,7 @@ Tests for the MDWeb Index
 
 """
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
+from flask.ext.testing import TestCase
 from mdweb.MDSite import MDSite
 
 
@@ -20,11 +21,11 @@ class MDTestSite(MDSite):
         TESTING = True
 
 
-class TestIndex(fake_filesystem_unittest.TestCase):
+class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
 
     """Index object tests."""
 
-    def setUp(self):
+    def create_app(self):
         """Create fake filesystem and flask app."""
         self.setUpPyfakefs()
         self.fake_os = fake_filesystem.FakeOsModule(self.fs)
@@ -54,11 +55,13 @@ class TestIndex(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/404.md', contents='''404 Test''')
         self.fs.CreateFile('/my/content/500.md', contents='''500 Test''')
 
-        self.app = MDTestSite(
+        app = MDTestSite(
             "MDWeb",
             app_options={}
         )
-        self.app.start()
+        app.start()
+        
+        return app
 
     def test_basic_request(self):
         """Request to "/" should return 200."""
@@ -110,5 +113,3 @@ class TestIndex(fake_filesystem_unittest.TestCase):
             self.assertEqual(
                 result.data,
                 b'The method is not allowed for the requested URL.')
-            
-            

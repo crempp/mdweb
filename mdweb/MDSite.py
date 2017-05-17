@@ -1,24 +1,27 @@
 """The MDWeb Site object."""
-import glob
+import blinker
+import cgi
+import jinja2
+import json
 import logging
 import os
-
-import blinker
-import jinja2
-from flask import (
-    Flask,
-    send_from_directory,
-    send_file,
-    abort,
-)
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from werkzeug.debug import get_current_traceback
+
+from flask import (
+    Flask,
+    abort,
+    request,
+    send_file,
+    send_from_directory,
+)
 
 from mdweb.Index import Index
 from mdweb.SiteMapView import SiteMapView
 from mdweb.Navigation import Navigation
 from mdweb.Page import Page
+from mdweb.metafields import META_FIELDS
 
 # Shim Python 3.x Exceptions
 if 'FileExistsError' not in __builtins__.keys():
@@ -60,6 +63,10 @@ BASE_SETTINGS = {
     #: Google Analytics tracking ID. If False GA tracking will not be used.
     # Your GA tracking ID will look like 'UA-00000000-1'
     'GA_TRACKING_ID': False,
+    
+    #: Debug helper for exposing context variables, config and other useful
+    # information in the browser. Helpful for plugin and them development.
+    'DEBUG_HELPER': False
 }
 
 BASE_SITE_OPTIONS = {
@@ -135,6 +142,7 @@ class MDSite(Flask):
         self.pages = self.navigation.get_page_dict()
         self.context_processor(self._inject_navigation)
         self.context_processor(self._inject_ga_tracking)
+        self.context_processor(self._inject_debug_helper)
         MDW_SIGNALER['post-navigation-scan'].send(self)
 
         #: FINISH THINGS UP
@@ -148,7 +156,7 @@ class MDSite(Flask):
         :return: Page object matching the requested url path
         """
         for page_url, page in self.pages.items():
-            if page.url_path == url_path:
+            if page.url_path.strip('/') == url_path.strip('/'):
                 return page
 
         return None
@@ -302,6 +310,9 @@ class MDSite(Flask):
         self.config['BASE_PATH'] = os.path.abspath(os.path.join(path_to_here,
                                                                 os.pardir))
 
+        self.config['PARTIALS_TEMPLATE_PATH'] = os.path.join(
+            self.config['BASE_PATH'], 'mdweb', 'partials')
+
         # Build the full path the the theme folder using the theme name
         self.config['THEME_FOLDER'] = os.path.join(
             self.config['BASE_PATH'],
@@ -357,17 +368,105 @@ class MDSite(Flask):
 
     def _inject_ga_tracking(self):
         """Render the Google Analytics tracking code if enabled and add to the
-        context."""
+        context.
+        
+        We render directly with Jinja to avoid context processor recursion.
+        Since this rendering is done within a context processor the context
+        processors will run, recurse until stack overflow."""
         context = dict(ga_tracking="")
         if self.config['GA_TRACKING_ID']:
-            context['ga_tracking'] = """<script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-    
-    ga('create', '%s', 'auto');
-    ga('send', 'pageview');
-</script>""" % self.config['GA_TRACKING_ID']
+            partial_context = {'ga_id': self.config['GA_TRACKING_ID']}
+            ga_code = jinja2.Environment(
+                loader=jinja2.FileSystemLoader(
+                    self.config['PARTIALS_TEMPLATE_PATH'] + '/')
+            ).get_template('google_analytics.html').render(partial_context)
+            context['ga_tracking'] = ga_code
         
+        return context
+    
+    def _inject_debug_helper(self):
+        nav_fields = [
+            '_content_path',
+            '_root_content_path',
+            'child_navs',
+            'child_pages',
+            'has_page',
+            'has_children',
+            'is_top',
+            'level',
+            'name',
+            'page',
+        ]
+
+        page_fields = [
+            'meta_inf',
+            'markdown_str',
+            'page_html',
+            'abstract',
+        ]
+        
+        context = dict(debug_helper="")
+        
+        def nav_to_dict(nav):
+            nav_dict = {}
+            for f in nav_fields:
+                if f in 'child_navs':
+                    nav_dict[f] = []
+                    for subnav in nav.child_navs:
+                        nav_dict[f].append(nav_to_dict(subnav))
+                else:
+                    nav_dict[f] = getattr(nav, f)
+            
+            return nav_dict
+        
+        def page_to_dict(page):
+            page_dict = {}
+            
+            if page is not None:
+                for f in page_fields:
+                    if f in ['page_html', 'abstract']:
+                        value = cgi.escape(getattr(page, f))
+                    elif f == 'meta_inf':
+                        value = metainf_to_dict(getattr(page, f))
+                    else:
+                        value = getattr(page, f)
+                        
+                    page_dict[f] = value
+                
+            return page_dict
+        
+        def metainf_to_dict(meta_inf):
+            metainf_dict = {}
+
+            for f in META_FIELDS:
+                metainf_dict[f] = getattr(meta_inf, f)
+            
+            return metainf_dict
+            
+        if self.config['DEBUG_HELPER']:
+            config = json.dumps(self.config, indent=4, sort_keys=True,
+                                default=lambda x: str(x))
+            navigation = json.dumps(nav_to_dict(self.navigation), indent=4,
+                                    sort_keys=True, default=lambda x: str(x))
+            # req = json.dumps(request, indent=4, sort_keys=True,
+            #                  default=lambda x: str(x))
+            page = json.dumps(page_to_dict(self.get_page(request.path)),
+                              indent=4, sort_keys=True,
+                              default=lambda x: str(x))
+            
+            partial_context = {
+                'debug': {
+                    'config': config,
+                    'navigation': navigation,
+                    # 'request': req,
+                    'page': page,
+                }
+            }
+            
+            debug_output = jinja2.Environment(
+                loader=jinja2.FileSystemLoader(
+                    self.config['PARTIALS_TEMPLATE_PATH'] + '/')
+            ).get_template('debug_helper.html').render(partial_context)
+            context['debug_helper'] = debug_output
+
         return context
