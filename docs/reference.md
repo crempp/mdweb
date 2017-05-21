@@ -1,5 +1,32 @@
 # Reference
 
+## Context Variables
+
+
+There are MDWeb context variables available in theme templates.
+
+* *navigation* The [navigation object](#navigation-object). Useful for 
+building navigation and menus.
+
+```{navigation}```
+
+
+* *current_page* The [page object](#page-object) for the current page you're on. A useful
+ shortcut to get current page properties and settings.
+ 
+```{current_page}```
+
+* *ga_tracking* A rendered partial with the tracking code for Google 
+Analytics. You must enable this by setting the `GA_TRACKING_ID` value in your
+ site config.
+
+```{ga_tracking | safe}```
+
+* *debug_helper* An HTML debug interface. Useful for showing current config 
+and page-level properties. You must enable this by setting the `DEBUG_HELPER`
+ option to `True` in your site config.
+
+
 ## Navigation Object
 
 

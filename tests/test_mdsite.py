@@ -312,3 +312,37 @@ Order: 1
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
         self.assertEqual(len(sorted_list), 2)
+
+
+class TestCurrentPageContext(TestCase):
+    """Can't use pyfakefs for this or partials won't load"""
+    
+    def create_app(self):
+        app = MDTestSite(
+            "MDWeb",
+            app_options={}
+        )
+        app.start()
+        
+        return app
+    
+    def test_index_in_context(self):
+        """"Current page should exist in context."""
+        path = '/'
+        with self.app.test_client() as client:
+            client.get(path)
+        self.assertContext('current_page', self.app.get_page(path))
+
+    def test_no_such_page(self):
+        """"Even a non-existent page (None) should inject"""
+        path = '/no/such/page'
+        with self.app.test_client() as client:
+            client.get(path)
+        self.assertContext('current_page', self.app.get_page(path))
+
+    def test_blah_in_context(self):
+        """"Current page should exist in context."""
+        path = '/about/history'
+        with self.app.test_client() as client:
+            client.get(path)
+        self.assertContext('current_page', self.app.get_page(path))

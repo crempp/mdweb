@@ -7,7 +7,6 @@ import logging
 import os
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from werkzeug.debug import get_current_traceback
 from six import string_types
 
 from flask import (
@@ -144,6 +143,7 @@ class MDSite(Flask):
         self.context_processor(self._inject_navigation)
         self.context_processor(self._inject_ga_tracking)
         self.context_processor(self._inject_debug_helper)
+        self.context_processor(self._inject_current_page)
         MDW_SIGNALER['post-navigation-scan'].send(self)
 
         #: FINISH THINGS UP
@@ -161,6 +161,14 @@ class MDSite(Flask):
                 return page
 
         return None
+    
+    def get_page_from_request(self, req):
+        """Lookup the page given a request object.
+
+        :param req:
+        :return: Page object matching the request url path
+        """
+        return self.get_page(req.path)
 
     def error_page(self, error):
         """Show custom error pages.
@@ -467,6 +475,11 @@ class MDSite(Flask):
             context['debug_helper'] = debug_output
 
         return context
+    
+    def _inject_current_page(self):
+        """Inject the entire navigation structure into the context"""
+        page = self.get_page_from_request(request)
+        return dict(current_page=page)
 
     @staticmethod
     def _sorted_pages(page_list, attribute, page_count, reverse):
