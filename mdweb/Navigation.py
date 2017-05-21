@@ -44,7 +44,7 @@ import os
 import re
 
 from mdweb.Exceptions import ContentException, ContentStructureException
-from mdweb.Page import Page
+from mdweb.Page import Page, load_page
 from mdweb.BaseObjects import NavigationBaseItem, MetaInfParser
 
 
@@ -203,7 +203,7 @@ class Navigation(NavigationBaseItem):
                         % page_name)
 
                 # We have got a nav file!
-                page = Page(self._root_content_path, filepath)
+                page = Page(*load_page(self._root_content_path, filepath))
 
                 # If it's an index file use it for the page for this nav
                 # object

@@ -8,6 +8,7 @@ import os
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from werkzeug.debug import get_current_traceback
+from six import string_types
 
 from flask import (
     Flask,
@@ -20,7 +21,7 @@ from flask import (
 from mdweb.Index import Index
 from mdweb.SiteMapView import SiteMapView
 from mdweb.Navigation import Navigation
-from mdweb.Page import Page
+from mdweb.Page import Page, load_page
 from mdweb.metafields import META_FIELDS
 
 # Shim Python 3.x Exceptions
@@ -168,18 +169,12 @@ class MDSite(Flask):
         """
         def render_custom_error(code, path):
             """Render an error page with a custom content file."""
-            track = get_current_traceback(skip=1, show_hidden_frames=True,
-                                          ignore_system_exceptions=False)
-            track.log()
             
-            page = Page(self.config['CONTENT_PATH'], path)
+            page = Page(*load_page(self.config['CONTENT_PATH'], path))
             return Index.render(page), code
         
         def render_simple_error(code):
             """Render an error page without a content file."""
-            track = get_current_traceback(skip=1, show_hidden_frames=True,
-                                          ignore_system_exceptions=False)
-            track.log()
             
             if hasattr(error, 'description'):
                 error_message = error.description
@@ -336,6 +331,8 @@ class MDSite(Flask):
             ]),
         ])
         self.jinja_loader = my_loader
+        
+        self.jinja_env.filters['sorted_pages'] = self._sorted_pages
 
         # Extend the content path to the absolute path
         if not self.config['CONTENT_PATH'].startswith('/'):
@@ -470,3 +467,15 @@ class MDSite(Flask):
             context['debug_helper'] = debug_output
 
         return context
+
+    @staticmethod
+    def _sorted_pages(page_list, attribute, page_count, reverse):
+        def key_getter(d):
+            v = getattr(d.meta_inf, attribute)
+            if isinstance(v, string_types):
+                return v.lower()
+            else:
+                return v
+        list = sorted(page_list, key=key_getter,
+                      reverse=reverse)[0:page_count]
+        return list

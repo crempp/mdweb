@@ -202,9 +202,10 @@ debughelper_file_string = """
 </div>
 """
 
-class MDTestSite(MDSite):
 
-    """Site to use for testing."""
+class MDTestSite(MDSite):
+    
+    """Test site for use with real FS"""
 
     class MDConfig:  # pylint: disable=R0903
 
@@ -218,9 +219,10 @@ class MDTestSite(MDSite):
         GA_TRACKING_ID = 'UA-00000000-1'
         DEBUG_HELPER = False
         
+        
 class MDTestSiteDebugHelper(MDSite):
 
-    """Site to use for testing."""
+    """Test site for use with fake FS and debug helper enabled."""
 
     class MDConfig:  # pylint: disable=R0903
 
@@ -236,8 +238,8 @@ class MDTestSiteDebugHelper(MDSite):
 
 
 class MDFakeFSTestSite(MDSite):
-
-    """Site to use for testing."""
+    
+    """Test site for use with fake FS."""
 
     class MDConfig:  # pylint: disable=R0903
 
@@ -250,9 +252,44 @@ class MDFakeFSTestSite(MDSite):
         TESTING = True
         GA_TRACKING_ID = False
         DEBUG_HELPER = False
+        
+        
+class MDFakeFSNoThemeTestSite(MDSite):
+    
+    """Test site for use with fake FS and missing theme directory."""
+
+    class MDConfig:  # pylint: disable=R0903
+
+        """Config class for testing."""
+
+        DEBUG = False
+        SECRET_KEY = 'create_a_secret_key_for_use_in_production'
+        CONTENT_PATH = '/my/content/'
+        THEME = '/my/missing/theme/'
+        TESTING = True
+        GA_TRACKING_ID = False
+        DEBUG_HELPER = False
+
+
+class MDFakeFSNoContentTestSite(MDSite):
+    
+    """Test site for use with fake FS and missing theme directory."""
+    
+    class MDConfig:  # pylint: disable=R0903
+        
+        """Config class for testing."""
+        
+        DEBUG = False
+        SECRET_KEY = 'create_a_secret_key_for_use_in_production'
+        CONTENT_PATH = '/my/missing/content/'
+        THEME = '/my/theme/'
+        TESTING = True
+        GA_TRACKING_ID = False
+        DEBUG_HELPER = False
 
 
 def populate_fakefs(self):
+    """Fake file system setup"""
     
     self.fs.CreateFile('/my/content/400.md')
     self.fs.CreateFile('/my/content/403.md')

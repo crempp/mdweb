@@ -1,6 +1,11 @@
 """Tests for the MDWeb Site."""
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
+
 from flask.ext.testing import TestCase
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 try:
     # Python >= 3.3
     from unittest import mock
@@ -8,7 +13,11 @@ except ImportError:
     # Python < 3.3
     import mock
     
-from tests.sites import MDTestSite, MDFakeFSTestSite, populate_fakefs
+from mdweb.Page import Page
+from mdweb.MDSite import MDSite
+from tests.sites import (MDTestSite, MDFakeFSTestSite,
+                         MDFakeFSNoThemeTestSite, MDFakeFSNoContentTestSite,
+                         populate_fakefs)
 
 # Shim Python 3.x Exceptions
 if 'FileExistsError' not in __builtins__.keys():
@@ -153,43 +162,40 @@ class TestSiteBoot(fake_filesystem_unittest.TestCase):
 
 class TestSiteMissingTemplate(fake_filesystem_unittest.TestCase):
 
-    """MDSite object tests."""
+    """MDSite missing template directory tests."""
 
     def setUp(self):
-        """Create fake filesystem and flask app."""
+        """Create fake filesystem."""
         self.setUpPyfakefs()
         self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
-        self.fs.CreateFile('/my/content/index.md')
+        populate_fakefs(self)
 
     def test_no_theme_directory(self):
         """Missing theme directory should raise FileExistsError."""
-        self.assertRaises(FileExistsError, MDFakeFSTestSite, "MDWeb")
+        self.assertRaises(FileExistsError, MDFakeFSNoThemeTestSite, "MDWeb")
 
 
 class TestSiteMissingContent(fake_filesystem_unittest.TestCase):
 
-    """MDSite object tests."""
+    """MDSite missing content directory tests."""
 
     def setUp(self):
-        """Create fake filesystem and flask app."""
+        """Create fake filesystem."""
         self.setUpPyfakefs()
         self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
-        self.fs.CreateFile('/my/theme/assets/css/style.css')
-        self.fs.CreateFile('/my/theme/assets/js/site.js')
-        self.fs.CreateFile('/my/theme/templates/layout.html')
-        self.fs.CreateFile('/my/theme/templates/navigation.html')
-        self.fs.CreateFile('/my/theme/templates/page.html')
-        self.fs.CreateFile('/my/theme/templates/page_home.html')
+        populate_fakefs(self)
 
     def test_no_content_directory(self):
         """Missing content directory should raise FileExistsError."""
-        self.assertRaises(FileExistsError, MDFakeFSTestSite, "MDWeb")
+        self.assertRaises(FileExistsError, MDFakeFSNoContentTestSite, "MDWeb")
 
 
 class TestPartials(TestCase):
+    
     """Can't use pyfakefs for this or partials won't load"""
+    
     def create_app(self):
         app = MDTestSite(
             "MDWeb",
@@ -212,3 +218,97 @@ class TestPartials(TestCase):
     ga('create', 'UA-00000000-1', 'auto');
     ga('send', 'pageview');
 </script>''')
+
+
+class TestSortFilter(unittest.TestCase):
+    # date sort
+    # reverse
+    # order
+    # title
+    # page count
+    def setUp(self):
+        self.page_list = []
+        self.page_list.append(Page('/path/to/story3.md', '/to/story3', u"""/*
+Title: Blog Story 3
+Date: 2016/05/12
+Nav Name: Story 3
+Order: 3
+*/
+"""))
+        self.page_list.append(Page('/path/to/other-page.md', '/to/other-page',
+                                   u"""/*
+Title: Other Story
+Date: 2016/04/02
+Nav Name: Another Story
+Order: 2
+*/
+"""))
+        self.page_list.append(Page('/path/to/story2.md', '/to/story2', u"""/*
+Title: blog story 2
+Date: 2016/03/21
+Nav Name: Story 1
+Order: 2
+*/
+"""))
+        self.page_list.append(Page('/path/to/story1.md', '/to/story1', u"""/*
+Title: Blog Story 1
+Date: 2016/02/01
+Nav Name: Story 1
+Order: 1
+*/
+"""))
+
+    def test_sort_title(self):
+        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 6, False)
+        
+        self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
+        self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
+        self.assertEqual(sorted_list[2].meta_inf.title, 'Blog Story 3')
+        self.assertEqual(sorted_list[3].meta_inf.title, 'Other Story')
+
+    def test_sort_title_reversed(self):
+        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 6, True)
+
+        self.assertEqual(sorted_list[0].meta_inf.title, 'Other Story')
+        self.assertEqual(sorted_list[1].meta_inf.title, 'Blog Story 3')
+        self.assertEqual(sorted_list[2].meta_inf.title, 'blog story 2')
+        self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
+        
+    def test_sort_date(self):
+        sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, False)
+
+        self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
+        self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
+        self.assertEqual(sorted_list[2].meta_inf.title, 'Other Story')
+        self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 3')
+    
+    def test_sort_date_reversed(self):
+        sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, True)
+
+        self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 3')
+        self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
+        self.assertEqual(sorted_list[2].meta_inf.title, 'blog story 2')
+        self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
+        
+    def test_sort_order(self):
+        sorted_list = MDSite._sorted_pages(self.page_list, 'order', 6, False)
+
+        self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
+        self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
+        self.assertEqual(sorted_list[2].meta_inf.title, 'blog story 2')
+        self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 3')
+
+    def test_sort_order_reversed(self):
+        sorted_list = MDSite._sorted_pages(self.page_list, 'order', 6, True)
+
+        self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 3')
+        self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
+        self.assertEqual(sorted_list[2].meta_inf.title, 'blog story 2')
+        self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
+    
+    def test_page_count(self):
+        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 2, False)
+
+        self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
+        self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
+        self.assertEqual(len(sorted_list), 2)

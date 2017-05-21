@@ -19,7 +19,7 @@ except ImportError:
     # Python < 3.3
     import mock
 
-from mdweb.Page import PageMetaInf, Page
+from mdweb.Page import PageMetaInf, Page, load_page
 from mdweb.Exceptions import (
     PageMetaInfFieldException,
     PageParseException,
@@ -211,7 +211,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/about/history.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/about/history.md')
+        page = Page(*load_page('/my/content', '/my/content/about/history.md'))
 
         self.assertEqual(page.page_path, '/my/content/about/history.md')
         self.assertEqual(page.url_path, 'about/history')
@@ -219,7 +219,8 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/super/deep/url/path/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/super/deep/url/path/index.md')
+        page = Page(*load_page('/my/content',
+                               '/my/content/super/deep/url/path/index.md'))
 
         self.assertEqual(page.page_path,
                          '/my/content/super/deep/url/path/index.md')
@@ -232,7 +233,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
                            contents=file_string)
 
         # Not an MD file
-        self.assertRaises(PageParseException, Page, '/my/content',
+        self.assertRaises(PageParseException, load_page, '/my/content',
                           '/my/content/index')
 
     @mock.patch('mdweb.Page.PageMetaInf')
@@ -242,7 +243,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         self.assertEqual(str(page), '/my/content/index.md')
 
@@ -253,7 +254,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('')
         self.assertEqual(page.markdown_str, '')
@@ -261,7 +262,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
 
     def test_no_file(self):
         """If the path has no file a ContentException should be raised."""
-        self.assertRaises(ContentException, Page, '/my/content',
+        self.assertRaises(ContentException, load_page, '/my/content',
                           '/my/content/index.md')
 
     @mock.patch('mdweb.Page.PageMetaInf')
@@ -278,7 +279,7 @@ dog's back."""
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('')
         self.assertEqual(page.markdown_str, '''Now is the time for all good men to come to
@@ -311,7 +312,7 @@ dog's back.'''
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('''
 Title: MDWeb Examples
@@ -446,7 +447,7 @@ you've got to put paragraph tags in your blockquotes:
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('''
 Title: MDWeb Examples
