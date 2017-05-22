@@ -38,6 +38,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(nav.has_children)
         self.assertEqual(len(nav.children), 0)
         self.assertEqual(nav.order, 0)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
     def test_multiple_toplevel_pages(self):
         """Multiple pages at the top level should raise an error.
@@ -69,6 +71,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertTrue(nav.has_children)
         self.assertEqual(len(nav.children), 2)
         self.assertEqual(nav.order, 0)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
         about_nav = nav.child_navs[0]
         self.assertEqual(about_nav.root_content_path, '/my/content')
@@ -84,6 +88,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(about_nav.has_children)
         self.assertEqual(len(about_nav.children), 0)
         self.assertEqual(about_nav.order, 0)
+        self.assertEqual(about_nav.id, '46b3931b9959c927df4fc65fdee94b07')
+        self.assertEqual(about_nav.slug, 'about')
 
         contact_nav = nav.child_navs[1]
         self.assertEqual(contact_nav.root_content_path, '/my/content')
@@ -99,6 +105,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(contact_nav.has_children)
         self.assertEqual(len(contact_nav.children), 0)
         self.assertEqual(contact_nav.order, 0)
+        self.assertEqual(contact_nav.id, '2f8a6bf31f3bd67bd2d9720c58b19c9a')
+        self.assertEqual(contact_nav.slug, 'contact')
 
     def test_complex_nested_structure(self):
         """A complex nested structure should create navigation structure."""
@@ -136,6 +144,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertTrue(nav.has_children)
         self.assertEqual(len(nav.children), 4)
         self.assertEqual(nav.order, 0)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
         about_nav = nav.child_navs[0]
         self.assertEqual(about_nav.root_content_path, '/my/content')
@@ -151,6 +161,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(about_nav.has_children)
         self.assertEqual(len(about_nav.children), 0)
         self.assertEqual(about_nav.order, 0)
+        self.assertEqual(about_nav.id, '46b3931b9959c927df4fc65fdee94b07')
+        self.assertEqual(about_nav.slug, 'about')
 
         contact_nav = nav.child_navs[1]
         self.assertEqual(contact_nav.root_content_path, '/my/content')
@@ -174,6 +186,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertTrue(contact_nav.has_children)
         self.assertEqual(len(contact_nav.children), 2)
         self.assertEqual(contact_nav.order, 0)
+        self.assertEqual(contact_nav.id, '2f8a6bf31f3bd67bd2d9720c58b19c9a')
+        self.assertEqual(contact_nav.slug, 'contact')
 
         order_nav = nav.child_navs[2]
         self.assertEqual(order_nav.root_content_path, '/my/content')
@@ -195,6 +209,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertTrue(order_nav.has_children)
         self.assertEqual(len(order_nav.children), 2)
         self.assertEqual(order_nav.order, 0)
+        self.assertEqual(order_nav.id, '70a17ffa722a3985b86d30b034ad06d7')
+        self.assertEqual(order_nav.slug, 'order')
 
         work_nav = nav.child_navs[3]
         self.assertEqual(work_nav.root_content_path, '/my/content')
@@ -208,6 +224,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertTrue(work_nav.has_children)
         self.assertEqual(len(work_nav.children), 1)
         self.assertEqual(work_nav.order, 0)
+        self.assertEqual(work_nav.id, '67e92c8765a9bc7fb2d335c459de9eb5')
+        self.assertEqual(work_nav.slug, 'work')
 
         work_portfolio_nav = nav.child_navs[3].child_navs[0]
         self.assertEqual(work_portfolio_nav.root_content_path, '/my/content')
@@ -235,6 +253,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertTrue(work_portfolio_nav.has_children)
         self.assertEqual(len(work_portfolio_nav.children), 3)
         self.assertEqual(work_portfolio_nav.order, 0)
+        self.assertEqual(work_portfolio_nav.id, 'd5324c9d8797e07c58b139b50efc5cf0')
+        self.assertEqual(work_portfolio_nav.slug, 'work_portfolio')
 
     def test_symlink_following(self):
         """Navigation parsing should follow symlinks."""
@@ -260,6 +280,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertTrue(nav.has_children)
         self.assertEqual(len(nav.children), 2)
         self.assertEqual(nav.order, 0)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
         about_nav = nav.child_navs[0]
         self.assertEqual(about_nav.root_content_path, '/my/content')
@@ -275,6 +297,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(about_nav.has_children)
         self.assertEqual(len(about_nav.children), 0)
         self.assertEqual(about_nav.order, 0)
+        self.assertEqual(about_nav.id, '46b3931b9959c927df4fc65fdee94b07')
+        self.assertEqual(about_nav.slug, 'about')
 
         contact_nav = nav.child_navs[1]
         self.assertEqual(contact_nav.root_content_path, '/my/content')
@@ -290,6 +314,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(contact_nav.has_children)
         self.assertEqual(len(contact_nav.children), 0)
         self.assertEqual(contact_nav.order, 0)
+        self.assertEqual(contact_nav.id, '2f8a6bf31f3bd67bd2d9720c58b19c9a')
+        self.assertEqual(contact_nav.slug, 'contact')
 
     def test_nav_file_already_open(self):
         """Parsing open files should succeed."""
@@ -313,6 +339,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(nav.has_children)
         self.assertEqual(len(nav.children), 0)
         self.assertEqual(nav.order, 0)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
     def test_unsupported_extensions(self):
         """Unsupported extensions should be skipped."""
@@ -329,6 +357,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertIsNone(stuff_nav.page)
         self.assertFalse(stuff_nav.has_children)
         self.assertEqual(len(stuff_nav.children), 0)
+        self.assertEqual(stuff_nav.id, 'c13d88cb4cb02003daedb8a84e5d272a')
+        self.assertEqual(stuff_nav.slug, 'stuff')
 
     # PermissionError only exists in Python 3.3+, need to fix this
     # http://stackoverflow.com/a/18199529/1436323
@@ -357,6 +387,8 @@ class TestNavigation(fake_filesystem_unittest.TestCase):
         self.assertFalse(nav.has_children)
         self.assertEqual(len(nav.children), 0)
         self.assertEqual(nav.order, 0)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
     def test_get_page_dict(self):
         """The method should return a flattend dictionary of all pages."""
@@ -453,6 +485,8 @@ Order: 8
         self.assertTrue(nav.has_children)
         self.assertEqual(len(nav.children), 1)
         self.assertEqual(nav.order, 0)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
         about_nav = nav.child_navs[0]
         self.assertEqual(about_nav.root_content_path, '/my/content')
@@ -468,7 +502,9 @@ Order: 8
         self.assertFalse(about_nav.has_children)
         self.assertEqual(len(about_nav.children), 0)
         self.assertEqual(about_nav.order, 8)
-
+        self.assertEqual(about_nav.id, '46b3931b9959c927df4fc65fdee94b07')
+        self.assertEqual(about_nav.slug, 'about')
+        
     def test_nav_home_metainf_file(self):
         """Top-level _navlevel.txt should parse properly."""
         file_string = u"""# The home page is where the important things are
@@ -495,6 +531,8 @@ Order: -34
         self.assertTrue(nav.has_children)
         self.assertEqual(len(nav.children), 1)
         self.assertEqual(nav.order, -34)
+        self.assertEqual(nav.id, 'b14a7b8059d9c055954c92674ce60032')
+        self.assertEqual(nav.slug, '_')
 
         about_nav = nav.child_navs[0]
         self.assertEqual(about_nav.root_content_path, '/my/content')
@@ -510,6 +548,8 @@ Order: -34
         self.assertFalse(about_nav.has_children)
         self.assertEqual(len(about_nav.children), 0)
         self.assertEqual(about_nav.order, 0)
+        self.assertEqual(about_nav.id, '46b3931b9959c927df4fc65fdee94b07')
+        self.assertEqual(about_nav.slug, 'about')
 
     def test_nav_ordering(self):
         """Navigation should follow ordering defined in meta-inf."""
