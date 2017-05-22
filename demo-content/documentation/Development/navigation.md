@@ -1,6 +1,12 @@
 /*
 Title: The Navigation Object
-Nav Name: Navigation
+Nav Name: Navigation Object
+Description: MDWeb Navigation Object
+Order: 4
+Teaser: MDWeb navigation object reference. Useful reference for writing
+    themes and plugins.
+Sitemap Priority: 0.5
+Sitemap Changefreq: monthly
 */
 
 #Navigation Object

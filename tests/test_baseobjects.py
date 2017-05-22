@@ -4,7 +4,7 @@ import unittest
 from mdweb.BaseObjects import MetaInfParser
 from mdweb.Exceptions import PageMetaInfFieldException
 from mdweb.Navigation import Navigation
-from mdweb.Page import Page
+from mdweb.Page import Page, load_page
 
 
 class TesNavigationBaseItem(fake_filesystem_unittest.TestCase):
@@ -29,12 +29,12 @@ class TesNavigationBaseItem(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         self.assertEqual(page.nav_type, "Page")
 
 
-class TestMetaInfParserx(unittest.TestCase):
+class TestMetaInfParser(unittest.TestCase):
 
     """Index object tests."""
 

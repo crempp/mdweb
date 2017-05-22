@@ -1,0 +1,15 @@
+#demo-content
+.coverage
+.dockerignore
+.git
+.gitignore
+.idea
+.landscape.yaml
+circle.yml
+LICENSE.txt
+README.md
+shippable.yml
+VERSIONS.md
+**/__pycache__
+**/*.pyc
+**/.DS_Store

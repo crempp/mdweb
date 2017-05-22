@@ -12,4 +12,3 @@ _mailinglist
 shippable
 nosetests.xml
 .coverage
-wsgi.py

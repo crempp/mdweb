@@ -19,7 +19,7 @@ except ImportError:
     # Python < 3.3
     import mock
 
-from mdweb.Page import PageMetaInf, Page
+from mdweb.Page import PageMetaInf, Page, load_page
 from mdweb.Exceptions import (
     PageMetaInfFieldException,
     PageParseException,
@@ -68,13 +68,17 @@ Date: February 1st, 2016
 
     def test_parse_all_fields(self):
         """All available fields should parse successfully."""
-        # TODO Add new fields to this test
         file_string = u"""Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Author: Chad Rempp
 Date: February 1st, 2016
 Order: 1
 Template: page_home.html
+Nav Name: Home Page
+Sitemap Changefreq: Monthly
+Sitemap Priority: 0.5
+Teaser: This is a teaser paragraph that will be availble to pages
+Teaser Image: /contentassets/home/00041_thumb.jpg
 """
 
         meta_inf = PageMetaInf(file_string)
@@ -87,10 +91,16 @@ Template: page_home.html
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
+        self.assertEqual(meta_inf.nav_name, u'Home Page')
+        self.assertEqual(meta_inf.sitemap_changefreq, u'Monthly')
+        self.assertEqual(meta_inf.sitemap_priority, u'0.5')
+        self.assertEqual(meta_inf.teaser, u'This is a teaser paragraph that will be availble to pages')
+        self.assertEqual(meta_inf.teaser_image, u'/contentassets/home/00041_thumb.jpg')
+
     def test_metainf_spacing(self):
         """Spacing should not matter in parsing."""
         file_string = u"""Title: MDWeb
- Description: The minimalistic markdown NaCMS
+Description: The minimalistic markdown NaCMS
 Author: Chad Rempp
 
 Date : February 1st, 2016
@@ -163,9 +173,31 @@ Template: ღმერთსი.html
         self.assertEqual(meta_inf.template, u'ღმერთსი.html')
         self.assertEqual(meta_inf.title, u'советских')
 
+    def test_parse_multiline_field(self):
+        """Multiline fields should parse successfully."""
+        file_string = u"""Title: MDWeb
+Description: The minimalistic markdown NaCMS
+Author: Chad Rempp
+Date: February 1st, 2016
+Order: 1
+Template: page_home.html
+Nav Name: Home Page
+Sitemap Changefreq: Monthly
+Sitemap Priority: 0.5
+Teaser: This is a teaser paragraph that will be available to pages
+  and the teaser may
+    span multiple lines indented with whitespace even if the line looks
+    like a metainf field
+    Not A Field: This won't get parsed as a field
+Teaser Image: /contentassets/home/00041_thumb.jpg
+"""
+
+        meta_inf = PageMetaInf(file_string)
+
+        self.assertEqual(meta_inf.teaser, u'This is a teaser paragraph that will be available to pages and the teaser may span multiple lines indented with whitespace even if the line looks like a metainf field Not A Field: This won\'t get parsed as a field')
+
 
 class TestPage(fake_filesystem_unittest.TestCase):
-
     """Page object tests."""
 
     def setUp(self):
@@ -173,12 +205,12 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.setUpPyfakefs()
 
     def test_page_instantiation(self):
-        """ A page should be instantiated with appropriate attributes."""
+        """A page should be instantiated with appropriate attributes."""
         file_string = u"This is a page"
         self.fs.CreateFile('/my/content/about/history.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/about/history.md')
+        page = Page(*load_page('/my/content', '/my/content/about/history.md'))
 
         self.assertEqual(page.page_path, '/my/content/about/history.md')
         self.assertEqual(page.url_path, 'about/history')
@@ -186,7 +218,8 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/super/deep/url/path/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/super/deep/url/path/index.md')
+        page = Page(*load_page('/my/content',
+                               '/my/content/super/deep/url/path/index.md'))
 
         self.assertEqual(page.page_path,
                          '/my/content/super/deep/url/path/index.md')
@@ -199,7 +232,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
                            contents=file_string)
 
         # Not an MD file
-        self.assertRaises(PageParseException, Page, '/my/content',
+        self.assertRaises(PageParseException, load_page, '/my/content',
                           '/my/content/index')
 
     @mock.patch('mdweb.Page.PageMetaInf')
@@ -209,7 +242,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         self.assertEqual(str(page), '/my/content/index.md')
 
@@ -220,7 +253,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('')
         self.assertEqual(page.markdown_str, '')
@@ -228,7 +261,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
 
     def test_no_file(self):
         """If the path has no file a ContentException should be raised."""
-        self.assertRaises(ContentException, Page, '/my/content',
+        self.assertRaises(ContentException, load_page, '/my/content',
                           '/my/content/index.md')
 
     @mock.patch('mdweb.Page.PageMetaInf')
@@ -245,7 +278,7 @@ dog's back."""
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('')
         self.assertEqual(page.markdown_str, '''Now is the time for all good men to come to
@@ -278,7 +311,7 @@ dog's back.'''
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('''
 Title: MDWeb Examples
@@ -413,7 +446,7 @@ you've got to put paragraph tags in your blockquotes:
         self.fs.CreateFile('/my/content/index.md',
                            contents=file_string)
 
-        page = Page('/my/content', '/my/content/index.md')
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
 
         mock_page_meta_inf.assert_called_once_with('''
 Title: MDWeb Examples

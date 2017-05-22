@@ -58,13 +58,7 @@
 
     <div class="container">
       {% block body %}{% endblock %}
-{#      <div class="starter-template">#}
-{#        <h1>Bootstrap starter template</h1>#}
-{#        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>#}
-{#      </div>#}
-
     </div><!-- /.container -->
-
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -75,5 +69,8 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js') }}"></script>
     <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
+
+    {{ ga_tracking | safe }}
+    {{ debug_helper | safe }}
   </body>
 </html>

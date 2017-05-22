@@ -1,3 +1,6 @@
+# We ignore all sites except MySite.py so that we can create test sites without
+# accidentally commiting test sites.
+
 # Ignore everything
 *
 
@@ -5,5 +8,4 @@
 !.gitignore
 !plugins
 !__init__.py
-!MySite.py.example
-!SiteConfig.py.example
+!MySite.py

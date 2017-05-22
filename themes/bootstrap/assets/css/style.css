@@ -1,6 +1,14 @@
 body {
   padding-top: 50px;
 }
+
+/* Add a top margin to the container directly after the nav*/
+nav + div.container {
+  margin-top: 20px;
+}
+
+article.home-page div.jumbotron
+
 .starter-template {
   padding: 40px 15px;
   text-align: center;

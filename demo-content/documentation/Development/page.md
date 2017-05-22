@@ -1,6 +1,12 @@
 /*
 Title: The Page Object
-Nav Name: Page
+Nav Name: Page Object
+Description: MDWeb Page Object
+Order: 4
+Teaser: MDWeb page object reference. Useful reference for writing
+    themes and plugins.
+Sitemap Priority: 0.5
+Sitemap Changefreq: monthly
 */
 
 #Page Object

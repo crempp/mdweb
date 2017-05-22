@@ -17,6 +17,8 @@ Navigation structure
           Page(),
           ...
         ]
+        id: 'd5324c9d8797e07c58b139b50efc5cf0'
+        slug: 'about'
         has_page: True
         has_children: False
         is_top: False
@@ -28,6 +30,8 @@ Navigation structure
     ]
     child_pages: []
     has_page: True
+    id: 'd5324c9d8797e07c58b139b50efc5cf0'
+    slug: '_'
     has_children: True
     is_top: True
     level: 0
@@ -40,16 +44,16 @@ Future Features:
     * Ordering navigation levels
 """
 from collections import OrderedDict
+import hashlib
 import os
 import re
 
 from mdweb.Exceptions import ContentException, ContentStructureException
-from mdweb.Page import Page
+from mdweb.Page import Page, load_page
 from mdweb.BaseObjects import NavigationBaseItem, MetaInfParser
 
 
 class NavigationMetaInf(MetaInfParser):   # pylint: disable=R0903
-
     """MDWeb Navigation Meta Information."""
 
     FIELD_TYPES = {
@@ -59,14 +63,14 @@ class NavigationMetaInf(MetaInfParser):   # pylint: disable=R0903
 
 
 class Navigation(NavigationBaseItem):
-
     """Navigation level representation.
 
-    Navigation is built rescursivly by walking the content directory. Each
+    Navigation is built recursively by walking the content directory. Each
     directory represents a navigation level, each file represents a page.
 
     Each nav level's name is determined by the directory name.
     """
+
     #: MetaInf file name
     nav_metainf_file_name = '_navlevel.txt'
 
@@ -78,6 +82,7 @@ class Navigation(NavigationBaseItem):
         '400.md',
         '403.md',
         '404.md',
+        '405.md',
         '500.md',
     ]
 
@@ -93,6 +98,22 @@ class Navigation(NavigationBaseItem):
         #: path to content for current navigation level
         self._content_path = os.path.abspath(content_path)
 
+        #: Navigation level
+        self.level = nav_level
+
+        #: Navigation level name (populated during scan)
+        if self.level == 0:
+            Navigation._root_content_path = self._content_path
+            self.name = None
+        else:
+            # Extract directory name and use as nav name
+            relative_nav_path = re.sub(r"^%s" % self._root_content_path,
+                                       '', self._content_path)
+            self.name = os.path.split(relative_nav_path)[-1]
+
+        #: Relative path to navigation
+        self.path = content_path.replace(self._root_content_path, '')
+
         #: Navigation level meta information
         self.meta_inf = None
 
@@ -105,12 +126,6 @@ class Navigation(NavigationBaseItem):
         #: Is this the top level of navigation
         self.is_top = nav_level == 0
 
-        #: Navigation level
-        self.level = nav_level
-
-        #: Navigation level name (populated during scan)
-        self.name = None
-
         #: Navigation page if one is provided (populated during scan)
         self.page = None
 
@@ -120,15 +135,12 @@ class Navigation(NavigationBaseItem):
         #: Order in the navigation
         self.order = 0
 
-        #: Path to the root path to content
-        if self.level == 0:
-            Navigation._root_content_path = self._content_path
-            self.name = None
-        else:
-            # Extract directory name and use as nav name
-            relative_nav_path = re.sub(r"^%s" % self._root_content_path,
-                                       '', self._content_path)
-            self.name = os.path.split(relative_nav_path)[-1]
+        #: Navigation slug
+        self.slug = self.path.replace('.md', '').strip('/') \
+            .replace('/', '_').replace('.', '_') if self.path != '' else '_'
+
+        #: Navigation ID
+        self.id = hashlib.md5(self.slug.encode('utf-8')).hexdigest()
 
         # Build the nav level
         self._scan()
@@ -139,7 +151,7 @@ class Navigation(NavigationBaseItem):
 
     @property
     def has_children(self):
-        """Check if the navigatin level has any pages or nav children."""
+        """Check if the navigation level has any pages or nav children."""
         return len(self.child_navs) > 0 or \
             len(self.child_pages) > 0
 
@@ -165,10 +177,10 @@ class Navigation(NavigationBaseItem):
 
         if self.nav_metainf_file_name in directory_files:
             # We have a nav-level metainf file, parse it
-            absolut_meta_inf_path = os.path.join(self._content_path,
-                                                 self.nav_metainf_file_name)
+            absolute_meta_inf_path = os.path.join(self._content_path,
+                                                  self.nav_metainf_file_name)
             # Read the meta-inf file
-            with open(absolut_meta_inf_path, 'r') as file:
+            with open(absolute_meta_inf_path, 'r') as file:
                 file_string = file.read()
             self.meta_inf = NavigationMetaInf(file_string)
 
@@ -179,17 +191,15 @@ class Navigation(NavigationBaseItem):
                 self.name = self.meta_inf.nav_name
 
         # Traverse through all files
-        for filename in directory_files:
-            # Check if the file has an extension allowable for nav
-
-            filepath = os.path.join(self._content_path, filename)
+        for file_name in directory_files:
+            file_path = os.path.join(self._content_path, file_name)
 
             # Check if it's a normal file or directory
-            if os.path.isfile(filepath):
-                if filename in self.skip_files:
+            if os.path.isfile(file_path):
+                if file_name in self.skip_files:
                     continue
 
-                page_name, ext = os.path.splitext(os.path.basename(filepath))
+                page_name, ext = os.path.splitext(os.path.basename(file_path))
                 if ext not in self.extensions:
                     continue
 
@@ -202,22 +212,21 @@ class Navigation(NavigationBaseItem):
                         % page_name)
 
                 # We have got a nav file!
-                page = Page(self._root_content_path, filepath)
+                page = Page(*load_page(self._root_content_path, file_path))
 
-                # If it's an index file use it for the page for this nav
-                # object
+                # If it's an index file use it for the page for this nav  object
                 if 'index' == page_name:
                     self.page = page
                     self.has_page = True
                 else:
                     self.child_pages.append(page)
 
-            elif os.path.isdir(filepath):
-                if filename in self.skip_directories:
+            elif os.path.isdir(file_path):
+                if file_name in self.skip_directories:
                     continue
 
                 # We got a directory, create a new nav level
-                self.child_navs.append(Navigation(filepath, self.level + 1))
+                self.child_navs.append(Navigation(file_path, self.level + 1))
 
         # Now sort
         self.child_navs.sort(key=lambda x: x.order)
@@ -242,3 +251,6 @@ class Navigation(NavigationBaseItem):
             pages.update(page)
 
         return pages
+
+    def __repr__(self):
+        return '{0}'.format(self.path)
