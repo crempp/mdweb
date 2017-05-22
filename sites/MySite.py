@@ -3,11 +3,9 @@ from mdweb.MDSite import MDSite
 
 
 class MySite(MDSite):
-
     """An example MDWeb site."""
 
     class MDConfig:  # pylint: disable=R0903
-
         """Configuration of the example site."""
 
         #: enable/disable Flask debug mode

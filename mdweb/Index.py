@@ -4,7 +4,6 @@ from flask import render_template, abort, current_app as app
 
 
 class Index(View):
-
     """The one view to rule them all.
 
     MDWeb has one single entry point. The MDWeb routing system (not Flasks)
@@ -12,10 +11,10 @@ class Index(View):
     """
 
     methods = ['GET']
-    
+
     @classmethod
     def render(cls, page):
-        """Render the given page using the configured theme"""
+        """Render the given page using the configured theme."""
         if page.meta_inf.template:
             page_template = page.meta_inf.template
         else:
@@ -32,8 +31,8 @@ class Index(View):
         """Dispatch request."""
         if page is None:
             page = app.get_page(path)
-    
+
             if page is None:
                 abort(404)
-        
+
         return self.render(page)

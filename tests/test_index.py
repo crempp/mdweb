@@ -8,11 +8,9 @@ from mdweb.MDSite import MDSite
 
 
 class MDTestSite(MDSite):
-
     """Site to use for testing."""
 
     class MDConfig:  # pylint: disable=R0903
-
         """Config for testing use."""
 
         DEBUG = False
@@ -22,7 +20,6 @@ class MDTestSite(MDSite):
 
 
 class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
-
     """Index object tests."""
 
     def create_app(self):
@@ -60,7 +57,7 @@ class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
             app_options={}
         )
         app.start()
-        
+
         return app
 
     def test_basic_request(self):
@@ -91,7 +88,7 @@ class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
 
             result = client.get('/crossdomain.xml')
             self.assertEqual(result.status_code, 200)
-            
+
     def test_4xx_5xx_custom_renders(self):
         """Custom 4XX/5XX should render on those status.'"""
         with self.app.test_client() as client:
@@ -104,7 +101,7 @@ class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
             self.assertEqual(result.status_code, 500)
             self.assertEqual(result.data,
                              b'<html><body>\n<p>500 Test</p>\n</body></html>')
-            
+
     def test_4xx_5xx_non_custom_renders(self):
         """4XX/5XX without custom files should render with default message.'"""
         with self.app.test_client() as client:

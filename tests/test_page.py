@@ -198,7 +198,6 @@ Teaser Image: /contentassets/home/00041_thumb.jpg
 
 
 class TestPage(fake_filesystem_unittest.TestCase):
-
     """Page object tests."""
 
     def setUp(self):
@@ -206,7 +205,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.setUpPyfakefs()
 
     def test_page_instantiation(self):
-        """ A page should be instantiated with appropriate attributes."""
+        """A page should be instantiated with appropriate attributes."""
         file_string = u"This is a page"
         self.fs.CreateFile('/my/content/about/history.md',
                            contents=file_string)

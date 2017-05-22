@@ -1,0 +1,61 @@
+Messages
+========
+
+mdweb/MDSite.py:
+    L395:- MDSite._inject_debug_helper: mccabe - MC0001
+    MDSite._inject_debug_helper is too complex (13)
+
+.:
+    L-:- None: pylint - failure
+    Tool pylint failed to run (exception was raised)
+
+sites.MySite (sites/MySite.py):
+    L19:- None: dodgy - secret
+    Possible hardcoded secret key
+
+mdweb/BaseObjects.py:
+    L39:- MetaInfParser._parse_meta_inf: mccabe - MC0001
+    MetaInfParser._parse_meta_inf is too complex (11)
+
+tests.sites (tests/sites.py):
+    L273:- None: dodgy - secret
+    Possible hardcoded secret key
+
+tests.sites (tests/sites.py):
+    L258:- None: dodgy - secret
+    Possible hardcoded secret key
+
+tests.sites (tests/sites.py):
+    L243:- None: dodgy - secret
+    Possible hardcoded secret key
+
+tests.sites (tests/sites.py):
+    L228:- None: dodgy - secret
+    Possible hardcoded secret key
+
+tests.sites (tests/sites.py):
+    L213:- None: dodgy - secret
+    Possible hardcoded secret key
+
+mdweb/Navigation.py:
+    L173:- Navigation._scan: mccabe - MC0001
+    Navigation._scan is too complex (12)
+
+sites.LapinlabsSite (sites/LapinlabsSite.py):
+    L19:- None: dodgy - secret
+    Possible hardcoded secret key
+
+
+
+Check Information
+=================
+         Started: 2017-05-22 02:35:22.912415
+        Finished: 2017-05-22 02:35:25.402799
+      Time Taken: 2.49 seconds
+       Formatter: text
+        Profiles: prospector.yml, no_doc_warnings, strictness_high, strictness_veryhigh, member_warnings
+      Strictness: from profile
+  Libraries Used: flask
+       Tools Run: dodgy, mccabe, pep8, profile-validator, pyflakes, pylint
+  Messages Found: 11
+

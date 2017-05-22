@@ -1,0 +1,19 @@
+output-format: text
+
+strictness: high
+test-warnings: true
+doc-warnings: false
+member-warnings: true
+
+ignore-paths:
+  - docs
+
+uses:
+  - flask
+
+pep8:
+  disable:
+    - E501
+  options:
+    max-line-length: 79
+

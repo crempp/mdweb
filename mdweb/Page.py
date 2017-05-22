@@ -18,7 +18,6 @@ META_INF_REGEX = r'(/\*(?P<metainf>.*)\*/)?(?P<content>.*)'
 
 
 class PageMetaInf(MetaInfParser):  # pylint: disable=R0903
-
     """MDWeb Page Meta Information."""
 
     def __init__(self, meta_string):
@@ -33,7 +32,8 @@ class PageMetaInf(MetaInfParser):  # pylint: disable=R0903
 
 
 def load_page(content_path, page_path):
-    
+    """Load the page file and return the path, URL and contents"""
+
     # Extract the part of the page_path that will be used as the URL path
     pattern = URL_PATH_REGEX % content_path
     matches = re.match(pattern, page_path)
@@ -48,19 +48,18 @@ def load_page(content_path, page_path):
                                page_path)
 
     # Read the page file
-    with open(page_path, 'r') as file:
-        file_string = file.read()
-        
+    with open(page_path, 'r') as f:
+        file_string = f.read()
+
     return page_path, url_path, file_string
-        
+
 
 class Page(NavigationBaseItem):
-
     """MDWeb Page View."""
-    
+
     def __init__(self, page_path, url_path, file_string):
         """Initialize Page object."""
-        
+
         self.page_path = page_path
         self.url_path = url_path
 
@@ -78,7 +77,7 @@ class Page(NavigationBaseItem):
 
         # The page will be rendered on first view
         self.page_html = self.parse_markdown(self.markdown_str)
-        
+
         self.abstract = self.page_html[0:100]
 
     @staticmethod

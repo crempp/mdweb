@@ -54,7 +54,6 @@ from mdweb.BaseObjects import NavigationBaseItem, MetaInfParser
 
 
 class NavigationMetaInf(MetaInfParser):   # pylint: disable=R0903
-
     """MDWeb Navigation Meta Information."""
 
     FIELD_TYPES = {
@@ -64,7 +63,6 @@ class NavigationMetaInf(MetaInfParser):   # pylint: disable=R0903
 
 
 class Navigation(NavigationBaseItem):
-
     """Navigation level representation.
 
     Navigation is built recursively by walking the content directory. Each
@@ -72,6 +70,7 @@ class Navigation(NavigationBaseItem):
 
     Each nav level's name is determined by the directory name.
     """
+
     #: MetaInf file name
     nav_metainf_file_name = '_navlevel.txt'
 
@@ -142,10 +141,10 @@ class Navigation(NavigationBaseItem):
 
         #: Navigation ID
         self.id = hashlib.md5(self.slug.encode('utf-8')).hexdigest()
-        
+
         # Build the nav level
         self._scan()
-        
+
         # Ensure a root index
         if 0 == self.level and (self.page is None or '' != self.page.url_path):
             raise ContentException("Missing root index.md")
@@ -194,7 +193,7 @@ class Navigation(NavigationBaseItem):
         # Traverse through all files
         for file_name in directory_files:
             file_path = os.path.join(self._content_path, file_name)
-            
+
             # Check if it's a normal file or directory
             if os.path.isfile(file_path):
                 if file_name in self.skip_files:
