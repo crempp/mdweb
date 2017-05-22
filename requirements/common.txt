@@ -1,5 +1,6 @@
 argh==0.26.2
 blinker==1.4
+dateparser==0.7.6
 extras==1.0.0
 Flask==1.1.2
 itsdangerous==1.1.0

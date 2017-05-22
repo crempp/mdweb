@@ -3,6 +3,7 @@
 This is broken out into a separate file to avoid circular imports.
 """
 import re
+import dateparser
 from six import string_types
 
 from mdweb.Exceptions import PageMetaInfFieldException
@@ -30,8 +31,7 @@ class MetaInfParser(object):  # pylint: disable=R0903
     FIELD_VALUE_REGEX = r"^(?P<key>[a-zA-Z0-9 ]+):(?P<value>.+)$"
 
     def __init__(self, meta_string):
-        """Initialize the parser."""
-        # Initialize attributes defined in FIELD_TYPES
+        """Initialize the parser using attributes defined in FIELD_TYPES"""
         for attribute, attribute_details in self.META_FIELDS.items():
             setattr(self, attribute, attribute_details[1])
 
@@ -39,10 +39,10 @@ class MetaInfParser(object):  # pylint: disable=R0903
 
     def _parse_meta_inf(self, meta_inf_string):
         """Parse given meta information string into a dictionary.
-
+        
         Metainf fields now support multi-line values. New lines must be
         indented with at least one whitespace character.
-
+        
         :param meta_inf_string: Raw meta content
         """
 
@@ -82,6 +82,8 @@ class MetaInfParser(object):  # pylint: disable=R0903
 
             if 'int' == self.META_FIELDS[key][0]:
                 value = int(value)
+            elif 'date' == self.META_FIELDS[key][0]:
+                value = dateparser.parse(value)
             elif 'unicode' == self.META_FIELDS[key][0]:
                 try:
                     value = unicode(value)
