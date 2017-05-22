@@ -9,7 +9,6 @@ from mdweb.metafields import META_FIELDS as MDW_META_FIELDS
 
 
 class NavigationBaseItem(object):  # pylint: disable=R0903
-
     """Base object for navigation items such as nav-levels or pages."""
 
     #: Type of navigation item
@@ -20,7 +19,6 @@ class NavigationBaseItem(object):  # pylint: disable=R0903
 
 
 class MetaInfParser(object):  # pylint: disable=R0903
-
     """Base Meta Inf Parser."""
 
     #: Registered meta fields, can be overridden by inheriting class.
@@ -41,10 +39,12 @@ class MetaInfParser(object):  # pylint: disable=R0903
     def _parse_meta_inf(self, meta_inf_string):
         """Parse given meta information string into a dictionary.
 
+        Metainf fields now support multi-line values. New lines must be
+        indented with at least one whitespace character.
+
         :param meta_inf_string: Raw meta content
         """
-        # Metainf fields now support multi-line values. New lines must be
-        # indented with at least one whitespace character.
+
         # NOTE: This regex leaves blank lines and comments in but that will
         # be handled in the line processing loop
         line_regex = '(?P<line>[a-zA-Z0-9 ]+:(?:(?![\n]+\w)[\w\W\r\n])+)'
@@ -68,22 +68,23 @@ class MetaInfParser(object):  # pylint: disable=R0903
             if match is None:
                 raise PageMetaInfFieldException(
                     "Improperly formated metainf line '%s'" % processed_line)
+
             key = match.group('key').strip().lower().replace(' ', '_')
             value = match.group('value').strip()
             if key not in self.META_FIELDS.keys():
                 raise PageMetaInfFieldException("Unsupported field '%s'" % key)
+
             # Cast field value to appropriate type
             if '' == value:
                 raise PageMetaInfFieldException(
                     "Empty value for meta-inf field '%s'" % key)
+
             if 'int' == self.META_FIELDS[key][0]:
                 value = int(value)
             elif 'unicode' == self.META_FIELDS[key][0]:
-                if 'unicode' in __builtins__.keys():
-                    # Python 2.x
-                    value = __builtins__['unicode'](value)
-                else:
-                    # Python 3.x
-                    value = str(value)
+                try:
+                    value = unicode(value)
+                except NameError:
+                    pass
 
             setattr(self, key, value)

@@ -7,11 +7,9 @@ from mdweb.MDSite import MDSite
 
 
 class MDTestSite(MDSite):
-
     """Site to use for testing."""
 
     class MDConfig:  # pylint: disable=R0903
-
         """Config for testing use."""
 
         DEBUG = False
@@ -21,7 +19,6 @@ class MDTestSite(MDSite):
 
 
 class TestAssets(fake_filesystem_unittest.TestCase):
-
     """Asset tests."""
 
     def setUp(self):
@@ -62,7 +59,6 @@ class TestAssets(fake_filesystem_unittest.TestCase):
 
 
 class TestMissingAssets(fake_filesystem_unittest.TestCase):
-
     """Index object tests."""
 
     def setUp(self):
@@ -95,10 +91,10 @@ class TestMissingAssets(fake_filesystem_unittest.TestCase):
             result = client.get('/contentassets/logo_small.png')
 
         self.assertEqual(result.status_code, 404)
-        
+
     def test_missing_favicon(self):
         """Request to missing favicon should return 404.
-        
+
         This is a regression test for
         https://github.com/crempp/mdweb/issues/28
         """
@@ -115,7 +111,7 @@ class TestMissingAssets(fake_filesystem_unittest.TestCase):
         """
         with self.app.test_client() as client:
             result = client.get('/crossdomain.xml')
-    
+
         self.assertEqual(result.status_code, 404)
 
     def test_missing_humans_txt(self):
@@ -126,7 +122,7 @@ class TestMissingAssets(fake_filesystem_unittest.TestCase):
         """
         with self.app.test_client() as client:
             result = client.get('/humans.txt')
-    
+
         self.assertEqual(result.status_code, 404)
 
     def test_missing_robots_txt(self):
@@ -137,5 +133,5 @@ class TestMissingAssets(fake_filesystem_unittest.TestCase):
         """
         with self.app.test_client() as client:
             result = client.get('/robots.txt')
-    
+
         self.assertEqual(result.status_code, 404)

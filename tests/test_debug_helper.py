@@ -6,19 +6,19 @@ from tests.sites import MDTestSiteDebugHelper, MDTestSite
 
 class TestDebugHelperOn(TestCase):
     """Debug helper tests.
-    
+
     Can't use pyfakefs for this or partials won't load"""
-    
+
     def create_app(self):
-        
+
         app = MDTestSiteDebugHelper(
             "MDWeb",
             app_options={}
         )
         app.start()
-        
+
         return app
-    
+
     def test_debug_helper_loads(self):
         # self.app.DEBUG_HELPER
         with self.app.test_client() as client:
@@ -31,18 +31,17 @@ class TestDebugHelperOff(TestCase):
     """Debug helper tests.
 
     Can't use pyfakefs for this or partials won't load"""
-    
+
     def create_app(self):
         app = MDTestSite(
             "MDWeb",
             app_options={}
         )
         app.start()
-        
+
         return app
-    
+
     def test_debug_helper_loads(self):
-        # self.app.DEBUG_HELPER
         with self.app.test_client() as client:
             response = client.get('/')
             response_data = response.get_data(as_text=True)

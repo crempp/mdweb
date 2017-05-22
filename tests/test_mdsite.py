@@ -12,7 +12,7 @@ try:
 except ImportError:
     # Python < 3.3
     import mock
-    
+
 from mdweb.Page import Page
 from mdweb.MDSite import MDSite
 from tests.sites import (MDTestSite, MDFakeFSTestSite,
@@ -23,9 +23,8 @@ from tests.sites import (MDTestSite, MDFakeFSTestSite,
 if 'FileExistsError' not in __builtins__.keys():
     from mdweb.Exceptions import FileExistsError  # pylint: disable=W0622
 
-        
-class TestSite(fake_filesystem_unittest.TestCase, TestCase):
 
+class TestSite(fake_filesystem_unittest.TestCase, TestCase):
     """MDSite object tests."""
 
     def create_app(self):
@@ -34,13 +33,13 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
         self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
         populate_fakefs(self)
-        
+
         app = MDFakeFSTestSite(
             "MDWeb",
             app_options={}
         )
         app.start()
-        
+
         return app
 
     def test_site_created(self):
@@ -71,16 +70,6 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
 
         page = self.app.get_page('about')
         self.assertEqual(page.page_path, '/my/content/about/index.md')
-
-    # @unittest.skip("Test not implemented")
-    # def test_template_observer(self):
-    #     """Changes to template files should restart application."""
-    #     pass
-
-    # @unittest.skip("Test not implemented")
-    # def test_content_observer(self):
-    #     """Changes to content files should restart application."""
-    #     pass
 
     def test_navigation_context(self):
         """Navigation should be added to context."""
@@ -116,7 +105,6 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
 
 
 class TestSiteBoot(fake_filesystem_unittest.TestCase):
-
     """MDSite object tests."""
 
     def setUp(self):
@@ -161,7 +149,6 @@ class TestSiteBoot(fake_filesystem_unittest.TestCase):
 
 
 class TestSiteMissingTemplate(fake_filesystem_unittest.TestCase):
-
     """MDSite missing template directory tests."""
 
     def setUp(self):
@@ -177,7 +164,6 @@ class TestSiteMissingTemplate(fake_filesystem_unittest.TestCase):
 
 
 class TestSiteMissingContent(fake_filesystem_unittest.TestCase):
-
     """MDSite missing content directory tests."""
 
     def setUp(self):
@@ -193,16 +179,15 @@ class TestSiteMissingContent(fake_filesystem_unittest.TestCase):
 
 
 class TestPartials(TestCase):
-    
     """Can't use pyfakefs for this or partials won't load"""
-    
+
     def create_app(self):
         app = MDTestSite(
             "MDWeb",
             app_options={}
         )
         app.start()
-        
+
         return app
 
     def test_ga_tracking_context(self):
@@ -221,11 +206,8 @@ class TestPartials(TestCase):
 
 
 class TestSortFilter(unittest.TestCase):
-    # date sort
-    # reverse
-    # order
-    # title
-    # page count
+    """Test Jinja sort filter"""
+
     def setUp(self):
         self.page_list = []
         self.page_list.append(Page('/path/to/story3.md', '/to/story3', u"""/*
@@ -260,7 +242,7 @@ Order: 1
 
     def test_sort_title(self):
         sorted_list = MDSite._sorted_pages(self.page_list, 'title', 6, False)
-        
+
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
         self.assertEqual(sorted_list[2].meta_inf.title, 'Blog Story 3')
@@ -273,7 +255,7 @@ Order: 1
         self.assertEqual(sorted_list[1].meta_inf.title, 'Blog Story 3')
         self.assertEqual(sorted_list[2].meta_inf.title, 'blog story 2')
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
-        
+
     def test_sort_date(self):
         sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, False)
 
@@ -281,7 +263,7 @@ Order: 1
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
         self.assertEqual(sorted_list[2].meta_inf.title, 'Other Story')
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 3')
-    
+
     def test_sort_date_reversed(self):
         sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, True)
 
@@ -289,7 +271,7 @@ Order: 1
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
         self.assertEqual(sorted_list[2].meta_inf.title, 'blog story 2')
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
-        
+
     def test_sort_order(self):
         sorted_list = MDSite._sorted_pages(self.page_list, 'order', 6, False)
 
@@ -305,7 +287,7 @@ Order: 1
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
         self.assertEqual(sorted_list[2].meta_inf.title, 'blog story 2')
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
-    
+
     def test_page_count(self):
         sorted_list = MDSite._sorted_pages(self.page_list, 'title', 2, False)
 
@@ -316,16 +298,16 @@ Order: 1
 
 class TestCurrentPageContext(TestCase):
     """Can't use pyfakefs for this or partials won't load"""
-    
+
     def create_app(self):
         app = MDTestSite(
             "MDWeb",
             app_options={}
         )
         app.start()
-        
+
         return app
-    
+
     def test_index_in_context(self):
         """"Current page should exist in context."""
         path = '/'

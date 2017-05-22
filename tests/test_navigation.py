@@ -504,7 +504,7 @@ Order: 8
         self.assertEqual(about_nav.order, 8)
         self.assertEqual(about_nav.id, '46b3931b9959c927df4fc65fdee94b07')
         self.assertEqual(about_nav.slug, 'about')
-        
+
     def test_nav_home_metainf_file(self):
         """Top-level _navlevel.txt should parse properly."""
         file_string = u"""# The home page is where the important things are

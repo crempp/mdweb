@@ -59,11 +59,11 @@ BASE_SETTINGS = {
 
     #: Name of theme (should be a sub-folder in themes/
     'THEME': 'alpha',
-    
+
     #: Google Analytics tracking ID. If False GA tracking will not be used.
     # Your GA tracking ID will look like 'UA-00000000-1'
     'GA_TRACKING_ID': False,
-    
+
     #: Debug helper for exposing context variables, config and other useful
     # information in the browser. Helpful for plugin and them development.
     'DEBUG_HELPER': False
@@ -161,7 +161,7 @@ class MDSite(Flask):
                 return page
 
         return None
-    
+
     def get_page_from_request(self, req):
         """Lookup the page given a request object.
 
@@ -177,18 +177,18 @@ class MDSite(Flask):
         """
         def render_custom_error(code, path):
             """Render an error page with a custom content file."""
-            
+
             page = Page(*load_page(self.config['CONTENT_PATH'], path))
             return Index.render(page), code
-        
+
         def render_simple_error(code):
             """Render an error page without a content file."""
-            
+
             if hasattr(error, 'description'):
                 error_message = error.description
             else:
                 error_message = str(error)
-                
+
             return error_message, code
 
         # Determine the error code for this error
@@ -200,7 +200,7 @@ class MDSite(Flask):
         # Construct the path to the content file for this error
         custom_file_path = os.path.join(self.config['CONTENT_PATH'],
                                         '%s.md' % error_code)
-        
+
         # If there exists a file for this error use it, otherwise just return
         # a simple error message
         if os.path.isfile(custom_file_path):
@@ -246,10 +246,14 @@ class MDSite(Flask):
         pass
 
     def _stage_create_app(self):
-        """Create the Flask application."""
-        # Setup special root-level asset routes
-        # NOTE: The usage of url_for doesn't work here. Rather, use a view with
-        # send_from_directory() - http://stackoverflow.com/a/20648053/1436323
+        """Create the Flask application.
+
+        Setup special root-level asset routes
+
+        NOTE: The usage of url_for doesn't work here. Rather, use a view with
+        send_from_directory() - http://stackoverflow.com/a/20648053/1436323
+        """
+
         def special_root_file(root_filename):
             """Root file Flask view."""
             path = os.path.join(self.config['CONTENT_PATH'], root_filename)
@@ -257,14 +261,14 @@ class MDSite(Flask):
                 return send_file(path)
             else:
                 abort(404)
-                
+
         for asset in self.ROOT_LEVEL_ASSETS:
             self.add_url_rule('/%s' % asset, view_func=special_root_file,
                               defaults={'root_filename': asset})
-        
+
         def boom():
             """A view that will result in a server error.
-            
+
             Used to test 500 errors
             """
             a = 1 / 0
@@ -304,7 +308,7 @@ class MDSite(Flask):
         """Load the configuration of the application being started."""
         self_fqcn = self.__module__ + "." + self.__class__.__name__
         self.config.from_object('%s.MDConfig' % self_fqcn)
-        
+
         # Extend the base config with the loaded config values. This will ensure
         # we have every config set.
         self.config = dict(BASE_SETTINGS, **self.config)
@@ -330,8 +334,7 @@ class MDSite(Flask):
                                   self.config['THEME_FOLDER'])
 
         # Set the template directory to the configured theme's template
-        # directory
-        # http://stackoverflow.com/a/13598839
+        # directory - http://stackoverflow.com/a/13598839
         my_loader = jinja2.ChoiceLoader([
             self.jinja_loader,
             jinja2.FileSystemLoader([
@@ -339,7 +342,7 @@ class MDSite(Flask):
             ]),
         ])
         self.jinja_loader = my_loader
-        
+
         self.jinja_env.filters['sorted_pages'] = self._sorted_pages
 
         # Extend the content path to the absolute path
@@ -374,7 +377,7 @@ class MDSite(Flask):
     def _inject_ga_tracking(self):
         """Render the Google Analytics tracking code if enabled and add to the
         context.
-        
+
         We render directly with Jinja to avoid context processor recursion.
         Since this rendering is done within a context processor the context
         processors will run, recurse until stack overflow."""
@@ -386,9 +389,9 @@ class MDSite(Flask):
                     self.config['PARTIALS_TEMPLATE_PATH'] + '/')
             ).get_template('google_analytics.html').render(partial_context)
             context['ga_tracking'] = ga_code
-        
+
         return context
-    
+
     def _inject_debug_helper(self):
         nav_fields = [
             '_content_path',
@@ -409,9 +412,9 @@ class MDSite(Flask):
             'page_html',
             'abstract',
         ]
-        
+
         context = dict(debug_helper="")
-        
+
         def nav_to_dict(nav):
             nav_dict = {}
             for f in nav_fields:
@@ -421,53 +424,50 @@ class MDSite(Flask):
                         nav_dict[f].append(nav_to_dict(subnav))
                 else:
                     nav_dict[f] = getattr(nav, f)
-            
+
             return nav_dict
-        
-        def page_to_dict(page):
+
+        def page_to_dict(p):
             page_dict = {}
-            
-            if page is not None:
+
+            if p is not None:
                 for f in page_fields:
                     if f in ['page_html', 'abstract']:
-                        value = cgi.escape(getattr(page, f))
+                        value = cgi.escape(getattr(p, f))
                     elif f == 'meta_inf':
-                        value = metainf_to_dict(getattr(page, f))
+                        value = metainf_to_dict(getattr(p, f))
                     else:
-                        value = getattr(page, f)
-                        
+                        value = getattr(p, f)
+
                     page_dict[f] = value
-                
+
             return page_dict
-        
+
         def metainf_to_dict(meta_inf):
             metainf_dict = {}
 
             for f in META_FIELDS:
                 metainf_dict[f] = getattr(meta_inf, f)
-            
+
             return metainf_dict
-            
+
         if self.config['DEBUG_HELPER']:
             config = json.dumps(self.config, indent=4, sort_keys=True,
                                 default=lambda x: str(x))
             navigation = json.dumps(nav_to_dict(self.navigation), indent=4,
                                     sort_keys=True, default=lambda x: str(x))
-            # req = json.dumps(request, indent=4, sort_keys=True,
-            #                  default=lambda x: str(x))
             page = json.dumps(page_to_dict(self.get_page(request.path)),
                               indent=4, sort_keys=True,
                               default=lambda x: str(x))
-            
+
             partial_context = {
                 'debug': {
                     'config': config,
                     'navigation': navigation,
-                    # 'request': req,
                     'page': page,
                 }
             }
-            
+
             debug_output = jinja2.Environment(
                 loader=jinja2.FileSystemLoader(
                     self.config['PARTIALS_TEMPLATE_PATH'] + '/')
@@ -475,7 +475,7 @@ class MDSite(Flask):
             context['debug_helper'] = debug_output
 
         return context
-    
+
     def _inject_current_page(self):
         """Inject the entire navigation structure into the context"""
         page = self.get_page_from_request(request)
@@ -489,6 +489,6 @@ class MDSite(Flask):
                 return v.lower()
             else:
                 return v
-        list = sorted(page_list, key=key_getter,
-                      reverse=reverse)[0:page_count]
-        return list
+        l = sorted(page_list, key=key_getter,
+                   reverse=reverse)[0:page_count]
+        return l
