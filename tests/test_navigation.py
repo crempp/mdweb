@@ -605,3 +605,53 @@ Order: -34
                          .page_path, '/my/content/work/portfolio/landscapes.md')
         self.assertEqual(nav.child_navs[2].child_navs[0].child_pages[2]
                          .page_path, '/my/content/work/portfolio/portraits.md')
+
+    def test_child_by_name(self):
+        """get_child_by_name should return correct child nav object"""
+
+        self.fs.CreateFile('/my/content/index.md')
+
+        self.fs.CreateFile('/my/content/about/index.md')
+
+        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/contact/westcoast.md')
+        self.fs.CreateFile('/my/content/contact/eastcoast.md')
+
+        self.fs.CreateFile('/my/content/work/portfolio/index.md')
+        self.fs.CreateFile('/my/content/work/portfolio/landscapes.md')
+        self.fs.CreateFile('/my/content/work/portfolio/portraits.md')
+        self.fs.CreateFile('/my/content/work/portfolio/nature.md')
+
+        self.fs.CreateFile('/my/content/order/digitalprints.md')
+        self.fs.CreateFile('/my/content/order/framed.md')
+
+        nav = Navigation('/my/content')
+        
+        child = nav.get_child_by_name('contact')
+
+        self.assertEqual(child.name, 'contact')
+
+    def test_child_by_id(self):
+        """get_child_by_id should return correct child nav object"""
+
+        self.fs.CreateFile('/my/content/index.md')
+
+        self.fs.CreateFile('/my/content/about/index.md')
+
+        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/contact/westcoast.md')
+        self.fs.CreateFile('/my/content/contact/eastcoast.md')
+
+        self.fs.CreateFile('/my/content/work/portfolio/index.md')
+        self.fs.CreateFile('/my/content/work/portfolio/landscapes.md')
+        self.fs.CreateFile('/my/content/work/portfolio/portraits.md')
+        self.fs.CreateFile('/my/content/work/portfolio/nature.md')
+
+        self.fs.CreateFile('/my/content/order/digitalprints.md')
+        self.fs.CreateFile('/my/content/order/framed.md')
+
+        nav = Navigation('/my/content')
+
+        child = nav.get_child_by_name('contact')
+        
+        self.assertEqual(child.id, '2f8a6bf31f3bd67bd2d9720c58b19c9a')
