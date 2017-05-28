@@ -7,6 +7,7 @@ import logging
 import os
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from werkzeug.debug import get_current_traceback
 from six import string_types
 
 from flask import (
@@ -177,12 +178,20 @@ class MDSite(Flask):
         """
         def render_custom_error(code, path):
             """Render an error page with a custom content file."""
+            if code == 500:
+                track = get_current_traceback(skip=1, show_hidden_frames=True,
+                                              ignore_system_exceptions = False)
+                track.log()
 
             page = Page(*load_page(self.config['CONTENT_PATH'], path))
             return Index.render(page), code
 
         def render_simple_error(code):
             """Render an error page without a content file."""
+            if code == 500:
+                track = get_current_traceback(skip=1, show_hidden_frames=True,
+                                              ignore_system_exceptions = False)
+                track.log()
 
             if hasattr(error, 'description'):
                 error_message = error.description

@@ -169,6 +169,20 @@ class Navigation(NavigationBaseItem):
     def content_path(self):
         """Return the content_path."""
         return self._content_path
+    
+    def get_child_by_name(self, name):
+        """Find the child with the given name"""
+        for child in self.child_navs:
+            if child.name == name:
+                return child
+        return None
+    
+    def get_child_by_id(self, id):
+        """Find the child with the given ID"""
+        for child in self.child_navs:
+            if child.id == id:
+                return child
+        return None
 
     def _scan(self):
         """Scan the root content path recursively for pages and navigation."""
