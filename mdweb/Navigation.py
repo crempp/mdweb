@@ -109,7 +109,7 @@ class Navigation(NavigationBaseItem):
             # Extract directory name and use as nav name
             relative_nav_path = re.sub(r"^%s" % self._root_content_path,
                                        '', self._content_path)
-            self.name = os.path.split(relative_nav_path)[-1]
+            self.name = os.path.split(relative_nav_path)[-1].lower()
 
         #: Relative path to navigation
         self.path = content_path.replace(self._root_content_path, '')
@@ -140,7 +140,7 @@ class Navigation(NavigationBaseItem):
             .replace('/', '_').replace('.', '_') if self.path != '' else '_'
 
         #: Navigation ID
-        self.id = hashlib.md5(self.slug.encode('utf-8')).hexdigest()
+        self.id = hashlib.md5(self.slug.encode('utf-8')).hexdigest().lower()
 
         # Build the nav level
         self._scan()
@@ -173,14 +173,14 @@ class Navigation(NavigationBaseItem):
     def get_child_by_name(self, name):
         """Find the child with the given name"""
         for child in self.child_navs:
-            if child.name == name:
+            if child.name == name.lower():
                 return child
         return None
     
     def get_child_by_id(self, id):
         """Find the child with the given ID"""
         for child in self.child_navs:
-            if child.id == id:
+            if child.id == id.lower():
                 return child
         return None
 
@@ -202,7 +202,8 @@ class Navigation(NavigationBaseItem):
                 self.order = self.meta_inf.order
 
             if hasattr(self.meta_inf, 'nav_name'):
-                self.name = self.meta_inf.nav_name
+                self.name = self.meta_inf.nav_name.lower() if \
+                    self.meta_inf.nav_name is not None else None
 
         # Traverse through all files
         for file_name in directory_files:

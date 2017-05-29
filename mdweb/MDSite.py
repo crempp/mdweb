@@ -493,11 +493,16 @@ class MDSite(Flask):
     @staticmethod
     def _sorted_pages(page_list, attribute, page_count, reverse):
         def key_getter(d):
-            v = getattr(d.meta_inf, attribute)
-            if isinstance(v, string_types):
+            v = getattr(d.meta_inf, attribute) \
+                if hasattr(d.meta_inf, attribute) else d.meta_inf.order
+            if v is None:
+                return d.meta_inf.order
+            elif isinstance(v, string_types):
                 return v.lower()
             else:
                 return v
-        l = sorted(page_list, key=key_getter,
-                   reverse=reverse)[0:page_count]
+
+        l = sorted(page_list, key=key_getter, reverse=reverse)
+        if page_count is not None:
+            l = l[0:page_count]
         return l

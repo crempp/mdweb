@@ -497,7 +497,7 @@ Order: 8
         self.assertEqual(about_nav.has_page, True)
         self.assertEqual(about_nav.is_top, False)
         self.assertEqual(about_nav.level, 1)
-        self.assertEqual(about_nav.name, 'About Me')
+        self.assertEqual(about_nav.name, 'about me')
         self.assertEqual(about_nav.page.url_path, 'about')
         self.assertFalse(about_nav.has_children)
         self.assertEqual(len(about_nav.children), 0)
@@ -652,6 +652,40 @@ Order: -34
 
         nav = Navigation('/my/content')
 
-        child = nav.get_child_by_name('contact')
+        child = nav.get_child_by_id('2f8a6bf31f3bd67bd2d9720c58b19c9a')
+
+        self.assertEqual(child.name, 'contact')
+
+    def test_child_by_name_case(self):
+        """get_child_by_name should be case insensitive."""
         
-        self.assertEqual(child.id, '2f8a6bf31f3bd67bd2d9720c58b19c9a')
+        self.fs.CreateFile('/my/content/index.md')
+    
+        self.fs.CreateFile('/my/content/about/index.md')
+    
+        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/contact/westcoast.md')
+        self.fs.CreateFile('/my/content/contact/eastcoast.md')
+
+        nav = Navigation('/my/content')
+
+        child = nav.get_child_by_name('CONTACT')
+
+        self.assertEqual(child.name, 'contact')
+        
+    def test_child_by_id_case(self):
+        """get_child_by_id should be case insensitive."""
+    
+        self.fs.CreateFile('/my/content/index.md')
+    
+        self.fs.CreateFile('/my/content/about/index.md')
+    
+        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.CreateFile('/my/content/contact/westcoast.md')
+        self.fs.CreateFile('/my/content/contact/eastcoast.md')
+        
+        nav = Navigation('/my/content')
+
+        child = nav.get_child_by_id('2F8A6BF31F3BD67BD2D9720C58B19C9A')
+
+        self.assertEqual(child.name, 'contact')
