@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Tests for the MDWeb Navigation parser."""
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
+from unittest import skip
+
 from mdweb.Navigation import Navigation, NavigationMetaInf
 from mdweb.Exceptions import ContentException, ContentStructureException
 
@@ -689,3 +691,8 @@ Order: -34
         child = nav.get_child_by_id('2F8A6BF31F3BD67BD2D9720C58B19C9A')
 
         self.assertEqual(child.name, 'contact')
+
+    @skip
+    def test_unpublished_nav(self):
+        """Unpublished navigation items should have the correct attr value."""
+        self.assertEqual(1, 2)

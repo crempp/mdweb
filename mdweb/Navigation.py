@@ -47,6 +47,7 @@ from collections import OrderedDict
 import hashlib
 import os
 import re
+from six import string_types
 
 from mdweb.Exceptions import ContentException, ContentStructureException
 from mdweb.Page import Page, load_page
@@ -142,6 +143,9 @@ class Navigation(NavigationBaseItem):
         #: Navigation ID
         self.id = hashlib.md5(self.slug.encode('utf-8')).hexdigest().lower()
 
+        #: Navigation level published status
+        self.published = True
+
         # Build the nav level
         self._scan()
 
@@ -169,6 +173,10 @@ class Navigation(NavigationBaseItem):
     def content_path(self):
         """Return the content_path."""
         return self._content_path
+    
+    @property
+    def is_published(self):
+        return self.published
     
     def get_child_by_name(self, name):
         """Find the child with the given name"""
@@ -204,6 +212,14 @@ class Navigation(NavigationBaseItem):
             if hasattr(self.meta_inf, 'nav_name'):
                 self.name = self.meta_inf.nav_name.lower() if \
                     self.meta_inf.nav_name is not None else None
+                
+            if hasattr(self.meta_inf, 'published'):
+                if isinstance(self.meta_inf.published, string_types):
+                    self.published = self.meta_inf.published.lower() == 'true'
+                elif isinstance(self.meta_inf.published, bool):
+                    self.published = self.meta_inf.published
+                else:
+                    self.published = True
 
         # Traverse through all files
         for file_name in directory_files:

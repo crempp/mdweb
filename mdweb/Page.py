@@ -79,6 +79,10 @@ class Page(NavigationBaseItem):
         self.page_html = self.parse_markdown(self.markdown_str)
 
         self.abstract = self.page_html[0:100]
+        
+    @property
+    def is_published(self):
+        return self.meta_inf.published
 
     @staticmethod
     def parse_markdown(page_markdown):
