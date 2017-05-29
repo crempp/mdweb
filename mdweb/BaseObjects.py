@@ -3,6 +3,7 @@
 This is broken out into a separate file to avoid circular imports.
 """
 import re
+from six import string_types
 
 from mdweb.Exceptions import PageMetaInfFieldException
 from mdweb.metafields import META_FIELDS as MDW_META_FIELDS
@@ -86,5 +87,12 @@ class MetaInfParser(object):  # pylint: disable=R0903
                     value = unicode(value)
                 except NameError:
                     pass
+            elif 'bool' == self.META_FIELDS[key][0]:
+                if isinstance(value, string_types):
+                    value = value.lower() == 'true'
+                elif isinstance(value, bool):
+                    value = value
+                else:
+                    value = self.META_FIELDS[key][1]
 
             setattr(self, key, value)

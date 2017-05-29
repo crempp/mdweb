@@ -12,6 +12,7 @@ Maybe test?
 
 """
 from pyfakefs import fake_filesystem_unittest
+from unittest import skip
 try:
     # Python >= 3.3
     from unittest import mock
@@ -196,6 +197,10 @@ Teaser Image: /contentassets/home/00041_thumb.jpg
 
         self.assertEqual(meta_inf.teaser, u'This is a teaser paragraph that will be available to pages and the teaser may span multiple lines indented with whitespace even if the line looks like a metainf field Not A Field: This won\'t get parsed as a field')
 
+    @skip
+    def test_unpublished_page(self):
+        """Unpublished pages should have the correct attr value."""
+        self.assertEqual(1, 2)
 
 class TestPage(fake_filesystem_unittest.TestCase):
     """Page object tests."""

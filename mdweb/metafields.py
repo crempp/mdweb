@@ -23,4 +23,5 @@ META_FIELDS = {
     'teaser_image': ('unicode', None),
     'sitemap_priority': ('unicode', None),
     'sitemap_changefreq': ('unicode', None),
+    'published': ('bool', True),
 }
