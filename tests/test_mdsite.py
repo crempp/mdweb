@@ -241,7 +241,8 @@ Order: 1
 """))
 
     def test_sort_title(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 6, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'title', 6,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
@@ -249,7 +250,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Other Story')
 
     def test_sort_title_reversed(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 6, True)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'title', 6,
+                                                  True)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Other Story')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Blog Story 3')
@@ -257,7 +259,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
 
     def test_sort_date(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'date', 6,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
@@ -265,7 +268,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 3')
 
     def test_sort_date_reversed(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, True)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'date', 6,
+                                                  True)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 3')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
@@ -273,7 +277,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
 
     def test_sort_order(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'order', 6, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'order', 6,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
@@ -281,7 +286,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 3')
 
     def test_sort_order_reversed(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'order', 6, True)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'order', 6,
+                                                  True)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 3')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
@@ -289,11 +295,17 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
 
     def test_page_count(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 2, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'title', 2,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
         self.assertEqual(len(sorted_list), 2)
+
+
+class TestPublishedFilter(unittest.TestCase):
+    """Test Jinja sort filter"""
+    pass
 
 
 class TestCurrentPageContext(TestCase):
@@ -322,7 +334,7 @@ class TestCurrentPageContext(TestCase):
             client.get(path)
         self.assertContext('current_page', self.app.get_page(path))
 
-    def test_blah_in_context(self):
+    def test_some_page_in_context(self):
         """"Current page should exist in context."""
         path = '/about/history'
         with self.app.test_client() as client:

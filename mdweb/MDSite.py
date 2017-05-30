@@ -352,7 +352,8 @@ class MDSite(Flask):
         ])
         self.jinja_loader = my_loader
 
-        self.jinja_env.filters['sorted_pages'] = self._sorted_pages
+        self.jinja_env.filters['sorted_pages'] = self._sorted_pages_filter
+        self.jinja_env.filters['published'] = self._published_filter
 
         # Extend the content path to the absolute path
         if not self.config['CONTENT_PATH'].startswith('/'):
@@ -491,7 +492,7 @@ class MDSite(Flask):
         return dict(current_page=page)
 
     @staticmethod
-    def _sorted_pages(page_list, attribute, page_count, reverse):
+    def _sorted_pages_filter(page_list, attribute, page_count, reverse):
         def key_getter(d):
             v = getattr(d.meta_inf, attribute) \
                 if hasattr(d.meta_inf, attribute) else d.meta_inf.order
@@ -506,3 +507,7 @@ class MDSite(Flask):
         if page_count is not None:
             l = l[0:page_count]
         return l
+
+    @staticmethod
+    def _published_filter(page_list):
+        return filter(lambda p: p.is_published, page_list)
