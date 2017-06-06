@@ -145,6 +145,7 @@ class MDSite(Flask):
         self.context_processor(self._inject_ga_tracking)
         self.context_processor(self._inject_debug_helper)
         self.context_processor(self._inject_current_page)
+        self.context_processor(self._inject_opengraph)
         MDW_SIGNALER['post-navigation-scan'].send(self)
 
         #: FINISH THINGS UP
@@ -507,6 +508,20 @@ class MDSite(Flask):
         if page_count is not None:
             l = l[0:page_count]
         return l
+
+    def _inject_opengraph(self):
+        """Inject Opengraph tags into the context"""
+        page = self.get_page_from_request(request)
+
+        partial_context = {
+            'page': page
+        }
+        og_code = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(
+                self.config['PARTIALS_TEMPLATE_PATH'] + '/')
+        ).get_template('opengraph.html').render(partial_context)
+
+        return {'opengraph': og_code}
 
     @staticmethod
     def _published_filter(page_list):
