@@ -91,15 +91,15 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
         <loc>http://localhost/</loc>
-        <lastmod>2015-06-28T14:17:15+0000</lastmod>
+        <lastmod>2015-06-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url><url>
         <loc>http://localhost/about</loc>
-        <lastmod>2015-06-27T13:12:15+0000</lastmod>
+        <lastmod>2015-06-27</lastmod>
     </url><url>
         <loc>http://localhost/contact</loc>
-        <lastmod>2015-06-26T12:06:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url>
 </urlset>""")
 
