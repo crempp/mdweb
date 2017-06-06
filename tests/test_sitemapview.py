@@ -106,38 +106,38 @@ Sitemap ChangeFreq: daily
    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
         <loc>http://localhost/</loc>
-        <lastmod>2015-06-26T11:21:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url><url>
         <loc>http://localhost/about</loc>
-        <lastmod>2015-06-26T12:21:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/contact</loc>
-        <lastmod>2015-06-26T13:22:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/contact/eastcoast</loc>
-        <lastmod>2015-06-26T15:24:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/contact/westcoast</loc>
-        <lastmod>2015-06-26T14:23:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/order/digitalprints</loc>
-        <lastmod>2015-06-26T20:28:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/order/framed</loc>
-        <lastmod>2015-06-26T21:28:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/work/portfolio</loc>
-        <lastmod>2015-06-26T16:25:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/work/portfolio/landscapes</loc>
-        <lastmod>2015-06-26T17:26:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/work/portfolio/nature</loc>
-        <lastmod>2015-06-26T19:28:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/work/portfolio/portraits</loc>
-        <lastmod>2015-06-26T18:27:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url>
 </urlset>''')
