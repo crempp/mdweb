@@ -49,7 +49,7 @@ def load_page(content_path, page_path):
 
     # Read the page file
     with open(page_path, 'r') as f:
-        file_string = f.read()
+        file_string = f.read().decode('utf8')
 
     return page_path, url_path, file_string
 
