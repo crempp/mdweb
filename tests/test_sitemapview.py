@@ -2,9 +2,10 @@
 
 TODO: Test that the sitemap cache is regenerated when a file changes
 """
+from datetime import datetime
 from dateutil import parser
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 
 from mdweb.MDSite import MDSite
 from mdweb.SiteMapView import SiteMapView
@@ -42,50 +43,49 @@ Sitemap ChangeFreq: daily
 */
 """
 
-        self.fs.CreateFile('/my/content/400.md')
-        self.fs.CreateFile('/my/content/403.md')
-        self.fs.CreateFile('/my/content/404.md')
-        self.fs.CreateFile('/my/content/500.md')
-        self.fs.CreateFile('/my/content/index.md',
-                           contents=file_string).SetMTime(
-            parser.parse('Thu, 26 Jun 2015 11:21:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/about/index.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 12:21:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/contact/index.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 13:22:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/contact/westcoast.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 14:23:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/contact/eastcoast.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 15:24:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/work/portfolio/index.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 16:25:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/work/portfolio/landscapes.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 17:26:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/work/portfolio/portraits.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 18:27:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/work/portfolio/nature.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 19:28:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/order/digitalprints.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 20:28:15 +0000')
-        )
-        self.fs.CreateFile('/my/content/order/framed.md').SetMTime(
-            parser.parse('Thu, 26 Jun 2015 21:28:15 +0000')
-        )
-        self.fs.CreateFile('/my/theme/assets/css/style.css')
-        self.fs.CreateFile('/my/theme/assets/js/site.js')
-        self.fs.CreateFile('/my/theme/templates/layout.html')
-        self.fs.CreateFile('/my/theme/templates/navigation.html')
-        self.fs.CreateFile('/my/theme/templates/page.html')
-        self.fs.CreateFile('/my/theme/templates/page_home.html')
+        self.fs.create_file('/my/content/400.md')
+        self.fs.create_file('/my/content/403.md')
+        self.fs.create_file('/my/content/404.md')
+        self.fs.create_file('/my/content/500.md')
+        f = self.fs.create_file('/my/content/index.md', contents=file_string)
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 11:21:15 +0000'))
+        f = self.fs.create_file('/my/content/about/index.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 12:21:15 +0000'))
+        f = self.fs.create_file('/my/content/contact/index.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 13:22:15 +0000'))
+        f = self.fs.create_file('/my/content/contact/westcoast.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 14:23:15 +0000'))
+        f = self.fs.create_file('/my/content/contact/eastcoast.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 15:24:15 +0000'))
+        f = self.fs.create_file('/my/content/work/portfolio/index.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 16:25:15 +0000'))
+        f = self.fs.create_file('/my/content/work/portfolio/landscapes.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 17:26:15 +0000'))
+        f = self.fs.create_file('/my/content/work/portfolio/portraits.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 18:27:15 +0000'))
+        f = self.fs.create_file('/my/content/work/portfolio/nature.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 19:28:15 +0000'))
+        f = self.fs.create_file('/my/content/order/digitalprints.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 20:28:15 +0000'))
+        f = self.fs.create_file('/my/content/order/framed.md')
+        f.st_mtime = datetime.timestamp(
+            parser.parse('Thu, 26 Jun 2015 21:28:15 +0000'))
+        self.fs.create_file('/my/theme/assets/css/style.css')
+        self.fs.create_file('/my/theme/assets/js/site.js')
+        self.fs.create_file('/my/theme/templates/layout.html')
+        self.fs.create_file('/my/theme/templates/navigation.html')
+        self.fs.create_file('/my/theme/templates/page.html')
+        self.fs.create_file('/my/theme/templates/page_home.html')
 
         app = MDTestSite(
             "MDWeb",
@@ -116,16 +116,10 @@ Sitemap ChangeFreq: daily
         <loc>http://localhost/contact</loc>
         <lastmod>2015-06-26</lastmod>
     </url><url>
-        <loc>http://localhost/contact/eastcoast</loc>
-        <lastmod>2015-06-26</lastmod>
-    </url><url>
         <loc>http://localhost/contact/westcoast</loc>
         <lastmod>2015-06-26</lastmod>
     </url><url>
-        <loc>http://localhost/order/digitalprints</loc>
-        <lastmod>2015-06-26</lastmod>
-    </url><url>
-        <loc>http://localhost/order/framed</loc>
+        <loc>http://localhost/contact/eastcoast</loc>
         <lastmod>2015-06-26</lastmod>
     </url><url>
         <loc>http://localhost/work/portfolio</loc>
@@ -134,10 +128,16 @@ Sitemap ChangeFreq: daily
         <loc>http://localhost/work/portfolio/landscapes</loc>
         <lastmod>2015-06-26</lastmod>
     </url><url>
+        <loc>http://localhost/work/portfolio/portraits</loc>
+        <lastmod>2015-06-26</lastmod>
+    </url><url>
         <loc>http://localhost/work/portfolio/nature</loc>
         <lastmod>2015-06-26</lastmod>
     </url><url>
-        <loc>http://localhost/work/portfolio/portraits</loc>
+        <loc>http://localhost/order/digitalprints</loc>
+        <lastmod>2015-06-26</lastmod>
+    </url><url>
+        <loc>http://localhost/order/framed</loc>
         <lastmod>2015-06-26</lastmod>
     </url>
 </urlset>''')

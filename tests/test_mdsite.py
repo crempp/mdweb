@@ -1,7 +1,7 @@
 """Tests for the MDWeb Site."""
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
 
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 try:
     import unittest2 as unittest
 except ImportError:
@@ -203,7 +203,6 @@ class TestPartials(TestCase):
     ga('create', 'UA-00000000-1', 'auto');
     ga('send', 'pageview');
 </script>''')
-
 
 class TestSortFilter(unittest.TestCase):
     """Test Jinja sort filter"""

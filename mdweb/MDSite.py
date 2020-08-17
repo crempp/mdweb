@@ -1,14 +1,17 @@
 """The MDWeb Site object."""
 import blinker
-import cgi
 import jinja2
 import json
 import logging
 import os
+import six
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from werkzeug.debug import get_current_traceback
-from six import string_types
+if not six.PY2:
+    from html import escape as html_escape
+else:
+    from cgi import escape as html_escape
 
 from flask import (
     Flask,
@@ -73,8 +76,16 @@ BASE_SETTINGS = {
 BASE_SITE_OPTIONS = {
     #: Python logging level
     'logging_level': "ERROR",
+    'testing': False,
 }
 
+
+def load_module(fqcn):
+    components = fqcn.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 class MDSite(Flask):
     """MDWeb site.
@@ -181,7 +192,8 @@ class MDSite(Flask):
             if code == 500:
                 track = get_current_traceback(skip=1, show_hidden_frames=True,
                                               ignore_system_exceptions = False)
-                track.log()
+                if not self.site_options['testing']:
+                    track.log()
 
             page = Page(*load_page(self.config['CONTENT_PATH'], path))
             return Index.render(page), code
@@ -191,7 +203,8 @@ class MDSite(Flask):
             if code == 500:
                 track = get_current_traceback(skip=1, show_hidden_frames=True,
                                               ignore_system_exceptions = False)
-                track.log()
+                if not self.site_options['testing']:
+                    track.log()
 
             if hasattr(error, 'description'):
                 error_message = error.description
@@ -316,7 +329,8 @@ class MDSite(Flask):
     def _stage_load_config(self):
         """Load the configuration of the application being started."""
         self_fqcn = self.__module__ + "." + self.__class__.__name__
-        self.config.from_object('%s.MDConfig' % self_fqcn)
+        mod = load_module(self_fqcn)
+        self.config.from_object(mod.MDConfig)
 
         # Extend the base config with the loaded config values. This will ensure
         # we have every config set.
@@ -443,7 +457,7 @@ class MDSite(Flask):
             if p is not None:
                 for f in page_fields:
                     if f in ['page_html', 'abstract']:
-                        value = cgi.escape(getattr(p, f))
+                        value = html_escape(getattr(p, f))
                     elif f == 'meta_inf':
                         value = metainf_to_dict(getattr(p, f))
                     else:
@@ -498,7 +512,7 @@ class MDSite(Flask):
                 if hasattr(d.meta_inf, attribute) else d.meta_inf.order
             if v is None:
                 return d.meta_inf.order
-            elif isinstance(v, string_types):
+            elif isinstance(v, six.string_types):
                 return v.lower()
             else:
                 return v

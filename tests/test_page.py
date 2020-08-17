@@ -212,7 +212,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_page_instantiation(self):
         """A page should be instantiated with appropriate attributes."""
         file_string = u"This is a page"
-        self.fs.CreateFile('/my/content/about/history.md',
+        self.fs.create_file('/my/content/about/history.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/about/history.md'))
@@ -220,7 +220,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.assertEqual(page.page_path, '/my/content/about/history.md')
         self.assertEqual(page.url_path, 'about/history')
 
-        self.fs.CreateFile('/my/content/super/deep/url/path/index.md',
+        self.fs.create_file('/my/content/super/deep/url/path/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content',
@@ -233,7 +233,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_unparsable_path(self):
         """An unparsable page path should raise PageParseException."""
         file_string = u""
-        self.fs.CreateFile('/my/content/index',
+        self.fs.create_file('/my/content/index',
                            contents=file_string)
 
         # Not an MD file
@@ -244,7 +244,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_repr(self, mock_page_meta_inf):
         """A Page object should return the proper repr."""
         file_string = u""
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -255,7 +255,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_parse_empty_file(self, mock_page_meta_inf):
         """An empty file should parse properly."""
         file_string = u""
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -280,7 +280,7 @@ regular paragraph.
 
 The quick brown fox jumped over the lazy
 dog's back."""
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -313,7 +313,7 @@ regular paragraph.
 
 The quick brown fox jumped over the lazy
 dog's back.'''
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -448,7 +448,7 @@ you've got to put paragraph tags in your blockquotes:
 
 
 ---------------------------------------'''
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
