@@ -27,30 +27,30 @@ class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
         self.setUpPyfakefs()
         self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
-        self.fs.CreateFile('/my/content/robots.txt')
-        self.fs.CreateFile('/my/content/humans.txt')
-        self.fs.CreateFile('/my/content/favicon.ico')
-        self.fs.CreateFile('/my/content/crossdomain.xml')
+        self.fs.create_file('/my/content/robots.txt')
+        self.fs.create_file('/my/content/humans.txt')
+        self.fs.create_file('/my/content/favicon.ico')
+        self.fs.create_file('/my/content/crossdomain.xml')
 
-        self.fs.CreateFile('/my/content/index.md')
-        self.fs.CreateFile('/my/content/about/index.md')
-        self.fs.CreateFile('/my/content/contact/index.md')
+        self.fs.create_file('/my/content/index.md')
+        self.fs.create_file('/my/content/about/index.md')
+        self.fs.create_file('/my/content/contact/index.md')
 
-        self.fs.CreateFile('/my/theme/assets/robots.txt')
-        self.fs.CreateFile('/my/theme/assets/css/style.css')
-        self.fs.CreateFile('/my/theme/assets/js/site.js')
-        self.fs.CreateFile('/my/theme/templates/layout.html',
+        self.fs.create_file('/my/theme/assets/robots.txt')
+        self.fs.create_file('/my/theme/assets/css/style.css')
+        self.fs.create_file('/my/theme/assets/js/site.js')
+        self.fs.create_file('/my/theme/templates/layout.html',
                            contents="""<html><body>
 {% block body %}{% endblock %}
 </body></html>""")
-        self.fs.CreateFile('/my/theme/templates/navigation.html')
-        self.fs.CreateFile('/my/theme/templates/page.html',
+        self.fs.create_file('/my/theme/templates/navigation.html')
+        self.fs.create_file('/my/theme/templates/page.html',
                            contents="""{% extends "layout.html" %}
 {% block body %}{{ page | safe}}{% endblock %}""")
-        self.fs.CreateFile('/my/theme/templates/page_home.html')
+        self.fs.create_file('/my/theme/templates/page_home.html')
 
-        self.fs.CreateFile('/my/content/404.md', contents='''404 Test''')
-        self.fs.CreateFile('/my/content/500.md', contents='''500 Test''')
+        self.fs.create_file('/my/content/404.md', contents='''404 Test''')
+        self.fs.create_file('/my/content/500.md', contents='''500 Test''')
 
         app = MDTestSite(
             "MDWeb",
