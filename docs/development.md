@@ -82,13 +82,13 @@ To register a meta field in MDWeb core:
 1. Decide on a capital-cased and space separated name to be used in the
 metainf block, for example `Co Author`. This is the field name that
 will be used in markdown files metainf block. For example
-```
-/*
+~~~
+```metainf
 Title: Breaking News
 Author: Jean Luc Picard
 Co Author: Will Riker
-*/
 ```
+~~~
 2 Add an entry to the META_FIELDS dictionary in mdweb/metafields.py.
 This dictionary has the following structure
 ```

@@ -15,7 +15,8 @@ from mdweb.Exceptions import (
 URL_PATH_REGEX = r'^%s(?P<path>[^\0]*?)(index)?(\.md)'
 
 #: A regex for extracting meta information (and comments).
-META_INF_REGEX = r'(/\*(?P<metainf>.*)\*/)?(?P<content>.*)'
+# META_INF_REGEX = r'(/\*(?P<metainf>.*)\*/)?(?P<content>.*)'
+META_INF_REGEX = r'(```metainf(?P<metainf>.*?)```)?(?P<content>.*)'
 
 
 class PageMetaInf(MetaInfParser):  # pylint: disable=R0903

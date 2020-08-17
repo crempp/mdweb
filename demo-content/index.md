@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Order: 1
@@ -6,7 +6,7 @@ Template: page_home.html
 Sitemap Priority: 0.9
 Sitemap Changefreq: daily
 Teaser Image: /contentassets/teaser.png
-*/
+```
 
 MDWeb is a markdown based web site framework.
 

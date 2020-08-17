@@ -209,34 +209,34 @@ class TestSortFilter(unittest.TestCase):
 
     def setUp(self):
         self.page_list = []
-        self.page_list.append(Page('/path/to/story3.md', '/to/story3', u"""/*
+        self.page_list.append(Page('/path/to/story3.md', '/to/story3', u"""```metainf
 Title: Blog Story 3
 Date: 2016/05/12
 Nav Name: Story 3
 Order: 3
-*/
+```
 """))
         self.page_list.append(Page('/path/to/other-page.md', '/to/other-page',
-                                   u"""/*
+                                   u"""```metainf
 Title: Other Story
 Date: 2016/04/02
 Nav Name: Another Story
 Order: 2
-*/
+```
 """))
-        self.page_list.append(Page('/path/to/story2.md', '/to/story2', u"""/*
+        self.page_list.append(Page('/path/to/story2.md', '/to/story2', u"""```metainf
 Title: blog story 2
 Date: 2016/03/21
 Nav Name: Story 1
 Order: 2
-*/
+```
 """))
-        self.page_list.append(Page('/path/to/story1.md', '/to/story1', u"""/*
+        self.page_list.append(Page('/path/to/story1.md', '/to/story1', u"""```metainf
 Title: Blog Story 1
 Date: 2016/02/01
 Nav Name: Story 1
 Order: 1
-*/
+```
 """))
 
     def test_sort_title(self):

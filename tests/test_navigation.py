@@ -570,34 +570,34 @@ Order: -34
                            contents='Order: 7')
 
         self.fs.create_file('/my/content/index.md')
-        self.fs.create_file('/my/content/about/index.md', contents='''/*
+        self.fs.create_file('/my/content/about/index.md', contents='''```metainf
                             Order: 5
-                            */''')
-        self.fs.create_file('/my/content/contact/index.md', contents='''/*
+                            ```''')
+        self.fs.create_file('/my/content/contact/index.md', contents='''```metainf
                             Order: 10
-                            */''')
-        self.fs.create_file('/my/content/contact/westcoast.md', contents='''/*
+                            ```''')
+        self.fs.create_file('/my/content/contact/westcoast.md', contents='''```metainf
                             Order: 6
-                            */''')
-        self.fs.create_file('/my/content/contact/eastcoast.md', contents='''/*
+                            ```''')
+        self.fs.create_file('/my/content/contact/eastcoast.md', contents='''```metainf
                             Order: 3
-                            */''')
+                            ```''')
         self.fs.create_file('/my/content/work/portfolio/index.md',
-                           contents='''/*
+                           contents='''```metainf
                            Order: 9
-                           */''')
+                           ```''')
         self.fs.create_file('/my/content/work/portfolio/landscapes.md',
-                           contents='''/*
+                           contents='''```metainf
                             Order: 10
-                            */''')
+                            ```''')
         self.fs.create_file('/my/content/work/portfolio/portraits.md',
-                           contents='''/*
+                           contents='''```metainf
                             Order: 11
-                            */''')
+                            ```''')
         self.fs.create_file('/my/content/work/portfolio/nature.md',
-                           contents='''/*
+                           contents='''```metainf
                             Order: 8
-                            */''')
+                            ```''')
 
         nav = Navigation('/my/content')
 

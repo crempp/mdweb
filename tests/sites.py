@@ -3,13 +3,13 @@ from datetime import datetime
 from dateutil import parser
 from mdweb.MDSite import MDSite
 
-index_md_file_string = u"""/*
+index_md_file_string = u"""```metainf
 Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Date: February 1st, 2016
 Sitemap Priority: 0.9
 Sitemap ChangeFreq: daily
-*/
+```
 """
 
 layout_file_string = u"""
