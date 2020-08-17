@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: The Navigation Object
 Nav Name: Navigation Object
 Description: MDWeb Navigation Object
@@ -7,7 +7,7 @@ Teaser: MDWeb navigation object reference. Useful reference for writing
     themes and plugins.
 Sitemap Priority: 0.5
 Sitemap Changefreq: monthly
-*/
+```
 
 #Navigation Object
 The navigation object is available within page templates and provides the

@@ -34,13 +34,13 @@ class TestSiteMapView(fake_filesystem_unittest.TestCase, TestCase):
         self.setUpPyfakefs()
         self.fake_os = fake_filesystem.FakeOsModule(self.fs)
 
-        file_string = u"""/*
+        file_string = u"""```metainf
 Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Date: February 1st, 2016
 Sitemap Priority: 0.9
 Sitemap ChangeFreq: daily
-*/
+```
 """
 
         self.fs.create_file('/my/content/400.md')

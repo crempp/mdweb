@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: About MDWeb
 Nav Name: About MDWeb
 Description: All about MDWeb
@@ -6,7 +6,7 @@ Order: 1
 Teaser: What MDWeb is and how it came about.
 Sitemap Priority: 0.9
 Sitemap Changefreq: monthly
-*/
+```
 
 MDWeb is painstakingly designed to be as minimalistic as possible while 
 taking less than 5 minutes to setup and less than a minute to add 

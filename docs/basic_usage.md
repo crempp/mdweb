@@ -19,14 +19,14 @@ If you'd like to learn how to write Markdown I suggest reading [Daring Fireball]
 ## Example about/index.md
 
 
-```
-/*
+~~~
+```metafinf
 Title: About MDWeb
 Description: This description will go in the meta description tag
 Nav Name: About MDWeb
 Sitemap Priority: 0.9
 Sitemap Changefreq: monthly
-*/
+```
 
 MDWeb is painstakingly designed to be as minimalistic as possible while 
 taking less than 5 minutes to setup and less than a minute to add 
@@ -40,7 +40,7 @@ The things I saw during those dark days can not be unseen.
 
 After years of battle, this weary web developmer built himself a tiny
 oasis. This is MDWeb, I hope you find respite in it.
-```
+~~~
 
 ## Navigation Structure
 

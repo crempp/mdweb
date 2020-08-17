@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: Writing Pages
 Nav Name: Writing Pages
 Description: How to write content for MDWeb
@@ -7,7 +7,7 @@ Teaser: Learn how to write content for your MDWeb site. The navigation
     structure and meta fields are explained and examples are given.
 Sitemap Priority: 0.5
 Sitemap Changefreq: monthly
-*/
+```
 
 #Writing MDWeb Content
 

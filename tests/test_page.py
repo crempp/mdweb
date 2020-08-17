@@ -301,11 +301,11 @@ dog's back.</p>''')
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_page_with_meta_inf(self, mock_page_meta_inf):
         """A page with meta info should parse the content and meta inf."""
-        file_string = '''/*
+        file_string = '''```metainf
 Title: MDWeb Examples
 Description: Examples of how to use MDWeb
 Order: 4
-*/
+```
 
 Now is the time for all good men to come to
 the aid of their country. This is just a
@@ -339,17 +339,123 @@ regular paragraph.</p>
 dog's back.</p>''')
 
     @mock.patch('mdweb.Page.PageMetaInf')
+    def test_page_with_slash_star_slash(self, mock_page_meta_inf):
+        """A page with /*/ in the content should parse corectly.
+        Regression test for https://github.com/crempp/mdweb/issues/47"""
+        file_string = '''```metainf
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+```
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+This is a link that blows up the parser
+[asdf](https://web.archive.org/web/*/http://site.com)
+
+The quick brown fox jumped over the lazy
+dog's back.'''
+        
+        self.fs.create_file('/my/content/index.md',
+                            contents=file_string)
+
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
+
+        mock_page_meta_inf.assert_called_once_with('''
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+''')
+        self.assertEqual(page.markdown_str, '''
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+This is a link that blows up the parser
+[asdf](https://web.archive.org/web/*/http://site.com)
+
+The quick brown fox jumped over the lazy
+dog's back.''')
+        
+        self.assertEqual(page.page_html,
+                         '''<p>Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.</p>
+<p>This is a link that blows up the parser
+<a href="https://web.archive.org/web/*/http://site.com">asdf</a></p>
+<p>The quick brown fox jumped over the lazy
+dog's back.</p>''')
+
+    @mock.patch('mdweb.Page.PageMetaInf')
+    def test_page_with_second_metainf(self, mock_page_meta_inf):
+        """A page with a second metainf should only parse the first"""
+        file_string = '''```metainf
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+```
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+Here is another metainf block
+```metainf
+Title: Fake Block
+```
+
+The quick brown fox jumped over the lazy
+dog's back.'''
+
+        self.fs.create_file('/my/content/index.md',
+                            contents=file_string)
+
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
+
+        mock_page_meta_inf.assert_called_once_with('''
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+''')
+        self.assertEqual(page.markdown_str, '''
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+Here is another metainf block
+```metainf
+Title: Fake Block
+```
+
+The quick brown fox jumped over the lazy
+dog's back.''')
+
+        self.assertEqual(page.page_html,
+                         '''<p>Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.</p>
+<p>Here is another metainf block
+<code>metainf
+Title: Fake Block</code></p>
+<p>The quick brown fox jumped over the lazy
+dog's back.</p>''')
+
+    @mock.patch('mdweb.Page.PageMetaInf')
     def test_markdown_formatting(self, mock_page_meta_inf):
         """Markdown should parse correctly.
 
         We won't test this extensively as we should trust the markdown
         libraries to test themselves.
         """
-        file_string = '''/*
+        file_string = '''```metainf
 Title: MDWeb Examples
 Description: Examples of how to use MDWeb
 Order: 4
-*/
+```
 
 Examples taken from https://daringfireball.net/projects/markdown/basics
 
