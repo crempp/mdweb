@@ -80,6 +80,13 @@ BASE_SITE_OPTIONS = {
 }
 
 
+def load_module(fqcn):
+    components = fqcn.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
 class MDSite(Flask):
     """MDWeb site.
 
@@ -322,7 +329,8 @@ class MDSite(Flask):
     def _stage_load_config(self):
         """Load the configuration of the application being started."""
         self_fqcn = self.__module__ + "." + self.__class__.__name__
-        self.config.from_object('%s.MDConfig' % self_fqcn)
+        mod = load_module(self_fqcn)
+        self.config.from_object(mod.MDConfig)
 
         # Extend the base config with the loaded config values. This will ensure
         # we have every config set.

@@ -3,7 +3,7 @@ Tests for the MDWeb Index
 
 """
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 from mdweb.MDSite import MDSite
 
 
@@ -54,7 +54,11 @@ class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
 
         app = MDTestSite(
             "MDWeb",
-            app_options={}
+            app_options={},
+            site_options={
+                'logging_level': 'CRITICAL',
+                'testing': True,
+            }
         )
         app.start()
 
@@ -89,21 +93,24 @@ class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
             result = client.get('/crossdomain.xml')
             self.assertEqual(result.status_code, 200)
 
-    def test_4xx_5xx_custom_renders(self):
-        """Custom 4XX/5XX should render on those status.'"""
+    def test_404_custom_renders(self):
+        """Custom 4XX should render on those status.'"""
         with self.app.test_client() as client:
             result = client.get('/nowhere')
             self.assertEqual(result.status_code, 404)
             self.assertEqual(result.data,
                              b'<html><body>\n<p>404 Test</p>\n</body></html>')
-
+    
+    def test_500_custom_renders(self):
+        """Custom 5XX should render on those status.'"""
+        with self.app.test_client() as client:
             result = client.get('/boom')
             self.assertEqual(result.status_code, 500)
             self.assertEqual(result.data,
                              b'<html><body>\n<p>500 Test</p>\n</body></html>')
 
-    def test_4xx_5xx_non_custom_renders(self):
-        """4XX/5XX without custom files should render with default message.'"""
+    def test_4xx_non_custom_renders(self):
+        """4XX without custom files should render with default message.'"""
         with self.app.test_client() as client:
             result = client.put('/')
             self.assertEqual(result.status_code, 405)

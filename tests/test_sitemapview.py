@@ -4,7 +4,7 @@ TODO: Test that the sitemap cache is regenerated when a file changes
 """
 from dateutil import parser
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 
 from mdweb.MDSite import MDSite
 from mdweb.SiteMapView import SiteMapView

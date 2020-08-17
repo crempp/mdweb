@@ -1,7 +1,7 @@
 """Tests for the MDWeb Site."""
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
 
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 try:
     import unittest2 as unittest
 except ImportError:
@@ -195,11 +195,13 @@ class TestPartials(TestCase):
         with self.app.test_client() as client:
             client.get('/')
         self.assertContext('ga_tracking', '''<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-  gtag('config', 'UA-00000000-1');
+    ga('create', 'UA-00000000-1', 'auto');
+    ga('send', 'pageview');
 </script>''')
 
 class TestSortFilter(unittest.TestCase):
