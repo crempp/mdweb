@@ -44,6 +44,9 @@ MDW_SIGNALER = {
     'post-boot': SIG_NAMESPACE.signal('post-boot'),
 }
 
+path_to_here = os.path.dirname(os.path.realpath(__file__))
+BASE_PATH = os.path.abspath(os.path.join(path_to_here, os.pardir))
+
 BASE_SETTINGS = {
     #: enable/disable Flask debug mode
     'DEBUG': False,
@@ -156,6 +159,7 @@ class MDSite(Flask):
         self.context_processor(self._inject_ga_tracking)
         self.context_processor(self._inject_debug_helper)
         self.context_processor(self._inject_current_page)
+        self.context_processor(self._inject_opengraph)
         MDW_SIGNALER['post-navigation-scan'].send(self)
 
         #: FINISH THINGS UP
@@ -335,11 +339,9 @@ class MDSite(Flask):
         # Extend the base config with the loaded config values. This will ensure
         # we have every config set.
         self.config = dict(BASE_SETTINGS, **self.config)
-
-        path_to_here = os.path.dirname(os.path.realpath(__file__))
-        self.config['BASE_PATH'] = os.path.abspath(os.path.join(path_to_here,
-                                                                os.pardir))
-
+        
+        self.config['BASE_PATH'] = BASE_PATH
+        
         self.config['PARTIALS_TEMPLATE_PATH'] = os.path.join(
             self.config['BASE_PATH'], 'mdweb', 'partials')
 
@@ -521,6 +523,20 @@ class MDSite(Flask):
         if page_count is not None:
             l = l[0:page_count]
         return l
+
+    def _inject_opengraph(self):
+        """Inject Opengraph tags into the context"""
+        page = self.get_page_from_request(request)
+
+        partial_context = {
+            'page': page
+        }
+        og_code = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(
+                self.config['PARTIALS_TEMPLATE_PATH'] + '/')
+        ).get_template('opengraph.html').render(partial_context)
+
+        return {'opengraph': og_code}
 
     @staticmethod
     def _published_filter(page_list):

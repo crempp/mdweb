@@ -60,6 +60,10 @@ class TestIndex(fake_filesystem_unittest.TestCase, TestCase):
                 'testing': True,
             }
         )
+
+        # Add the partials directory so we have access in the FakeFS
+        self.fs.add_real_directory(app.config['PARTIALS_TEMPLATE_PATH'])
+        
         app.start()
 
         return app

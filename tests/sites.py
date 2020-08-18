@@ -213,7 +213,7 @@ class MDTestSite(MDSite):
         DEBUG = False
         SECRET_KEY = 'create_a_secret_key_for_use_in_production'
         CONTENT_PATH = 'demo-content/'
-        THEME = 'bootstrap'
+        THEME = 'basic'
         TESTING = True
         GA_TRACKING_ID = 'UA-00000000-1'
         DEBUG_HELPER = False

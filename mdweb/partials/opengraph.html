@@ -1,0 +1,21 @@
+{% if page.meta_inf is defined -%}
+{%- if page.meta_inf.title is defined and page.meta_inf.title != None -%}
+  <meta property="og:title" content="{{ page.meta_inf.title }}" />
+{% endif %}
+{%- if page.meta_inf.teaser_image is defined and page.meta_inf.teaser_image != None -%}
+  <meta property="og:image" content="{{ page.meta_inf.teaser_image }}" />
+{% endif %}
+{%- if page.meta_inf.description is defined and page.meta_inf.description != None  -%}
+  <meta property="og:description" content="{{ page.meta_inf.description }}" />
+{% endif %}
+{%- if page.meta_inf.date is defined and page.meta_inf.date != None -%}
+  <meta property="article:published_time" content="{{ page.meta_inf.date }}" />
+{% endif %}
+{%- if page.meta_inf.author is defined and page.meta_inf.author != None -%}
+  <meta property="article:author" content="{{ page.meta_inf.author }}" />
+{%- endif %}
+{%- endif %}
+{% if page.url_path is defined and page.url_path != None -%}
+<meta property="og:url" content="{{ page.url_path }}" />
+{%- endif %}
+<meta property="og:type" content="article" />

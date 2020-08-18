@@ -38,6 +38,10 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
             "MDWeb",
             app_options={}
         )
+
+        # Add the partials directory so we have access in the FakeFS
+        self.fs.add_real_directory(app.config['PARTIALS_TEMPLATE_PATH'])
+        
         app.start()
 
         return app
@@ -176,32 +180,6 @@ class TestSiteMissingContent(fake_filesystem_unittest.TestCase):
     def test_no_content_directory(self):
         """Missing content directory should raise FileExistsError."""
         self.assertRaises(FileExistsError, MDFakeFSNoContentTestSite, "MDWeb")
-
-
-class TestPartials(TestCase):
-    """Can't use pyfakefs for this or partials won't load"""
-
-    def create_app(self):
-        app = MDTestSite(
-            "MDWeb",
-            app_options={}
-        )
-        app.start()
-
-        return app
-
-    def test_ga_tracking_context(self):
-        """GA Tracking should be added to context."""
-        with self.app.test_client() as client:
-            client.get('/')
-        self.assertContext('ga_tracking', '''<script async src="https://www.googletagmanager.com/gtag/js?id=UA-5854565-2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-00000000-1');
-</script>''')
 
 
 class TestSortFilter(unittest.TestCase):
