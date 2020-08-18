@@ -44,6 +44,9 @@ MDW_SIGNALER = {
     'post-boot': SIG_NAMESPACE.signal('post-boot'),
 }
 
+path_to_here = os.path.dirname(os.path.realpath(__file__))
+BASE_PATH = os.path.abspath(os.path.join(path_to_here, os.pardir))
+
 BASE_SETTINGS = {
     #: enable/disable Flask debug mode
     'DEBUG': False,
@@ -336,11 +339,9 @@ class MDSite(Flask):
         # Extend the base config with the loaded config values. This will ensure
         # we have every config set.
         self.config = dict(BASE_SETTINGS, **self.config)
-
-        path_to_here = os.path.dirname(os.path.realpath(__file__))
-        self.config['BASE_PATH'] = os.path.abspath(os.path.join(path_to_here,
-                                                                os.pardir))
-
+        
+        self.config['BASE_PATH'] = BASE_PATH
+        
         self.config['PARTIALS_TEMPLATE_PATH'] = os.path.join(
             self.config['BASE_PATH'], 'mdweb', 'partials')
 
