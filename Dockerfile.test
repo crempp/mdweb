@@ -1,10 +1,18 @@
 FROM python:alpine
+MAINTAINER Chad Rempp <crempp@gmail.com>
+LABEL description="MDWeb production demo site"
 
 COPY . /opt/mdweb
 
 WORKDIR /opt/mdweb
 
-RUN ["pip", "install", "-r", "/opt/mdweb/requirements/test.txt"]
+RUN apk add --no-cache --update --virtual .build-deps \
+        g++ \
+        gcc \
+    && pip install -r /opt/mdweb/requirements/test.txt \
+    && apk del .build-deps \
+    && rm -rf /var/cache/apk/*
+
 RUN ["mkdir", "-p", "coverage"]
 
 EXPOSE 5000
