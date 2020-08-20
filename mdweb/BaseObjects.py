@@ -72,23 +72,25 @@ class MetaInfParser(object):  # pylint: disable=R0903
 
             key = match.group('key').strip().lower().replace(' ', '_')
             value = match.group('value').strip()
-            if key not in self.META_FIELDS.keys():
-                raise PageMetaInfFieldException("Unsupported field '%s'" % key)
-
-            # Cast field value to appropriate type
+            
             if '' == value:
                 raise PageMetaInfFieldException(
                     "Empty value for meta-inf field '%s'" % key)
 
-            if 'int' == self.META_FIELDS[key][0]:
-                value = int(value)
-            elif 'date' == self.META_FIELDS[key][0]:
-                value = dateparser.parse(value)
-            elif 'unicode' == self.META_FIELDS[key][0]:
+            # Cast field value to appropriate type
+            if key not in self.META_FIELDS.keys():
+                key = 'custom_' + key
+                # We have to add the new attribute to the class before we
+                # set the value to the instance below
+                setattr(MetaInfParser, key, None)
                 try:
                     value = unicode(value)
                 except NameError:
                     pass
+            elif 'int' == self.META_FIELDS[key][0]:
+                value = int(value)
+            elif 'date' == self.META_FIELDS[key][0]:
+                value = dateparser.parse(value)
             elif 'bool' == self.META_FIELDS[key][0]:
                 if isinstance(value, string_types):
                     value = value.lower() == 'true'
@@ -96,5 +98,10 @@ class MetaInfParser(object):  # pylint: disable=R0903
                     value = value
                 else:
                     value = self.META_FIELDS[key][1]
+            else:
+                try:
+                    value = unicode(value)
+                except NameError:
+                    pass
 
             setattr(self, key, value)
