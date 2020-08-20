@@ -90,6 +90,7 @@ def load_module(fqcn):
         mod = getattr(mod, comp)
     return mod
 
+
 class MDSite(Flask):
     """MDWeb site.
 
@@ -195,7 +196,7 @@ class MDSite(Flask):
             """Render an error page with a custom content file."""
             if code == 500:
                 track = get_current_traceback(skip=1, show_hidden_frames=True,
-                                              ignore_system_exceptions = False)
+                                              ignore_system_exceptions=False)
                 if not self.site_options['testing']:
                     track.log()
 
@@ -206,7 +207,7 @@ class MDSite(Flask):
             """Render an error page without a content file."""
             if code == 500:
                 track = get_current_traceback(skip=1, show_hidden_frames=True,
-                                              ignore_system_exceptions = False)
+                                              ignore_system_exceptions=False)
                 if not self.site_options['testing']:
                     track.log()
 

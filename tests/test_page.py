@@ -11,6 +11,7 @@ Maybe test?
   * large file
 
 """
+import datetime
 from pyfakefs import fake_filesystem_unittest
 from unittest import skip
 try:
@@ -60,7 +61,7 @@ Date: February 1st, 2016
         meta_inf = PageMetaInf(file_string)
 
         self.assertIsNone(meta_inf.author)
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description,
                          u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 0)
@@ -85,7 +86,7 @@ Teaser Image: /contentassets/home/00041_thumb.jpg
         meta_inf = PageMetaInf(file_string)
 
         self.assertEqual(meta_inf.author, u'Chad Rempp')
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description,
                          u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
@@ -113,7 +114,7 @@ Template:     page_home.html
         meta_inf = PageMetaInf(file_string)
 
         self.assertEqual(meta_inf.author, u'Chad Rempp')
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description,
                          u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
@@ -168,7 +169,7 @@ Template: ღმერთსი.html
         meta_inf = PageMetaInf(file_string)
 
         self.assertEqual(meta_inf.author, u'Οδυσσέα Ελύτη')
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description, u'ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ')
         self.assertEqual(meta_inf.order, 1)
         self.assertEqual(meta_inf.template, u'ღმერთსი.html')

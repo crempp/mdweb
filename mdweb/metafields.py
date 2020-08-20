@@ -16,7 +16,7 @@ META_FIELDS = {
     'nav_name': ('unicode', None),
     'description': ('unicode', None),
     'author': ('unicode', None),
-    'date': ('unicode', None),
+    'date': ('date', None),
     'order': ('int', 0),
     'template': ('unicode', None),
     'teaser': ('unicode', None),

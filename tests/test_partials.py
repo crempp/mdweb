@@ -35,7 +35,7 @@ class TestPartials(TestCase):
     def test_og_full_data(self):
         with self.app.test_client() as client:
             response = client.get('/')
-        self.assertEqual(response.data[:598], og_full_data_response)
+        self.assertEqual(response.data[:607], og_full_data_response)
 
     def test_og_partial_data(self):
         with self.app.test_client() as client:
@@ -55,7 +55,7 @@ og_full_data_response = b'''<!DOCTYPE html>
     <meta property="og:title" content="MDWeb" />
 <meta property="og:image" content="/contentassets/teaser.png" />
 <meta property="og:description" content="The minimalistic markdown NaCMS" />
-<meta property="article:published_time" content="2016/10/02" />
+<meta property="article:published_time" content="2016-10-02T00:00:00" />
 <meta property="article:author" content="Chad Rempp" />
 <meta property="og:url" content="" />
 <meta property="og:type" content="article" />

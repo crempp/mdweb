@@ -9,7 +9,7 @@
   <meta property="og:description" content="{{ page.meta_inf.description }}" />
 {% endif %}
 {%- if page.meta_inf.date is defined and page.meta_inf.date != None -%}
-  <meta property="article:published_time" content="{{ page.meta_inf.date }}" />
+  <meta property="article:published_time" content="{{ page.meta_inf.date.isoformat() }}" />
 {% endif %}
 {%- if page.meta_inf.author is defined and page.meta_inf.author != None -%}
   <meta property="article:author" content="{{ page.meta_inf.author }}" />
