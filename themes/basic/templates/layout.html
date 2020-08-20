@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    {{ opengraph | safe }}
+    <link rel="icon" href="/favicon.ico">
+    <title>MDWeb</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  </head>
+  <body>
+    <nav>
+      <div>
+        {% include 'navigation.html' %}
+      </div>
+    </nav>
+
+    <div class="container">
+      {% block body %}{% endblock %}
+    </div>
+    <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
+
+    {{ ga_tracking | safe }}
+    {{ debug_helper | safe }}
+  </body>
+</html>

@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: MDWeb Dev Server
 Nav Name: Dev Server
 Description: How to run the MDWeb in development mode
@@ -7,7 +7,7 @@ Teaser: Learn multiple ways to run MDWeb in a development environment.
     Possibilities include local Flask server, Docker, and more.
 Sitemap Priority: 0.5
 Sitemap Changefreq: monthly
-*/
+```
 
 
 #MDWeb Development Server

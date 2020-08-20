@@ -1,7 +1,7 @@
 """Tests for the MDWeb Site."""
 from pyfakefs import fake_filesystem_unittest, fake_filesystem
 
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 try:
     import unittest2 as unittest
 except ImportError:
@@ -38,6 +38,10 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
             "MDWeb",
             app_options={}
         )
+
+        # Add the partials directory so we have access in the FakeFS
+        self.fs.add_real_directory(app.config['PARTIALS_TEMPLATE_PATH'])
+        
         app.start()
 
         return app
@@ -91,15 +95,15 @@ class TestSite(fake_filesystem_unittest.TestCase, TestCase):
    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
         <loc>http://localhost/</loc>
-        <lastmod>2015-06-28T14:17:15+0000</lastmod>
+        <lastmod>2015-06-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url><url>
         <loc>http://localhost/about</loc>
-        <lastmod>2015-06-27T13:12:15+0000</lastmod>
+        <lastmod>2015-06-27</lastmod>
     </url><url>
         <loc>http://localhost/contact</loc>
-        <lastmod>2015-06-26T12:06:15+0000</lastmod>
+        <lastmod>2015-06-26</lastmod>
     </url>
 </urlset>""")
 
@@ -178,70 +182,44 @@ class TestSiteMissingContent(fake_filesystem_unittest.TestCase):
         self.assertRaises(FileExistsError, MDFakeFSNoContentTestSite, "MDWeb")
 
 
-class TestPartials(TestCase):
-    """Can't use pyfakefs for this or partials won't load"""
-
-    def create_app(self):
-        app = MDTestSite(
-            "MDWeb",
-            app_options={}
-        )
-        app.start()
-
-        return app
-
-    def test_ga_tracking_context(self):
-        """GA Tracking should be added to context."""
-        with self.app.test_client() as client:
-            client.get('/')
-        self.assertContext('ga_tracking', '''<script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-00000000-1', 'auto');
-    ga('send', 'pageview');
-</script>''')
-
-
 class TestSortFilter(unittest.TestCase):
     """Test Jinja sort filter"""
 
     def setUp(self):
         self.page_list = []
-        self.page_list.append(Page('/path/to/story3.md', '/to/story3', u"""/*
+        self.page_list.append(Page('/path/to/story3.md', '/to/story3', u"""```metainf
 Title: Blog Story 3
 Date: 2016/05/12
 Nav Name: Story 3
 Order: 3
-*/
+```
 """))
         self.page_list.append(Page('/path/to/other-page.md', '/to/other-page',
-                                   u"""/*
+                                   u"""```metainf
 Title: Other Story
 Date: 2016/04/02
 Nav Name: Another Story
 Order: 2
-*/
+```
 """))
-        self.page_list.append(Page('/path/to/story2.md', '/to/story2', u"""/*
+        self.page_list.append(Page('/path/to/story2.md', '/to/story2', u"""```metainf
 Title: blog story 2
 Date: 2016/03/21
 Nav Name: Story 1
 Order: 2
-*/
+```
 """))
-        self.page_list.append(Page('/path/to/story1.md', '/to/story1', u"""/*
+        self.page_list.append(Page('/path/to/story1.md', '/to/story1', u"""```metainf
 Title: Blog Story 1
 Date: 2016/02/01
 Nav Name: Story 1
 Order: 1
-*/
+```
 """))
 
     def test_sort_title(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 6, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'title', 6,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
@@ -249,7 +227,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Other Story')
 
     def test_sort_title_reversed(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 6, True)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'title', 6,
+                                                  True)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Other Story')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Blog Story 3')
@@ -257,7 +236,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
 
     def test_sort_date(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'date', 6,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
@@ -265,7 +245,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 3')
 
     def test_sort_date_reversed(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'date', 6, True)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'date', 6,
+                                                  True)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 3')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
@@ -273,7 +254,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
 
     def test_sort_order(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'order', 6, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'order', 6,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
@@ -281,7 +263,8 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 3')
 
     def test_sort_order_reversed(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'order', 6, True)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'order', 6,
+                                                  True)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 3')
         self.assertEqual(sorted_list[1].meta_inf.title, 'Other Story')
@@ -289,11 +272,17 @@ Order: 1
         self.assertEqual(sorted_list[3].meta_inf.title, 'Blog Story 1')
 
     def test_page_count(self):
-        sorted_list = MDSite._sorted_pages(self.page_list, 'title', 2, False)
+        sorted_list = MDSite._sorted_pages_filter(self.page_list, 'title', 2,
+                                                  False)
 
         self.assertEqual(sorted_list[0].meta_inf.title, 'Blog Story 1')
         self.assertEqual(sorted_list[1].meta_inf.title, 'blog story 2')
         self.assertEqual(len(sorted_list), 2)
+
+
+class TestPublishedFilter(unittest.TestCase):
+    """Test Jinja sort filter"""
+    pass
 
 
 class TestCurrentPageContext(TestCase):
@@ -322,7 +311,7 @@ class TestCurrentPageContext(TestCase):
             client.get(path)
         self.assertContext('current_page', self.app.get_page(path))
 
-    def test_blah_in_context(self):
+    def test_some_page_in_context(self):
         """"Current page should exist in context."""
         path = '/about/history'
         with self.app.test_client() as client:

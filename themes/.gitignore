@@ -7,5 +7,6 @@
 # But not these files...
 !.gitignore
 !alpha/**/*
+!basic/**/*
 !bootstrap/**/*
 !mdweb/**/*

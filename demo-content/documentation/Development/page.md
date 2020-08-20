@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: The Page Object
 Nav Name: Page Object
 Description: MDWeb Page Object
@@ -7,7 +7,7 @@ Teaser: MDWeb page object reference. Useful reference for writing
     themes and plugins.
 Sitemap Priority: 0.5
 Sitemap Changefreq: monthly
-*/
+```
 
 #Page Object
 The page object contains all the data related to a page. The rendered page

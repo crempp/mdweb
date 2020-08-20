@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: Embedding HTML Example
 Nav Name: Embedding HTML
 Description: An example of embedding HTML into a page
@@ -7,7 +7,7 @@ Teaser: A helpful example for embedding raw HTML into a content file
     for advanced content rendering.
 Sitemap Priority: 0.5
 Sitemap Changefreq: monthly
-*/
+```
 
 # Embedding HTML
 

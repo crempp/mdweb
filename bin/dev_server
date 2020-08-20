@@ -44,7 +44,6 @@ if __name__ == '__main__':
         # These are currently set to defaults but are defined here for
         # potential future use with argument options.
         app_options = {
-            'static_path': None,
             'static_url_path': None,
             'static_folder': 'static',
             'template_folder': 'templates',

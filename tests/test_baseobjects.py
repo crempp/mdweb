@@ -18,7 +18,7 @@ class TesNavigationBaseItem(fake_filesystem_unittest.TestCase):
 
     def test_navigation_type(self):
         """A directory should have navigation type 'Navigation'."""
-        self.fs.CreateFile('/my/content/index.md')
+        self.fs.create_file('/my/content/index.md')
         nav = Navigation('/my/content')
 
         self.assertEqual(nav.nav_type, "Navigation")
@@ -26,7 +26,7 @@ class TesNavigationBaseItem(fake_filesystem_unittest.TestCase):
     def test_page_type(self):
         """A file in a directory should have navigation type 'Page'."""
         file_string = u""
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))

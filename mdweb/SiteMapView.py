@@ -62,17 +62,19 @@ class SiteMapView(View):
         index_url = url_for('index', _external=True)
 
         for url, page in app.navigation.get_page_dict().items():
-            mtime = os.path.getmtime(page.page_path)
-            if isinstance(mtime, numbers.Real):
-                mtime = datetime.datetime.fromtimestamp(mtime)
-            mtime.replace(tzinfo=pytz.UTC)
-            lastmod = mtime.strftime('%Y-%m-%dT%H:%M:%S%z')
-            pages.append({
-                'loc': "%s%s" % (index_url, url),
-                'lastmod': lastmod,
-                'changefreq': page.meta_inf.sitemap_changefreq,
-                'priority': page.meta_inf.sitemap_priority,
-            })
+            if page.meta_inf.published:
+                mtime = os.path.getmtime(page.page_path)
+                if isinstance(mtime, numbers.Real):
+                    mtime = datetime.datetime.fromtimestamp(mtime)
+                mtime.replace(tzinfo=pytz.UTC)
+                # lastmod = mtime.strftime('%Y-%m-%dT%H:%M:%S%z')
+                lastmod = mtime.strftime('%Y-%m-%d')
+                pages.append({
+                    'loc': "%s%s" % (index_url, url),
+                    'lastmod': lastmod,
+                    'changefreq': page.meta_inf.sitemap_changefreq,
+                    'priority': page.meta_inf.sitemap_priority,
+                })
 
         sitemap_xml = render_template_string(SITEMAP_TEMPLATE, pages=pages)
 

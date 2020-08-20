@@ -1,4 +1,5 @@
 """MDWeb Page Objects."""
+import codecs
 import os
 import re
 
@@ -14,7 +15,7 @@ from mdweb.Exceptions import (
 URL_PATH_REGEX = r'^%s(?P<path>[^\0]*?)(index)?(\.md)'
 
 #: A regex for extracting meta information (and comments).
-META_INF_REGEX = r'(/\*(?P<metainf>.*)\*/)?(?P<content>.*)'
+META_INF_REGEX = r'(^```metainf(?P<metainf>.*?)```)?(?P<content>.*)'
 
 
 class PageMetaInf(MetaInfParser):  # pylint: disable=R0903
@@ -48,7 +49,7 @@ def load_page(content_path, page_path):
                                page_path)
 
     # Read the page file
-    with open(page_path, 'r') as f:
+    with codecs.open(page_path, 'r', encoding='utf8') as f:
         file_string = f.read()
 
     return page_path, url_path, file_string
@@ -79,6 +80,10 @@ class Page(NavigationBaseItem):
         self.page_html = self.parse_markdown(self.markdown_str)
 
         self.abstract = self.page_html[0:100]
+        
+    @property
+    def is_published(self):
+        return self.meta_inf.published
 
     @staticmethod
     def parse_markdown(page_markdown):

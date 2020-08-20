@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+  {{ page | safe}}
+
+
+  {# Section for each nav entry #}
+  {% for nav in navigation.children if not nav.name == "About" -%}
+  {{ nav.name }}
+  {% endfor %}
+{% endblock %}
