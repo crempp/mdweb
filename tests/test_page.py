@@ -144,18 +144,6 @@ Template: page_home.html
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
-    def test_unsupported_field(self):
-        """Unsupported fields should raise PageMetaInfFieldException."""
-        file_string = u"""Title: MDWeb
-Description: The minimalistic markdown NaCMS
-Badfield: Dragons be here
-Author: Chad Rempp
-Date: February 1st, 2016
-Order: 1
-Template: page_home.html
-"""
-        self.assertRaises(PageMetaInfFieldException, PageMetaInf, file_string)
-
     def test_unicode(self):
         """Parser should handle unicode."""
         file_string = u"""Title: советских
@@ -197,6 +185,18 @@ Teaser Image: /contentassets/home/00041_thumb.jpg
         meta_inf = PageMetaInf(file_string)
 
         self.assertEqual(meta_inf.teaser, u'This is a teaser paragraph that will be available to pages and the teaser may span multiple lines indented with whitespace even if the line looks like a metainf field Not A Field: This won\'t get parsed as a field')
+
+    def test_parse_custom_field(self):
+        """Multiline fields should parse successfully."""
+        file_string = u"""Title: MDWeb
+Description: The minimalistic markdown NaCMS
+Author: Chad Rempp
+Summary Image: blah.jpg
+"""
+
+        meta_inf = PageMetaInf(file_string)
+
+        self.assertEqual(meta_inf.custom_summary_image, u'blah.jpg')
 
     @skip
     def test_unpublished_page(self):
