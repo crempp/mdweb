@@ -19,5 +19,5 @@ six==1.15.0
 traceback2==1.4.0
 tzlocal==2.1
 watchdog==0.10.3
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 wheel==0.35.1
