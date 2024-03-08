@@ -1,13 +1,17 @@
 """The MDWeb Site object."""
 import blinker
-import cgi
 import jinja2
 import json
 import logging
 import os
+import six
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from six import string_types
+from werkzeug.debug import get_current_traceback
+if not six.PY2:
+    from html import escape as html_escape
+else:
+    from cgi import escape as html_escape
 
 from flask import (
     Flask,
@@ -39,6 +43,9 @@ MDW_SIGNALER = {
     'post-config': SIG_NAMESPACE.signal('post-config'),
     'post-boot': SIG_NAMESPACE.signal('post-boot'),
 }
+
+path_to_here = os.path.dirname(os.path.realpath(__file__))
+BASE_PATH = os.path.abspath(os.path.join(path_to_here, os.pardir))
 
 BASE_SETTINGS = {
     #: enable/disable Flask debug mode
@@ -72,7 +79,16 @@ BASE_SETTINGS = {
 BASE_SITE_OPTIONS = {
     #: Python logging level
     'logging_level': "ERROR",
+    'testing': False,
 }
+
+
+def load_module(fqcn):
+    components = fqcn.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 
 class MDSite(Flask):
@@ -144,6 +160,7 @@ class MDSite(Flask):
         self.context_processor(self._inject_ga_tracking)
         self.context_processor(self._inject_debug_helper)
         self.context_processor(self._inject_current_page)
+        self.context_processor(self._inject_opengraph)
         MDW_SIGNALER['post-navigation-scan'].send(self)
 
         #: FINISH THINGS UP
@@ -177,12 +194,22 @@ class MDSite(Flask):
         """
         def render_custom_error(code, path):
             """Render an error page with a custom content file."""
+            if code == 500:
+                track = get_current_traceback(skip=1, show_hidden_frames=True,
+                                              ignore_system_exceptions=False)
+                if not self.site_options['testing']:
+                    track.log()
 
             page = Page(*load_page(self.config['CONTENT_PATH'], path))
             return Index.render(page), code
 
         def render_simple_error(code):
             """Render an error page without a content file."""
+            if code == 500:
+                track = get_current_traceback(skip=1, show_hidden_frames=True,
+                                              ignore_system_exceptions=False)
+                if not self.site_options['testing']:
+                    track.log()
 
             if hasattr(error, 'description'):
                 error_message = error.description
@@ -307,16 +334,15 @@ class MDSite(Flask):
     def _stage_load_config(self):
         """Load the configuration of the application being started."""
         self_fqcn = self.__module__ + "." + self.__class__.__name__
-        self.config.from_object('%s.MDConfig' % self_fqcn)
+        mod = load_module(self_fqcn)
+        self.config.from_object(mod.MDConfig)
 
         # Extend the base config with the loaded config values. This will ensure
         # we have every config set.
         self.config = dict(BASE_SETTINGS, **self.config)
-
-        path_to_here = os.path.dirname(os.path.realpath(__file__))
-        self.config['BASE_PATH'] = os.path.abspath(os.path.join(path_to_here,
-                                                                os.pardir))
-
+        
+        self.config['BASE_PATH'] = BASE_PATH
+        
         self.config['PARTIALS_TEMPLATE_PATH'] = os.path.join(
             self.config['BASE_PATH'], 'mdweb', 'partials')
 
@@ -343,7 +369,8 @@ class MDSite(Flask):
         ])
         self.jinja_loader = my_loader
 
-        self.jinja_env.filters['sorted_pages'] = self._sorted_pages
+        self.jinja_env.filters['sorted_pages'] = self._sorted_pages_filter
+        self.jinja_env.filters['published'] = self._published_filter
 
         # Extend the content path to the absolute path
         if not self.config['CONTENT_PATH'].startswith('/'):
@@ -433,7 +460,7 @@ class MDSite(Flask):
             if p is not None:
                 for f in page_fields:
                     if f in ['page_html', 'abstract']:
-                        value = cgi.escape(getattr(p, f))
+                        value = html_escape(getattr(p, f))
                     elif f == 'meta_inf':
                         value = metainf_to_dict(getattr(p, f))
                     else:
@@ -482,13 +509,36 @@ class MDSite(Flask):
         return dict(current_page=page)
 
     @staticmethod
-    def _sorted_pages(page_list, attribute, page_count, reverse):
+    def _sorted_pages_filter(page_list, attribute, page_count, reverse):
         def key_getter(d):
-            v = getattr(d.meta_inf, attribute)
-            if isinstance(v, string_types):
+            v = getattr(d.meta_inf, attribute) \
+                if hasattr(d.meta_inf, attribute) else d.meta_inf.order
+            if v is None:
+                return d.meta_inf.order
+            elif isinstance(v, six.string_types):
                 return v.lower()
             else:
                 return v
-        l = sorted(page_list, key=key_getter,
-                   reverse=reverse)[0:page_count]
+
+        l = sorted(page_list, key=key_getter, reverse=reverse)
+        if page_count is not None:
+            l = l[0:page_count]
         return l
+
+    def _inject_opengraph(self):
+        """Inject Opengraph tags into the context"""
+        page = self.get_page_from_request(request)
+
+        partial_context = {
+            'page': page
+        }
+        og_code = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(
+                self.config['PARTIALS_TEMPLATE_PATH'] + '/')
+        ).get_template('opengraph.html').render(partial_context)
+
+        return {'opengraph': og_code}
+
+    @staticmethod
+    def _published_filter(page_list):
+        return filter(lambda p: p.is_published, page_list)

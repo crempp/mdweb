@@ -19,14 +19,14 @@ If you'd like to learn how to write Markdown I suggest reading [Daring Fireball]
 ## Example about/index.md
 
 
-```
-/*
+~~~
+```metafinf
 Title: About MDWeb
 Description: This description will go in the meta description tag
 Nav Name: About MDWeb
 Sitemap Priority: 0.9
 Sitemap Changefreq: monthly
-*/
+```
 
 MDWeb is painstakingly designed to be as minimalistic as possible while 
 taking less than 5 minutes to setup and less than a minute to add 
@@ -40,7 +40,7 @@ The things I saw during those dark days can not be unseen.
 
 After years of battle, this weary web developmer built himself a tiny
 oasis. This is MDWeb, I hope you find respite in it.
-```
+~~~
 
 ## Navigation Structure
 
@@ -95,3 +95,30 @@ used in meta description tag.
 
 * *Title:* The page title. In the provided templates this will be used in the
 `<title>` tag and in the page header.
+
+
+## Custom Meta Fields
+
+You can create custom string type meta fields by including any meta key name
+and an associated value. The key name you use in the metainf block will be 
+camel-cased and prefixed with `custom_`.
+
+For example,
+
+~~~
+```metafinf
+Title: About MDWeb
+Description: This description will go in the meta description tag
+Sitemap Priority: 0.9
+My Special Field: Foo Bar
+```
+~~~
+
+will result in the metainf values
+
+```
+title = "About MDWeb"
+description = "This description will go in the meta description tag"
+sitemap_priority = 0.9
+custom_my_special_field = "Foo Bar"
+```

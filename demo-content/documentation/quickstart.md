@@ -1,4 +1,4 @@
-/*
+```metainf
 Title: MDWeb Quick Start
 Nav Name: Quick Start
 Description: How to quickly get MDWeb running
@@ -7,7 +7,7 @@ Teaser: Learn how to setup MDWeb in 5 minutes or less. Step-by-step
     instructions are given.
 Sitemap Priority: 0.5
 Sitemap Changefreq: monthly
-*/
+```
 
 # Quickstart
 

@@ -16,11 +16,12 @@ META_FIELDS = {
     'nav_name': ('unicode', None),
     'description': ('unicode', None),
     'author': ('unicode', None),
-    'date': ('unicode', None),
+    'date': ('date', None),
     'order': ('int', 0),
     'template': ('unicode', None),
     'teaser': ('unicode', None),
     'teaser_image': ('unicode', None),
     'sitemap_priority': ('unicode', None),
     'sitemap_changefreq': ('unicode', None),
+    'published': ('bool', True),
 }

@@ -1,15 +1,16 @@
-/*
+```metainf
 Title: MDWeb History
 Nav Name: MDWeb History
 Description: The long and storied history of MDWeb
 Nav Name: History
 Order: 3
+Teaser Image: /contentassets/teaser.png
 Teaser: The long and storied history of MDWeb.
 Sitemap Priority: 0.5
 Sitemap Changefreq: monthly
-*/
+```
 
-MDWeb began out of my need for a framework to host a site for my 
+MDWeb began out of my need for a framework to host a site for my
 personal projects called lapinlabs.com. Over the past four years I went
 through the following iterations:
 

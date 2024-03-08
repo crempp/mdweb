@@ -1,14 +1,15 @@
 """MDWeb Sites for testing"""
+from datetime import datetime
 from dateutil import parser
 from mdweb.MDSite import MDSite
 
-index_md_file_string = u"""/*
+index_md_file_string = u"""```metainf
 Title: MDWeb
 Description: The minimalistic markdown NaCMS
 Date: February 1st, 2016
 Sitemap Priority: 0.9
 Sitemap ChangeFreq: daily
-*/
+```
 """
 
 layout_file_string = u"""
@@ -212,7 +213,7 @@ class MDTestSite(MDSite):
         DEBUG = False
         SECRET_KEY = 'create_a_secret_key_for_use_in_production'
         CONTENT_PATH = 'demo-content/'
-        THEME = 'bootstrap'
+        THEME = 'basic'
         TESTING = True
         GA_TRACKING_ID = 'UA-00000000-1'
         DEBUG_HELPER = False
@@ -278,44 +279,37 @@ class MDFakeFSNoContentTestSite(MDSite):
         DEBUG_HELPER = False
 
 
-def populate_fakefs(self):
+def populate_fakefs(test):
     """Fake file system setup"""
 
-    self.fs.CreateFile('/my/content/400.md')
-    self.fs.CreateFile('/my/content/403.md')
-    self.fs.CreateFile('/my/content/404.md')
-    self.fs.CreateFile('/my/content/500.md')
-    self.fs.CreateFile('/my/content/robots.txt')
-    self.fs.CreateFile('/my/content/humans.txt')
-    self.fs.CreateFile('/my/content/favicon.ico')
-    self.fs.CreateFile('/my/content/crossdomain.xml')
-    self.fs.CreateFile('/my/content/index.md',
-                       contents=index_md_file_string).SetMTime(
-        parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
-    )
-    self.fs.CreateFile('/my/content/about/index.md').SetMTime(
-        parser.parse('Wed, 27 Jun 2015 13:12:15 +0000')
-    )
-    self.fs.CreateFile('/my/content/contact/index.md').SetMTime(
-        parser.parse('Tue, 26 Jun 2015 12:06:15 +0000')
-    )
-    self.fs.CreateFile('/my/content/assets/logo.png')
+    test.fs.create_file('/my/content/400.md')
+    test.fs.create_file('/my/content/403.md')
+    test.fs.create_file('/my/content/404.md')
+    test.fs.create_file('/my/content/500.md')
+    test.fs.create_file('/my/content/robots.txt')
+    test.fs.create_file('/my/content/humans.txt')
+    test.fs.create_file('/my/content/favicon.ico')
+    test.fs.create_file('/my/content/crossdomain.xml')
+    f = test.fs.create_file('/my/content/index.md',
+                            contents=index_md_file_string)
+    f.st_mtime = datetime.timestamp(parser.parse('Thu, 28 Jun 2015 14:17:15 +0000'))
+    f = test.fs.create_file('/my/content/about/index.md')
+    f.st_mtime = datetime.timestamp(parser.parse('Wed, 27 Jun 2015 13:12:15 +0000'))
+    f = test.fs.create_file('/my/content/contact/index.md')
+    f.st_mtime = datetime.timestamp(parser.parse('Tue, 26 Jun 2015 12:06:15 +0000'))
+    test.fs.create_file('/my/content/assets/logo.png')
 
-    self.fs.CreateFile('/my/theme/assets/css/style.css')
-    self.fs.CreateFile('/my/theme/assets/js/site.js')
-    self.fs.CreateFile('/my/theme/templates/layout.html',
-                       contents=layout_file_string).SetMTime(
-        parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
-    )
-    self.fs.CreateFile('/my/theme/templates/navigation.html',
-                       contents=navigation_file_string).SetMTime(
-        parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
-    )
-    self.fs.CreateFile('/my/theme/templates/page.html',
-                       contents=page_file_string).SetMTime(
-        parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
-    )
-    self.fs.CreateFile('/my/theme/templates/page_home.html',
-                       contents=pagehome_file_string).SetMTime(
-        parser.parse('Thu, 28 Jun 2015 14:17:15 +0000')
-    )
+    test.fs.create_file('/my/theme/assets/css/style.css')
+    test.fs.create_file('/my/theme/assets/js/site.js')
+    f = test.fs.create_file('/my/theme/templates/layout.html',
+                            contents=layout_file_string)
+    f.st_mtime = datetime.timestamp(parser.parse('Thu, 28 Jun 2015 14:17:15 +0000'))
+    f = test.fs.create_file('/my/theme/templates/navigation.html',
+                            contents=navigation_file_string)
+    f.st_mtime = datetime.timestamp(parser.parse('Thu, 28 Jun 2015 14:17:15 +0000'))
+    f = test.fs.create_file('/my/theme/templates/page.html',
+                            contents=page_file_string)
+    f.st_mtime = datetime.timestamp(parser.parse('Thu, 28 Jun 2015 14:17:15 +0000'))
+    f = test.fs.create_file('/my/theme/templates/page_home.html',
+                            contents=pagehome_file_string)
+    f.st_mtime = datetime.timestamp(parser.parse('Thu, 28 Jun 2015 14:17:15 +0000'))

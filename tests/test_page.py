@@ -11,7 +11,9 @@ Maybe test?
   * large file
 
 """
+import datetime
 from pyfakefs import fake_filesystem_unittest
+from unittest import skip
 try:
     # Python >= 3.3
     from unittest import mock
@@ -59,7 +61,7 @@ Date: February 1st, 2016
         meta_inf = PageMetaInf(file_string)
 
         self.assertIsNone(meta_inf.author)
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description,
                          u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 0)
@@ -84,7 +86,7 @@ Teaser Image: /contentassets/home/00041_thumb.jpg
         meta_inf = PageMetaInf(file_string)
 
         self.assertEqual(meta_inf.author, u'Chad Rempp')
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description,
                          u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
@@ -112,7 +114,7 @@ Template:     page_home.html
         meta_inf = PageMetaInf(file_string)
 
         self.assertEqual(meta_inf.author, u'Chad Rempp')
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description,
                          u'The minimalistic markdown NaCMS')
         self.assertEqual(meta_inf.order, 1)
@@ -142,18 +144,6 @@ Template: page_home.html
         self.assertEqual(meta_inf.template, u'page_home.html')
         self.assertEqual(meta_inf.title, u'MDWeb')
 
-    def test_unsupported_field(self):
-        """Unsupported fields should raise PageMetaInfFieldException."""
-        file_string = u"""Title: MDWeb
-Description: The minimalistic markdown NaCMS
-Badfield: Dragons be here
-Author: Chad Rempp
-Date: February 1st, 2016
-Order: 1
-Template: page_home.html
-"""
-        self.assertRaises(PageMetaInfFieldException, PageMetaInf, file_string)
-
     def test_unicode(self):
         """Parser should handle unicode."""
         file_string = u"""Title: советских
@@ -167,7 +157,7 @@ Template: ღმერთსი.html
         meta_inf = PageMetaInf(file_string)
 
         self.assertEqual(meta_inf.author, u'Οδυσσέα Ελύτη')
-        self.assertEqual(meta_inf.date, u'February 1st, 2016')
+        self.assertEqual(meta_inf.date, datetime.datetime(2016, 2, 1, 0, 0))
         self.assertEqual(meta_inf.description, u'ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ')
         self.assertEqual(meta_inf.order, 1)
         self.assertEqual(meta_inf.template, u'ღმერთსი.html')
@@ -196,6 +186,22 @@ Teaser Image: /contentassets/home/00041_thumb.jpg
 
         self.assertEqual(meta_inf.teaser, u'This is a teaser paragraph that will be available to pages and the teaser may span multiple lines indented with whitespace even if the line looks like a metainf field Not A Field: This won\'t get parsed as a field')
 
+    def test_parse_custom_field(self):
+        """Multiline fields should parse successfully."""
+        file_string = u"""Title: MDWeb
+Description: The minimalistic markdown NaCMS
+Author: Chad Rempp
+Summary Image: blah.jpg
+"""
+
+        meta_inf = PageMetaInf(file_string)
+
+        self.assertEqual(meta_inf.custom_summary_image, u'blah.jpg')
+
+    @skip
+    def test_unpublished_page(self):
+        """Unpublished pages should have the correct attr value."""
+        self.assertEqual(1, 2)
 
 class TestPage(fake_filesystem_unittest.TestCase):
     """Page object tests."""
@@ -207,7 +213,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_page_instantiation(self):
         """A page should be instantiated with appropriate attributes."""
         file_string = u"This is a page"
-        self.fs.CreateFile('/my/content/about/history.md',
+        self.fs.create_file('/my/content/about/history.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/about/history.md'))
@@ -215,7 +221,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
         self.assertEqual(page.page_path, '/my/content/about/history.md')
         self.assertEqual(page.url_path, 'about/history')
 
-        self.fs.CreateFile('/my/content/super/deep/url/path/index.md',
+        self.fs.create_file('/my/content/super/deep/url/path/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content',
@@ -228,7 +234,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_unparsable_path(self):
         """An unparsable page path should raise PageParseException."""
         file_string = u""
-        self.fs.CreateFile('/my/content/index',
+        self.fs.create_file('/my/content/index',
                            contents=file_string)
 
         # Not an MD file
@@ -239,7 +245,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_repr(self, mock_page_meta_inf):
         """A Page object should return the proper repr."""
         file_string = u""
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -250,7 +256,7 @@ class TestPage(fake_filesystem_unittest.TestCase):
     def test_parse_empty_file(self, mock_page_meta_inf):
         """An empty file should parse properly."""
         file_string = u""
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -275,7 +281,7 @@ regular paragraph.
 
 The quick brown fox jumped over the lazy
 dog's back."""
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -296,11 +302,11 @@ dog's back.</p>''')
     @mock.patch('mdweb.Page.PageMetaInf')
     def test_page_with_meta_inf(self, mock_page_meta_inf):
         """A page with meta info should parse the content and meta inf."""
-        file_string = '''/*
+        file_string = '''```metainf
 Title: MDWeb Examples
 Description: Examples of how to use MDWeb
 Order: 4
-*/
+```
 
 Now is the time for all good men to come to
 the aid of their country. This is just a
@@ -308,7 +314,7 @@ regular paragraph.
 
 The quick brown fox jumped over the lazy
 dog's back.'''
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))
@@ -334,17 +340,123 @@ regular paragraph.</p>
 dog's back.</p>''')
 
     @mock.patch('mdweb.Page.PageMetaInf')
+    def test_page_with_slash_star_slash(self, mock_page_meta_inf):
+        """A page with /*/ in the content should parse corectly.
+        Regression test for https://github.com/crempp/mdweb/issues/47"""
+        file_string = '''```metainf
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+```
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+This is a link that blows up the parser
+[asdf](https://web.archive.org/web/*/http://site.com)
+
+The quick brown fox jumped over the lazy
+dog's back.'''
+        
+        self.fs.create_file('/my/content/index.md',
+                            contents=file_string)
+
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
+
+        mock_page_meta_inf.assert_called_once_with('''
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+''')
+        self.assertEqual(page.markdown_str, '''
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+This is a link that blows up the parser
+[asdf](https://web.archive.org/web/*/http://site.com)
+
+The quick brown fox jumped over the lazy
+dog's back.''')
+        
+        self.assertEqual(page.page_html,
+                         '''<p>Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.</p>
+<p>This is a link that blows up the parser
+<a href="https://web.archive.org/web/*/http://site.com">asdf</a></p>
+<p>The quick brown fox jumped over the lazy
+dog's back.</p>''')
+
+    @mock.patch('mdweb.Page.PageMetaInf')
+    def test_page_with_second_metainf(self, mock_page_meta_inf):
+        """A page with a second metainf should only parse the first"""
+        file_string = '''```metainf
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+```
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+Here is another metainf block
+```metainf
+Title: Fake Block
+```
+
+The quick brown fox jumped over the lazy
+dog's back.'''
+
+        self.fs.create_file('/my/content/index.md',
+                            contents=file_string)
+
+        page = Page(*load_page('/my/content', '/my/content/index.md'))
+
+        mock_page_meta_inf.assert_called_once_with('''
+Title: MDWeb Examples
+Description: Examples of how to use MDWeb
+Order: 4
+''')
+        self.assertEqual(page.markdown_str, '''
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+Here is another metainf block
+```metainf
+Title: Fake Block
+```
+
+The quick brown fox jumped over the lazy
+dog's back.''')
+
+        self.assertEqual(page.page_html,
+                         '''<p>Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.</p>
+<p>Here is another metainf block
+<code>metainf
+Title: Fake Block</code></p>
+<p>The quick brown fox jumped over the lazy
+dog's back.</p>''')
+
+    @mock.patch('mdweb.Page.PageMetaInf')
     def test_markdown_formatting(self, mock_page_meta_inf):
         """Markdown should parse correctly.
 
         We won't test this extensively as we should trust the markdown
         libraries to test themselves.
         """
-        file_string = '''/*
+        file_string = '''```metainf
 Title: MDWeb Examples
 Description: Examples of how to use MDWeb
 Order: 4
-*/
+```
 
 Examples taken from https://daringfireball.net/projects/markdown/basics
 
@@ -443,7 +555,7 @@ you've got to put paragraph tags in your blockquotes:
 
 
 ---------------------------------------'''
-        self.fs.CreateFile('/my/content/index.md',
+        self.fs.create_file('/my/content/index.md',
                            contents=file_string)
 
         page = Page(*load_page('/my/content', '/my/content/index.md'))

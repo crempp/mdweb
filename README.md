@@ -1,4 +1,4 @@
-# Markdown based web site framework [![Code Health](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup/landscape.svg?style=flat)](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup) [![CircleCI](https://circleci.com/gh/crempp/mdweb/tree/develop.svg?style=svg)](https://circleci.com/gh/crempp/mdweb/tree/develop)
+# Markdown based web site framework [![Code Health](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup/landscape.svg?style=flat)](https://landscape.io/github/crempp/mdweb/feature/PylintCleanup) [![CircleCI](https://circleci.com/gh/crempp/mdweb.svg?style=svg)](https://circleci.com/gh/crempp/mdweb)
 
 ![Demo](docs/images/MDWeb_logo_275x190.png?raw=true)
 
@@ -14,7 +14,7 @@ dark days can not be unseen.
 After years of battle, this weary web developmer built himself a tiny oasis.
 This is MDWeb, I hope you find respite in it.
 
-You can see a live demo of MDWeb here: [http://mdweb.lapinlabs.com/](http://mdweb.lapinlabs.com/ )
+You can see a live demo of MDWeb here: [http://mdweb.chadrempp.com/](http://mdweb.chadrempp.com/ )
 
 ## Requirements
 

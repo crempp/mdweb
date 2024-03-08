@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the Debug Helper."""
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 from tests.sites import MDTestSiteDebugHelper, MDTestSite
 
 

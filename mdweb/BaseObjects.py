@@ -3,6 +3,8 @@
 This is broken out into a separate file to avoid circular imports.
 """
 import re
+import dateparser
+from six import string_types
 
 from mdweb.Exceptions import PageMetaInfFieldException
 from mdweb.metafields import META_FIELDS as MDW_META_FIELDS
@@ -29,8 +31,7 @@ class MetaInfParser(object):  # pylint: disable=R0903
     FIELD_VALUE_REGEX = r"^(?P<key>[a-zA-Z0-9 ]+):(?P<value>.+)$"
 
     def __init__(self, meta_string):
-        """Initialize the parser."""
-        # Initialize attributes defined in FIELD_TYPES
+        """Initialize the parser using attributes defined in FIELD_TYPES"""
         for attribute, attribute_details in self.META_FIELDS.items():
             setattr(self, attribute, attribute_details[1])
 
@@ -38,10 +39,10 @@ class MetaInfParser(object):  # pylint: disable=R0903
 
     def _parse_meta_inf(self, meta_inf_string):
         """Parse given meta information string into a dictionary.
-
+        
         Metainf fields now support multi-line values. New lines must be
         indented with at least one whitespace character.
-
+        
         :param meta_inf_string: Raw meta content
         """
 
@@ -71,17 +72,33 @@ class MetaInfParser(object):  # pylint: disable=R0903
 
             key = match.group('key').strip().lower().replace(' ', '_')
             value = match.group('value').strip()
-            if key not in self.META_FIELDS.keys():
-                raise PageMetaInfFieldException("Unsupported field '%s'" % key)
-
-            # Cast field value to appropriate type
+            
             if '' == value:
                 raise PageMetaInfFieldException(
                     "Empty value for meta-inf field '%s'" % key)
 
-            if 'int' == self.META_FIELDS[key][0]:
+            # Cast field value to appropriate type
+            if key not in self.META_FIELDS.keys():
+                key = 'custom_' + key
+                # We have to add the new attribute to the class before we
+                # set the value to the instance below
+                setattr(MetaInfParser, key, None)
+                try:
+                    value = unicode(value)
+                except NameError:
+                    pass
+            elif 'int' == self.META_FIELDS[key][0]:
                 value = int(value)
-            elif 'unicode' == self.META_FIELDS[key][0]:
+            elif 'date' == self.META_FIELDS[key][0]:
+                value = dateparser.parse(value)
+            elif 'bool' == self.META_FIELDS[key][0]:
+                if isinstance(value, string_types):
+                    value = value.lower() == 'true'
+                elif isinstance(value, bool):
+                    value = value
+                else:
+                    value = self.META_FIELDS[key][1]
+            else:
                 try:
                     value = unicode(value)
                 except NameError:
